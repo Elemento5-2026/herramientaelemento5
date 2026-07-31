@@ -1,0 +1,115 @@
+.sidebar {
+
+    width: 260px;
+
+    min-height: 100vh;
+
+    background: var(--color-primary);
+
+    color: white;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: space-between;
+
+}
+
+.sidebar-logo {
+
+    padding: 30px 25px 5px;
+
+    font-size: 14px;
+
+    letter-spacing: 2px;
+
+    font-weight: bold;
+
+}
+
+.sidebar-system {
+
+    padding: 0 25px;
+
+    font-size: 28px;
+
+    font-weight: 700;
+
+}
+
+.sidebar-version {
+
+    padding: 5px 25px 25px;
+
+    color: rgba(255,255,255,.75);
+
+    font-size: 14px;
+
+}
+
+.sidebar-menu {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 6px;
+
+    padding: 0 15px;
+
+}
+
+.menu-item {
+
+    width: 100%;
+
+    border: none;
+
+    background: transparent;
+
+    color: white;
+
+    padding: 14px 16px;
+
+    border-radius: 10px;
+
+    text-align: left;
+
+    font-size: 15px;
+
+    transition: .2s;
+
+}
+
+.menu-item:hover {
+
+    background: rgba(255,255,255,.10);
+
+}
+
+.menu-item.active {
+
+    background: rgba(255,255,255,.18);
+
+    font-weight: 600;
+
+}
+
+.sidebar-footer {
+
+    padding: 25px;
+
+    border-top: 1px solid rgba(255,255,255,.15);
+
+    font-size: 13px;
+
+}
+
+.sidebar-copy {
+
+    margin-top: 6px;
+
+    color: rgba(255,255,255,.70);
+
+}
