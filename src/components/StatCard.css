@@ -1,0 +1,79 @@
+.stat-card {
+
+    background: white;
+
+    border-radius: 14px;
+
+    padding: 22px;
+
+    box-shadow: var(--shadow-sm);
+
+    transition: .2s;
+
+    border-left: 6px solid var(--color-primary);
+
+}
+
+.stat-card:hover {
+
+    transform: translateY(-3px);
+
+    box-shadow: var(--shadow-md);
+
+}
+
+.stat-title {
+
+    color: var(--color-text-light);
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+}
+
+.stat-value {
+
+    margin-top: 18px;
+
+    font-size: 42px;
+
+    font-weight: bold;
+
+    color: var(--color-primary);
+
+}
+
+.stat-subtitle {
+
+    margin-top: 10px;
+
+    color: var(--color-text-light);
+
+    font-size: 13px;
+
+}
+
+.stat-card.success {
+
+    border-left-color: #16A34A;
+
+}
+
+.stat-card.warning {
+
+    border-left-color: #F59E0B;
+
+}
+
+.stat-card.danger {
+
+    border-left-color: #DC2626;
+
+}
+
+.stat-card.info {
+
+    border-left-color: #2563EB;
+
+}
