@@ -1,0 +1,63 @@
+.header {
+
+    height: 75px;
+
+    background: white;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: 0 30px;
+
+    border-bottom: 1px solid var(--color-border);
+
+    box-shadow: var(--shadow-sm);
+
+}
+
+.header-title {
+
+    color: var(--color-primary);
+
+    font-size: 24px;
+
+    font-weight: 700;
+
+}
+
+.header-subtitle {
+
+    color: var(--color-text-light);
+
+    font-size: 14px;
+
+    margin-top: 2px;
+
+}
+
+.header-user {
+
+    text-align: right;
+
+}
+
+.header-name {
+
+    font-weight: 600;
+
+    color: var(--color-text);
+
+}
+
+.header-role {
+
+    font-size: 13px;
+
+    color: var(--color-text-light);
+
+    margin-top: 4px;
+
+}
