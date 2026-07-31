@@ -1,32 +1,43 @@
-import "./Dashboard.css";
+.dashboard {
 
-import Layout from "../../components/Layout";
-import Header from "../../components/Header";
-import Sidebar from "../../components/Sidebar";
+    display: flex;
 
-export default function Dashboard() {
-  return (
-    <Layout
-      header={<Header />}
-      sidebar={<Sidebar />}
-    >
-      <div className="dashboard">
+    flex-direction: column;
 
-        <h1>
-          Dashboard
-        </h1>
+}
 
-        <p className="dashboard-subtitle">
-          Bienvenido al Sistema de Gestión de Incidentes.
-        </p>
+.dashboard h1 {
 
-        <div className="dashboard-placeholder">
+    color: var(--color-primary);
 
-          🚧 Dashboard en construcción
+    font-size: 34px;
 
-        </div>
+}
 
-      </div>
-    </Layout>
-  );
+.dashboard-subtitle {
+
+    margin-top: 6px;
+
+    color: var(--color-text-light);
+
+}
+
+.dashboard-placeholder {
+
+    margin-top: 35px;
+
+    background: white;
+
+    border-radius: var(--radius);
+
+    box-shadow: var(--shadow-sm);
+
+    padding: 50px;
+
+    text-align: center;
+
+    font-size: 22px;
+
+    color: var(--color-text-light);
+
 }
