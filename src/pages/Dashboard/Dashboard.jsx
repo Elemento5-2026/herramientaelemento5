@@ -1,60 +1,32 @@
 import "./Dashboard.css";
 
+import Layout from "../../components/Layout";
+import Header from "../../components/Header";
+import Sidebar from "../../components/Sidebar";
+
 export default function Dashboard() {
   return (
-    <div className="dashboard">
+    <Layout
+      header={<Header />}
+      sidebar={<Sidebar />}
+    >
+      <div className="dashboard">
 
-      <h1>
-        Dashboard
-      </h1>
+        <h1>
+          Dashboard
+        </h1>
 
-      <p className="subtitle">
-        Gestión de Incidentes
-      </p>
+        <p className="dashboard-subtitle">
+          Bienvenido al Sistema de Gestión de Incidentes.
+        </p>
 
-      <div className="cards">
+        <div className="dashboard-placeholder">
 
-        <div className="card">
-          <h3>CPT</h3>
-          <span>12</span>
-        </div>
+          🚧 Dashboard en construcción
 
-        <div className="card">
-          <h3>SPT</h3>
-          <span>18</span>
-        </div>
-
-        <div className="card">
-          <h3>PA</h3>
-          <span>25</span>
-        </div>
-
-        <div className="card">
-          <h3>CMD</h3>
-          <span>4</span>
-        </div>
-
-        <div className="card">
-          <h3>Acciones Abiertas</h3>
-          <span>31</span>
         </div>
 
       </div>
-
-      <div className="placeholder">
-
-        Próximamente:
-        <br />
-        Indicadores
-        <br />
-        Gráficas
-        <br />
-        Tendencias
-        <br />
-        Incidentes recientes
-
-      </div>
-
-    </div>
+    </Layout>
   );
 }
