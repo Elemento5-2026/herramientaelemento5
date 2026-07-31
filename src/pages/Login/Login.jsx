@@ -15,7 +15,11 @@ export default function Login() {
         </h1>
 
         <p className="subtitle">
-          Sistema Corporativo de Gestión de Incidentes
+          Gestión de Incidentes
+        </p>
+
+        <p className="version">
+          Versión 1.0
         </p>
 
         <div className="form">
@@ -39,18 +43,14 @@ export default function Login() {
           />
 
           <button>
-            Ingresar
+            INGRESAR
           </button>
 
         </div>
 
         <div className="footer">
 
-          Grupo AG
-
-          <br />
-
-          Elemento 5 · Versión 1.0
+          © Grupo AG
 
         </div>
 
