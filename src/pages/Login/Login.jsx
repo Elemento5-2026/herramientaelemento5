@@ -1,6 +1,6 @@
 import "./Login.css";
 
-export default function Login() {
+export default function Login({ setScreen }) {
   return (
     <div className="login">
 
@@ -42,16 +42,16 @@ export default function Login() {
             placeholder="Ingrese su contraseña"
           />
 
-          <button>
+          <button
+            onClick={() => setScreen("dashboard")}
+          >
             INGRESAR
           </button>
 
         </div>
 
         <div className="footer">
-
           © Grupo AG
-
         </div>
 
       </div>
