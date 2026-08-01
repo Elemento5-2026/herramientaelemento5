@@ -6,12 +6,12 @@ import Layout from "../../components/Layout";
 import Header from "../../components/Header";
 import Sidebar from "../../components/Sidebar";
 
-import Encabezado from "./components/Encabezado";
-import Identificacion from "./components/Identificacion";
-import Descripcion from "./components/Descripcion";
-import AccionesInmediatas from "./components/AccionesInmediatas";
-import ArbolCausas from "./components/ArbolCausas";
-import PlanAccion from "./components/PlanAccion";
+import Encabezado from "./Components/Encabezado";
+import Identificacion from "./Components/Identificacion";
+import Descripcion from "./Components/Descripcion";
+import AccionesInmediatas from "./Components/AccionesInmediatas";
+import ArbolCausas from "./Components/ArbolCausas";
+import PlanAccion from "./Components/PlanAccion";
 
 export default function NuevaInvestigacion({ setScreen }) {
 
@@ -84,16 +84,13 @@ export default function NuevaInvestigacion({ setScreen }) {
   return (
 
     <Layout
-
       header={<Header />}
-
       sidebar={
         <Sidebar
           screen="investigaciones"
           setScreen={setScreen}
         />
       }
-
     >
 
       <div className="nueva-investigacion">
