@@ -6,18 +6,80 @@ import Layout from "../../components/Layout";
 import Header from "../../components/Header";
 import Sidebar from "../../components/Sidebar";
 
+import Encabezado from "./components/Encabezado";
+import Identificacion from "./components/Identificacion";
+import Descripcion from "./components/Descripcion";
+import AccionesInmediatas from "./components/AccionesInmediatas";
+import ArbolCausas from "./components/ArbolCausas";
+import PlanAccion from "./components/PlanAccion";
+
 export default function NuevaInvestigacion({ setScreen }) {
 
   const [pasoActual, setPasoActual] = useState(0);
+  const [investigacionId, setInvestigacionId] = useState(null);
 
   const pasos = [
-    "Registro",
+    "Encabezado",
     "Identificación",
-    "Análisis de causa",
+    "Descripción",
     "Acciones inmediatas",
-    "Plan de acción",
-    "Evaluación de eficacia"
+    "Análisis de causa",
+    "Plan de acción"
   ];
+
+  const renderPaso = () => {
+
+    switch (pasoActual) {
+
+      case 0:
+        return (
+          <Encabezado
+            investigacionId={investigacionId}
+            setInvestigacionId={setInvestigacionId}
+          />
+        );
+
+      case 1:
+        return (
+          <Identificacion
+            investigacionId={investigacionId}
+          />
+        );
+
+      case 2:
+        return (
+          <Descripcion
+            investigacionId={investigacionId}
+          />
+        );
+
+      case 3:
+        return (
+          <AccionesInmediatas
+            investigacionId={investigacionId}
+          />
+        );
+
+      case 4:
+        return (
+          <ArbolCausas
+            investigacionId={investigacionId}
+          />
+        );
+
+      case 5:
+        return (
+          <PlanAccion
+            investigacionId={investigacionId}
+          />
+        );
+
+      default:
+        return null;
+
+    }
+
+  };
 
   return (
 
@@ -58,9 +120,7 @@ export default function NuevaInvestigacion({ setScreen }) {
           <div className="estado-header">
 
             <span className="estado borrador">
-
               Borrador
-
             </span>
 
           </div>
@@ -84,15 +144,11 @@ export default function NuevaInvestigacion({ setScreen }) {
               >
 
                 <span className="wizard-number">
-
                   {index + 1}
-
                 </span>
 
                 <span>
-
                   {paso}
-
                 </span>
 
               </button>
@@ -103,26 +159,11 @@ export default function NuevaInvestigacion({ setScreen }) {
 
           <section className="wizard-content">
 
-            <h2>
-
-              {pasos[pasoActual]}
-
-            </h2>
+            <h2>{pasos[pasoActual]}</h2>
 
             <hr />
 
-            <div className="placeholder">
-
-              Aquí construiremos el formulario del paso
-              <br /><br />
-
-              <strong>
-
-                {pasos[pasoActual]}
-
-              </strong>
-
-            </div>
+            {renderPaso()}
 
           </section>
 
@@ -139,9 +180,7 @@ export default function NuevaInvestigacion({ setScreen }) {
           </button>
 
           <button className="btn-primary">
-
             Guardar borrador
-
           </button>
 
           <button
