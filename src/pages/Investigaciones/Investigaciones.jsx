@@ -20,13 +20,31 @@ export default function Investigaciones({ setScreen }) {
         <div className="page-header">
 
           <div>
+
             <h1>Investigaciones</h1>
-            <p>Administración de investigaciones de incidentes.</p>
+
+            <p>
+              Administración de investigaciones de incidentes.
+            </p>
+
           </div>
 
-          <button className="btn-primary">
-            + Nueva investigación
-          </button>
+          <div className="page-actions">
+
+            <button className="btn-primary">
+              ➕ Nueva investigación
+            </button>
+
+          </div>
+
+        </div>
+
+        <div className="filters">
+
+          <input
+            type="text"
+            placeholder="🔍 Buscar investigación..."
+          />
 
         </div>
 
@@ -37,13 +55,21 @@ export default function Investigaciones({ setScreen }) {
             <thead>
 
               <tr>
+
                 <th>Código</th>
+
                 <th>Fecha</th>
+
                 <th>Tipo</th>
+
                 <th>Dirección</th>
+
                 <th>Área</th>
+
                 <th>Estado</th>
+
                 <th>Elaboró</th>
+
               </tr>
 
             </thead>
@@ -51,13 +77,25 @@ export default function Investigaciones({ setScreen }) {
             <tbody>
 
               <tr>
+
                 <td>TF-2026-0001</td>
+
                 <td>31/07/2026</td>
+
                 <td>CPT</td>
+
                 <td>Industrial</td>
+
                 <td>Trefilación</td>
-                <td>Borrador</td>
+
+                <td>
+                  <span className="estado borrador">
+                    Borrador
+                  </span>
+                </td>
+
                 <td>Pablo Hernández</td>
+
               </tr>
 
             </tbody>
@@ -67,6 +105,7 @@ export default function Investigaciones({ setScreen }) {
         </div>
 
       </div>
+
     </Layout>
   );
 }
