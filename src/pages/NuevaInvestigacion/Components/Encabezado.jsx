@@ -46,7 +46,7 @@ export default function Encabezado() {
 
       <div className="form-group">
 
-        <label>Código Controlado del Tratamiento de Falla por Incidente</label>
+        <label>Código controlado del Tratamiento de Falla por Incidente</label>
 
         <input
           type="text"
@@ -62,160 +62,170 @@ export default function Encabezado() {
 
         <label>Participantes</label>
 
-        <textarea
-          rows="3"
-          name="participantes"
-          value={formulario.participantes}
+        <div className="catalogo-placeholder">
+
+          Aquí irá el selector múltiple de participantes.
+
+        </div>
+
+      </div>
+
+      <div className="firma-row">
+
+        <label>Elaboró:</label>
+
+        <input
+          type="text"
+          name="elaborado_nombre"
+          value={formulario.elaborado_nombre}
           onChange={handleChange}
-          placeholder="Ejemplo: Pablo Hernández, José Suruy, Alejandro Fonseca..."
+          placeholder="Nombre"
+        />
+
+        <label>Puesto:</label>
+
+        <select
+          name="elaborado_puesto"
+          value={formulario.elaborado_puesto}
+          onChange={handleChange}
+        >
+          <option value="">Seleccione...</option>
+        </select>
+
+        <label>Gerencia:</label>
+
+        <select
+          name="elaborado_gerencia"
+          value={formulario.elaborado_gerencia}
+          onChange={handleChange}
+        >
+          <option value="">Seleccione...</option>
+        </select>
+
+        <label>Área:</label>
+
+        <select
+          name="elaborado_area"
+          value={formulario.elaborado_area}
+          onChange={handleChange}
+        >
+          <option value="">Seleccione...</option>
+        </select>
+
+        <label>Fecha:</label>
+
+        <input
+          type="date"
+          name="elaborado_fecha"
+          value={formulario.elaborado_fecha}
+          onChange={handleChange}
         />
 
       </div>
 
-      <div className="bloque">
+      <div className="firma-row">
 
-        <h3>Elaboró</h3>
+        <label>Revisó:</label>
 
-        <div className="grid-5">
+        <input
+          type="text"
+          name="revisado_nombre"
+          value={formulario.revisado_nombre}
+          onChange={handleChange}
+          placeholder="Nombre"
+        />
 
-          <input
-            type="text"
-            placeholder="Nombre"
-            name="elaborado_nombre"
-            value={formulario.elaborado_nombre}
-            onChange={handleChange}
-          />
+        <label>Puesto:</label>
 
-          <input
-            type="text"
-            placeholder="Puesto"
-            name="elaborado_puesto"
-            value={formulario.elaborado_puesto}
-            onChange={handleChange}
-          />
+        <select
+          name="revisado_puesto"
+          value={formulario.revisado_puesto}
+          onChange={handleChange}
+        >
+          <option value="">Seleccione...</option>
+        </select>
 
-          <input
-            type="text"
-            placeholder="Gerencia"
-            name="elaborado_gerencia"
-            value={formulario.elaborado_gerencia}
-            onChange={handleChange}
-          />
+        <label>Gerencia:</label>
 
-          <input
-            type="text"
-            placeholder="Área"
-            name="elaborado_area"
-            value={formulario.elaborado_area}
-            onChange={handleChange}
-          />
+        <select
+          name="revisado_gerencia"
+          value={formulario.revisado_gerencia}
+          onChange={handleChange}
+        >
+          <option value="">Seleccione...</option>
+        </select>
 
-          <input
-            type="date"
-            name="elaborado_fecha"
-            value={formulario.elaborado_fecha}
-            onChange={handleChange}
-          />
+        <label>Área:</label>
 
-        </div>
+        <select
+          name="revisado_area"
+          value={formulario.revisado_area}
+          onChange={handleChange}
+        >
+          <option value="">Seleccione...</option>
+        </select>
 
-      </div>
+        <label>Fecha:</label>
 
-      <div className="bloque">
-
-        <h3>Revisó</h3>
-
-        <div className="grid-5">
-
-          <input
-            type="text"
-            placeholder="Nombre"
-            name="revisado_nombre"
-            value={formulario.revisado_nombre}
-            onChange={handleChange}
-          />
-
-          <input
-            type="text"
-            placeholder="Puesto"
-            name="revisado_puesto"
-            value={formulario.revisado_puesto}
-            onChange={handleChange}
-          />
-
-          <input
-            type="text"
-            placeholder="Gerencia"
-            name="revisado_gerencia"
-            value={formulario.revisado_gerencia}
-            onChange={handleChange}
-          />
-
-          <input
-            type="text"
-            placeholder="Área"
-            name="revisado_area"
-            value={formulario.revisado_area}
-            onChange={handleChange}
-          />
-
-          <input
-            type="date"
-            name="revisado_fecha"
-            value={formulario.revisado_fecha}
-            onChange={handleChange}
-          />
-
-        </div>
+        <input
+          type="date"
+          name="revisado_fecha"
+          value={formulario.revisado_fecha}
+          onChange={handleChange}
+        />
 
       </div>
 
-      <div className="bloque">
+      <div className="firma-row">
 
-        <h3>Aprobó</h3>
+        <label>Aprobó:</label>
 
-        <div className="grid-5">
+        <input
+          type="text"
+          name="aprobado_nombre"
+          value={formulario.aprobado_nombre}
+          onChange={handleChange}
+          placeholder="Nombre"
+        />
 
-          <input
-            type="text"
-            placeholder="Nombre"
-            name="aprobado_nombre"
-            value={formulario.aprobado_nombre}
-            onChange={handleChange}
-          />
+        <label>Puesto:</label>
 
-          <input
-            type="text"
-            placeholder="Puesto"
-            name="aprobado_puesto"
-            value={formulario.aprobado_puesto}
-            onChange={handleChange}
-          />
+        <select
+          name="aprobado_puesto"
+          value={formulario.aprobado_puesto}
+          onChange={handleChange}
+        >
+          <option value="">Seleccione...</option>
+        </select>
 
-          <input
-            type="text"
-            placeholder="Gerencia"
-            name="aprobado_gerencia"
-            value={formulario.aprobado_gerencia}
-            onChange={handleChange}
-          />
+        <label>Gerencia:</label>
 
-          <input
-            type="text"
-            placeholder="Área"
-            name="aprobado_area"
-            value={formulario.aprobado_area}
-            onChange={handleChange}
-          />
+        <select
+          name="aprobado_gerencia"
+          value={formulario.aprobado_gerencia}
+          onChange={handleChange}
+        >
+          <option value="">Seleccione...</option>
+        </select>
 
-          <input
-            type="date"
-            name="aprobado_fecha"
-            value={formulario.aprobado_fecha}
-            onChange={handleChange}
-          />
+        <label>Área:</label>
 
-        </div>
+        <select
+          name="aprobado_area"
+          value={formulario.aprobado_area}
+          onChange={handleChange}
+        >
+          <option value="">Seleccione...</option>
+        </select>
+
+        <label>Fecha:</label>
+
+        <input
+          type="date"
+          name="aprobado_fecha"
+          value={formulario.aprobado_fecha}
+          onChange={handleChange}
+        />
 
       </div>
 
