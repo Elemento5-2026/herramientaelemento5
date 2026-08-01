@@ -1,6 +1,6 @@
 import "./Sidebar.css";
 
-export default function Sidebar() {
+export default function Sidebar({ screen, setScreen }) {
   return (
     <aside className="sidebar">
 
@@ -22,27 +22,38 @@ export default function Sidebar() {
 
       <nav className="sidebar-menu">
 
-        <button className="menu-item active">
+        <button
+          className={`menu-item ${screen === "dashboard" ? "active" : ""}`}
+          onClick={() => setScreen("dashboard")}
+        >
           📊 Dashboard
         </button>
 
-        <button className="menu-item">
+        <button
+          className={`menu-item ${screen === "incidentes" ? "active" : ""}`}
+          onClick={() => setScreen("incidentes")}
+        >
           📁 Incidentes
         </button>
 
-        <button className="menu-item">
+        <button
+          className={`menu-item ${screen === "investigaciones" ? "active" : ""}`}
+          onClick={() => setScreen("investigaciones")}
+        >
           🔍 Investigaciones
         </button>
 
-        <button className="menu-item">
-          ✅ Acciones
-        </button>
-
-        <button className="menu-item">
+        <button
+          className={`menu-item ${screen === "lecciones" ? "active" : ""}`}
+          onClick={() => setScreen("lecciones")}
+        >
           📚 Lecciones Aprendidas
         </button>
 
-        <button className="menu-item">
+        <button
+          className={`menu-item ${screen === "administracion" ? "active" : ""}`}
+          onClick={() => setScreen("administracion")}
+        >
           ⚙ Administración
         </button>
 
