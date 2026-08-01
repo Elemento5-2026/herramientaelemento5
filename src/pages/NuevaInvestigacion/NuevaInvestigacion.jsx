@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import "./NuevaInvestigacion.css";
 
 import Layout from "../../components/Layout";
@@ -6,73 +8,156 @@ import Sidebar from "../../components/Sidebar";
 
 export default function NuevaInvestigacion({ setScreen }) {
 
-    return (
+  const [pasoActual, setPasoActual] = useState(0);
 
-        <Layout
+  const pasos = [
+    "Registro",
+    "Identificación",
+    "Análisis de causa",
+    "Acciones inmediatas",
+    "Plan de acción",
+    "Evaluación de eficacia"
+  ];
 
-            header={<Header />}
+  return (
 
-            sidebar={
-                <Sidebar
-                    screen="investigaciones"
-                    setScreen={setScreen}
-                />
-            }
+    <Layout
 
-        >
+      header={<Header />}
 
-            <div className="nueva-investigacion">
+      sidebar={
+        <Sidebar
+          screen="investigaciones"
+          setScreen={setScreen}
+        />
+      }
 
-                <h1>Nueva investigación</h1>
+    >
 
-                <p>
-                    Complete la información del registro del incidente.
-                </p>
+      <div className="nueva-investigacion">
 
-                <div className="wizard">
+        <div className="page-header">
 
-                    <div className="wizard-item active">
+          <div>
 
-                        1. Registro
+            <button
+              className="btn-link"
+              onClick={() => setScreen("investigaciones")}
+            >
+              ← Volver a investigaciones
+            </button>
 
-                    </div>
+            <h1>Nueva investigación</h1>
 
-                    <div className="wizard-item">
+            <p>
+              Complete la información para registrar la investigación.
+            </p>
 
-                        2. Identificación
+          </div>
 
-                    </div>
+          <div className="estado-header">
 
-                    <div className="wizard-item">
+            <span className="estado borrador">
 
-                        3. Análisis de causa
+              Borrador
 
-                    </div>
+            </span>
 
-                    <div className="wizard-item">
+          </div>
 
-                        4. Acciones inmediatas
+        </div>
 
-                    </div>
+        <div className="wizard-layout">
 
-                    <div className="wizard-item">
+          <aside className="wizard-sidebar">
 
-                        5. Plan de acción
+            {pasos.map((paso, index) => (
 
-                    </div>
+              <button
+                key={index}
+                className={
+                  index === pasoActual
+                    ? "wizard-item active"
+                    : "wizard-item"
+                }
+                onClick={() => setPasoActual(index)}
+              >
 
-                    <div className="wizard-item">
+                <span className="wizard-number">
 
-                        6. Evaluación de eficacia
+                  {index + 1}
 
-                    </div>
+                </span>
 
-                </div>
+                <span>
+
+                  {paso}
+
+                </span>
+
+              </button>
+
+            ))}
+
+          </aside>
+
+          <section className="wizard-content">
+
+            <h2>
+
+              {pasos[pasoActual]}
+
+            </h2>
+
+            <hr />
+
+            <div className="placeholder">
+
+              Aquí construiremos el formulario del paso
+              <br /><br />
+
+              <strong>
+
+                {pasos[pasoActual]}
+
+              </strong>
 
             </div>
 
-        </Layout>
+          </section>
 
-    );
+        </div>
+
+        <div className="wizard-footer">
+
+          <button
+            className="btn-secondary"
+            disabled={pasoActual === 0}
+            onClick={() => setPasoActual(pasoActual - 1)}
+          >
+            ← Anterior
+          </button>
+
+          <button className="btn-primary">
+
+            Guardar borrador
+
+          </button>
+
+          <button
+            className="btn-primary"
+            disabled={pasoActual === pasos.length - 1}
+            onClick={() => setPasoActual(pasoActual + 1)}
+          >
+            Siguiente →
+          </button>
+
+        </div>
+
+      </div>
+
+    </Layout>
+
+  );
 
 }
