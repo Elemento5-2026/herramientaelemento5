@@ -5,11 +5,16 @@ import Header from "../../components/Header";
 import Sidebar from "../../components/Sidebar";
 import StatCard from "../../components/StatCard";
 
-export default function Dashboard() {
+export default function Dashboard({ setScreen }) {
   return (
     <Layout
       header={<Header />}
-      sidebar={<Sidebar />}
+      sidebar={
+        <Sidebar
+          screen="dashboard"
+          setScreen={setScreen}
+        />
+      }
     >
       <div className="dashboard">
 
