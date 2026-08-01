@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./styles/Encabezado.css";
+import "./Encabezado.css";
 
 export default function Encabezado() {
 
