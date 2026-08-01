@@ -1,78 +1,53 @@
-import "./NuevaInvestigacion.css";
+.nueva-investigacion{
 
-import Layout from "../../components/Layout";
-import Header from "../../components/Header";
-import Sidebar from "../../components/Sidebar";
+    padding:30px;
 
-export default function NuevaInvestigacion({ setScreen }) {
+}
 
-    return (
+.nueva-investigacion h1{
 
-        <Layout
+    margin-bottom:8px;
 
-            header={<Header />}
+}
 
-            sidebar={
-                <Sidebar
-                    screen="investigaciones"
-                    setScreen={setScreen}
-                />
-            }
+.nueva-investigacion p{
 
-        >
+    color:#666;
 
-            <div className="nueva-investigacion">
+    margin-bottom:30px;
 
-                <h1>Nueva investigación</h1>
+}
 
-                <p>
-                    Complete la información del registro del incidente.
-                </p>
+.wizard{
 
-                <div className="wizard">
+    display:flex;
 
-                    <div className="wizard-item active">
+    gap:15px;
 
-                        1. Registro
+    flex-wrap:wrap;
 
-                    </div>
+}
 
-                    <div className="wizard-item">
+.wizard-item{
 
-                        2. Identificación
+    background:white;
 
-                    </div>
+    padding:14px 22px;
 
-                    <div className="wizard-item">
+    border-radius:10px;
 
-                        3. Análisis de causa
+    box-shadow:0 2px 8px rgba(0,0,0,.08);
 
-                    </div>
+    color:#666;
 
-                    <div className="wizard-item">
+    font-weight:600;
 
-                        4. Acciones inmediatas
+}
 
-                    </div>
+.wizard-item.active{
 
-                    <div className="wizard-item">
+    background:#d71920;
 
-                        5. Plan de acción
-
-                    </div>
-
-                    <div className="wizard-item">
-
-                        6. Evaluación de eficacia
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </Layout>
-
-    );
+    color:white;
 
 }
