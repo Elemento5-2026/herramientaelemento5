@@ -1,11 +1,34 @@
+import { useEffect } from "react";
+
 import Layout from "../../components/Layout";
 import Header from "../../components/Header";
 import Sidebar from "../../components/Sidebar";
 
+import supabase from "../../lib/supabase";
+
 import "./Investigaciones.css";
 
 export default function Investigaciones({ setScreen }) {
+
+  useEffect(() => {
+
+    async function cargarInvestigaciones() {
+
+      const { data, error } = await supabase
+        .from("investigaciones")
+        .select("*");
+
+      console.log("DATA:", data);
+      console.log("ERROR:", error);
+
+    }
+
+    cargarInvestigaciones();
+
+  }, []);
+
   return (
+
     <Layout
       header={<Header />}
       sidebar={
@@ -15,6 +38,7 @@ export default function Investigaciones({ setScreen }) {
         />
       }
     >
+
       <div className="investigaciones">
 
         <div className="page-header">
@@ -82,9 +106,11 @@ export default function Investigaciones({ setScreen }) {
                 <td>Trefilación</td>
 
                 <td>
+
                   <span className="estado borrador">
                     Borrador
                   </span>
+
                 </td>
 
                 <td>Pablo Hernández</td>
@@ -98,6 +124,9 @@ export default function Investigaciones({ setScreen }) {
         </div>
 
       </div>
+
     </Layout>
+
   );
+
 }
