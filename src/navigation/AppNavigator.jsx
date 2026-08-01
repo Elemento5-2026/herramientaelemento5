@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import Login from "../pages/Login/Login";
 import Dashboard from "../pages/Dashboard/Dashboard";
+import Investigaciones from "../pages/Investigaciones/Investigaciones";
 
 export default function AppNavigator() {
 
@@ -12,6 +13,13 @@ export default function AppNavigator() {
     case "dashboard":
       return (
         <Dashboard
+          setScreen={setScreen}
+        />
+      );
+
+    case "investigaciones":
+      return (
+        <Investigaciones
           setScreen={setScreen}
         />
       );
