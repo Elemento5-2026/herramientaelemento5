@@ -162,7 +162,9 @@ export default function Evidencias({
 
                 <small>
 
-                  {(archivo.size / 1024).toFixed(0)} KB
+                  {archivo.size >= 1024 * 1024
+                    ? `${(archivo.size / 1024 / 1024).toFixed(2)} MB`
+                    : `${(archivo.size / 1024).toFixed(0)} KB`}
 
                 </small>
 
