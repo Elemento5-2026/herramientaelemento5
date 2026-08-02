@@ -45,7 +45,10 @@ export async function guardarEncabezado(formulario) {
 /**
  * Guarda la Identificación
  */
-export async function guardarIdentificacion(investigacionId, formulario) {
+export async function guardarIdentificacion(
+  investigacionId,
+  formulario
+) {
 
   const { data, error } = await supabase
     .from("investigaciones")
@@ -59,6 +62,65 @@ export async function guardarIdentificacion(investigacionId, formulario) {
 
     })
     .eq("id", investigacionId)
+    .select()
+    .single();
+
+  if (error) throw error;
+
+  return data;
+
+}
+
+/**
+ * Guarda la Descripción
+ */
+export async function guardarDescripcion(
+  investigacionId,
+  formulario
+) {
+
+  const { data: existente, error: errorBusqueda } = await supabase
+    .from("investigaciones_descripcion")
+    .select("id")
+    .eq("investigacion_id", investigacionId)
+    .maybeSingle();
+
+  if (errorBusqueda) throw errorBusqueda;
+
+  if (existente) {
+
+    const { data, error } = await supabase
+      .from("investigaciones_descripcion")
+      .update({
+
+        descripcion_incidente: formulario.descripcion_incidente,
+        parte_cuerpo_lesionada_id:
+          formulario.parte_cuerpo_lesionada_id
+
+      })
+      .eq("investigacion_id", investigacionId)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return data;
+
+  }
+
+  const { data, error } = await supabase
+    .from("investigaciones_descripcion")
+    .insert([{
+
+      investigacion_id: investigacionId,
+
+      descripcion_incidente:
+        formulario.descripcion_incidente,
+
+      parte_cuerpo_lesionada_id:
+        formulario.parte_cuerpo_lesionada_id
+
+    }])
     .select()
     .single();
 
