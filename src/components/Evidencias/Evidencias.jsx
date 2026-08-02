@@ -1,13 +1,38 @@
+import { useRef, useState } from "react";
 import "./Evidencias.css";
 
 export default function Evidencias({
 
-  titulo = "Evidencias",
-  archivos = [],
-  onSeleccionarArchivos,
-  onEliminarArchivo
+  titulo = "Evidencias"
 
 }) {
+
+  const inputRef = useRef(null);
+
+  const [archivos, setArchivos] = useState([]);
+
+  const seleccionarArchivos = (e) => {
+
+    const nuevosArchivos = Array.from(e.target.files);
+
+    setArchivos((anteriores) => [
+
+      ...anteriores,
+      ...nuevosArchivos
+
+    ]);
+
+    e.target.value = "";
+
+  };
+
+  const eliminarArchivo = (index) => {
+
+    setArchivos((anteriores) =>
+      anteriores.filter((_, i) => i !== index)
+    );
+
+  };
 
   return (
 
@@ -31,21 +56,17 @@ export default function Evidencias({
         </p>
 
         <input
-          id="input-evidencias"
+          ref={inputRef}
           type="file"
           multiple
           hidden
-          onChange={onSeleccionarArchivos}
+          onChange={seleccionarArchivos}
         />
 
         <button
           type="button"
           className="btn-upload"
-          onClick={() =>
-            document
-              .getElementById("input-evidencias")
-              .click()
-          }
+          onClick={() => inputRef.current.click()}
         >
 
           Seleccionar archivos
@@ -77,14 +98,14 @@ export default function Evidencias({
 
               <div>
 
-                📎 {archivo.nombre_original || archivo.name}
+                📎 {archivo.name}
 
               </div>
 
               <button
                 type="button"
                 className="btn-eliminar"
-                onClick={() => onEliminarArchivo(index)}
+                onClick={() => eliminarArchivo(index)}
               >
 
                 🗑
