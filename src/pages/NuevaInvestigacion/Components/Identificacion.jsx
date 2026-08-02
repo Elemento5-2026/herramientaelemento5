@@ -2,27 +2,18 @@ import { useEffect, useState } from "react";
 import "./Identificacion.css";
 
 import { obtenerCatalogo } from "../../../services/catalogosService";
-import { guardarIdentificacion } from "../../../services/investigacionesService";
 
-import BotonGuardar from "../../../components/Form/BotonGuardar";
+export default function Identificacion({
 
-export default function Identificacion({ investigacionId }) {
+  formulario,
+  setFormulario
+
+}) {
 
   const [macroprocesos, setMacroprocesos] = useState([]);
   const [procesos, setProcesos] = useState([]);
   const [impactos, setImpactos] = useState([]);
   const [turnos, setTurnos] = useState([]);
-
-  const [formulario, setFormulario] = useState({
-
-    macroproceso_id: "",
-    proceso_id: "",
-    clasificacion_incidente_id: "",
-    turno_id: "",
-
-    indicador_impactado: "Incidentes"
-
-  });
 
   useEffect(() => {
     cargarCatalogos();
@@ -45,11 +36,6 @@ export default function Identificacion({ investigacionId }) {
         obtenerCatalogo("catalogo_turnos")
 
       ]);
-
-      console.log("MACROPROCESOS:", dataMacroprocesos);
-      console.log("PROCESOS:", dataProcesos);
-      console.log("IMPACTOS:", dataImpactos);
-      console.log("TURNOS:", dataTurnos);
 
       setMacroprocesos(dataMacroprocesos);
       setProcesos(dataProcesos);
@@ -74,35 +60,6 @@ export default function Identificacion({ investigacionId }) {
       ...formulario,
       [name]: value
     });
-
-  };
-
-  const guardar = async () => {
-
-    if (!investigacionId) {
-
-      alert("Primero debe guardar el Encabezado.");
-
-      return;
-
-    }
-
-    try {
-
-      await guardarIdentificacion(
-        investigacionId,
-        formulario
-      );
-
-      alert("Identificación guardada correctamente.");
-
-    } catch (error) {
-
-      console.error(error);
-
-      alert(error.message);
-
-    }
 
   };
 
@@ -253,11 +210,6 @@ export default function Identificacion({ investigacionId }) {
         </select>
 
       </div>
-
-      <BotonGuardar
-        texto="Guardar identificación"
-        onClick={guardar}
-      />
 
     </div>
 
