@@ -10,8 +10,7 @@ export default function Encabezado() {
 
   const [gerencias, setGerencias] = useState([]);
 
-  const [formulario, setFormulario] = useState({
-
+  const [formulario, setFormulario({
     codigo_controlado: "",
 
     participantes: "",
@@ -131,7 +130,6 @@ export default function Encabezado() {
           value={formulario.participantes}
           onChange={handleChange}
           rows={3}
-          placeholder="Ejemplo: Alejandro Pérez, Pablo Hernández, Pablo Cruz"
         />
 
       </div>
