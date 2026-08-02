@@ -10,7 +10,8 @@ export default function Encabezado() {
 
   const [gerencias, setGerencias] = useState([]);
 
-  const [formulario, setFormulario({
+  const [formulario, setFormulario] = useState({
+
     codigo_controlado: "",
 
     participantes: "",
