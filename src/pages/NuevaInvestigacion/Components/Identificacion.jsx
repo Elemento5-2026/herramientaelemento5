@@ -46,6 +46,11 @@ export default function Identificacion({ investigacionId }) {
 
       ]);
 
+      console.log("MACROPROCESOS:", dataMacroprocesos);
+      console.log("PROCESOS:", dataProcesos);
+      console.log("IMPACTOS:", dataImpactos);
+      console.log("TURNOS:", dataTurnos);
+
       setMacroprocesos(dataMacroprocesos);
       setProcesos(dataProcesos);
       setImpactos(dataImpactos);
