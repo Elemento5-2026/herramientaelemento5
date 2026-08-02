@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import imageCompression from "browser-image-compression";
 import "./Evidencias.css";
 
 export default function Evidencias({
@@ -11,97 +12,6 @@ export default function Evidencias({
 
   const [archivos, setArchivos] = useState([]);
 
-  const comprimirImagen = (archivo) => {
-
-    return new Promise((resolve) => {
-
-      if (!archivo.type.startsWith("image/")) {
-
-        resolve(archivo);
-
-        return;
-
-      }
-
-      const reader = new FileReader();
-
-      reader.onload = (e) => {
-
-        const img = new Image();
-
-        img.onload = () => {
-
-          const maxWidth = 1600;
-          const maxHeight = 1600;
-
-          let { width, height } = img;
-
-          if (width > height && width > maxWidth) {
-
-            height = height * (maxWidth / width);
-            width = maxWidth;
-
-          } else if (height > maxHeight) {
-
-            width = width * (maxHeight / height);
-            height = maxHeight;
-
-          }
-
-          const canvas = document.createElement("canvas");
-
-          canvas.width = width;
-          canvas.height = height;
-
-          const ctx = canvas.getContext("2d");
-
-          ctx.drawImage(img, 0, 0, width, height);
-
-          canvas.toBlob(
-
-            (blob) => {
-
-              const archivoComprimido = new File(
-
-                [blob],
-
-                archivo.name,
-
-                {
-
-                  type: "image/jpeg",
-                  lastModified: Date.now()
-
-                }
-
-              );
-
-              console.log(
-                `${archivo.name}: ${(archivo.size / 1024 / 1024).toFixed(2)} MB → ${(archivoComprimido.size / 1024 / 1024).toFixed(2)} MB`
-              );
-
-              resolve(archivoComprimido);
-
-            },
-
-            "image/jpeg",
-
-            0.80
-
-          );
-
-        };
-
-        img.src = e.target.result;
-
-      };
-
-      reader.readAsDataURL(archivo);
-
-    });
-
-  };
-
   const seleccionarArchivos = async (e) => {
 
     const seleccionados = Array.from(e.target.files);
@@ -110,9 +20,46 @@ export default function Evidencias({
 
     for (const archivo of seleccionados) {
 
-      const archivoFinal = await comprimirImagen(archivo);
+      if (archivo.type.startsWith("image/")) {
 
-      nuevosArchivos.push(archivoFinal);
+        try {
+
+          const archivoComprimido = await imageCompression(
+
+            archivo,
+
+            {
+
+              maxSizeMB: 0.5,
+              maxWidthOrHeight: 1920,
+              useWebWorker: true,
+              initialQuality: 0.8
+
+            }
+
+          );
+
+          console.log(
+
+            `${archivo.name}: ${(archivo.size / 1024 / 1024).toFixed(2)} MB → ${(archivoComprimido.size / 1024 / 1024).toFixed(2)} MB`
+
+          );
+
+          nuevosArchivos.push(archivoComprimido);
+
+        } catch (error) {
+
+          console.error("Error al comprimir imagen:", error);
+
+          nuevosArchivos.push(archivo);
+
+        }
+
+      } else {
+
+        nuevosArchivos.push(archivo);
+
+      }
 
     }
 
@@ -144,10 +91,16 @@ export default function Evidencias({
       <div className="dropzone">
 
         <div className="dropzone-icon">
+
           📷
+
         </div>
 
-        <h4>Agregar evidencias</h4>
+        <h4>
+
+          Agregar evidencias
+
+        </h4>
 
         <p>
 
@@ -178,7 +131,11 @@ export default function Evidencias({
 
       <div className="lista-evidencias">
 
-        <h4>Archivos cargados ({archivos.length})</h4>
+        <h4>
+
+          Archivos cargados ({archivos.length})
+
+        </h4>
 
         {archivos.length === 0 ? (
 
