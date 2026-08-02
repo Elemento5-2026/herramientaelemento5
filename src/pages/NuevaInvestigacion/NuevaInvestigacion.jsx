@@ -55,7 +55,17 @@ export default function NuevaInvestigacion({ setScreen }) {
     // Descripción
 
     descripcion_incidente: "",
-    parte_cuerpo_lesionada_id: ""
+    parte_cuerpo_lesionada_id: "",
+
+    evidencias_descripcion: [],
+
+    // Acciones inmediatas
+
+    evidencias_acciones: [],
+
+    // Plan de acción
+
+    evidencias_plan_accion: []
 
   });
 
