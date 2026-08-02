@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import "./Identificacion.css";
 
-import {
-  obtenerCatalogo
-} from "../../../services/catalogosService";
+import { obtenerCatalogo } from "../../../services/catalogosService";
+import { guardarIdentificacion } from "../../../services/investigacionesService";
 
-export default function Identificacion() {
+import BotonGuardar from "../../../components/Form/BotonGuardar";
+
+export default function Identificacion({ investigacionId }) {
 
   const [macroprocesos, setMacroprocesos] = useState([]);
   const [procesos, setProcesos] = useState([]);
@@ -68,6 +69,35 @@ export default function Identificacion() {
       ...formulario,
       [name]: value
     });
+
+  };
+
+  const guardar = async () => {
+
+    if (!investigacionId) {
+
+      alert("Primero debe guardar el Encabezado.");
+
+      return;
+
+    }
+
+    try {
+
+      await guardarIdentificacion(
+        investigacionId,
+        formulario
+      );
+
+      alert("Identificación guardada correctamente.");
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(error.message);
+
+    }
 
   };
 
@@ -218,6 +248,11 @@ export default function Identificacion() {
         </select>
 
       </div>
+
+      <BotonGuardar
+        texto="Guardar identificación"
+        onClick={guardar}
+      />
 
     </div>
 
