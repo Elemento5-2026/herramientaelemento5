@@ -1,17 +1,15 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import "./Evidencias.css";
 
 export default function Evidencias({
 
-  titulo = "Evidencias",
-
-  archivos = [],
-
-  setArchivos
+  titulo = "Evidencias"
 
 }) {
 
   const inputRef = useRef(null);
+
+  const [archivos, setArchivos] = useState([]);
 
   const seleccionarArchivos = (e) => {
 
