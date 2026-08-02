@@ -46,11 +46,13 @@ export default function Encabezado() {
 
       const data = await obtenerCatalogo("catalogo_gerencias");
 
+      console.log("GERENCIAS RECIBIDAS:", data);
+
       setGerencias(data);
 
     } catch (error) {
 
-      console.error(error);
+      console.error("ERROR CARGANDO GERENCIAS:", error);
 
       alert("Error al cargar las gerencias.");
 
