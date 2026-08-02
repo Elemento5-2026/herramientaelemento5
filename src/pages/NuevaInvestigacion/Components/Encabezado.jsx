@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./Encabezado.css";
+import { guardarEncabezado } from "../../../services/investigacionesService";
 
 export default function Encabezado() {
 
@@ -28,6 +29,27 @@ export default function Encabezado() {
     aprobado_fecha: ""
 
   });
+
+
+  const guardar = async () => {
+
+    try {
+
+      const data = await guardarEncabezado(formulario);
+
+      console.log(data);
+
+      alert("Encabezado guardado correctamente.");
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(error.message);
+
+    }
+
+  };
 
   const handleChange = (e) => {
 
@@ -229,6 +251,9 @@ export default function Encabezado() {
 
       </div>
 
+      <div style={{ marginTop: "30px" }}>
+        <button className="btn-primary" onClick={guardar}>💾 Guardar encabezado</button>
+      </div>
     </div>
 
   );
