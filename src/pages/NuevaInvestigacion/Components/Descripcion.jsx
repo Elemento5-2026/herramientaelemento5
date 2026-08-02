@@ -24,20 +24,19 @@ export default function Descripcion({
 
     try {
 
-      // PRUEBA TEMPORAL
       const data = await obtenerCatalogo(
-        "catalogo_gerencias"
+        "catalogo_partes_cuerpo"
       );
 
-      console.log("DATA:", data);
+      console.log("PARTES DEL CUERPO:", data);
 
-      setPartesCuerpo(data);
+      setPartesCuerpo(data || []);
 
     } catch (error) {
 
       console.error(error);
 
-      alert("Error al cargar el catálogo.");
+      alert("Error al cargar las partes del cuerpo.");
 
     }
 
