@@ -10,7 +10,7 @@ export default function Encabezado() {
 
   const [gerencias, setGerencias] = useState([]);
 
-  const [formulario, setFormulario] = useState({
+  const [formulario, setFormulario({
 
     codigo_controlado: "",
 
@@ -126,9 +126,13 @@ export default function Encabezado() {
 
         <label>Participantes</label>
 
-        <div className="catalogo-placeholder">
-          Aquí irá el selector múltiple de participantes.
-        </div>
+        <textarea
+          name="participantes"
+          value={formulario.participantes}
+          onChange={handleChange}
+          rows={3}
+          placeholder="Ejemplo: Alejandro Pérez, Pablo Hernández, Pablo Cruz"
+        />
 
       </div>
 
