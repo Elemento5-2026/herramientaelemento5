@@ -3,6 +3,8 @@ import "./Descripcion.css";
 
 import { obtenerCatalogo } from "../../../services/catalogosService";
 
+import Evidencias from "../../../components/Evidencias/Evidencias";
+
 export default function Descripcion({
 
   formulario,
@@ -44,6 +46,18 @@ export default function Descripcion({
       ...formulario,
       [name]: value
     });
+
+  };
+
+  const seleccionarArchivos = (e) => {
+
+    console.log(e.target.files);
+
+  };
+
+  const eliminarArchivo = (index) => {
+
+    console.log("Eliminar archivo:", index);
 
   };
 
@@ -92,32 +106,12 @@ export default function Descripcion({
 
       </div>
 
-      <div className="form-row">
-
-        <label>Evidencias fotográficas</label>
-
-        <div className="dropzone">
-
-          <div className="dropzone-icon">
-            📷
-          </div>
-
-          <h3>Agregar fotografías</h3>
-
-          <p>
-            Arrastre imágenes aquí o haga clic para seleccionarlas.
-          </p>
-
-          <button
-            type="button"
-            className="btn-upload"
-          >
-            Seleccionar archivos
-          </button>
-
-        </div>
-
-      </div>
+      <Evidencias
+        titulo="Evidencias"
+        archivos={[]}
+        onSeleccionarArchivos={seleccionarArchivos}
+        onEliminarArchivo={eliminarArchivo}
+      />
 
     </div>
 
