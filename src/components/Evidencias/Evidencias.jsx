@@ -1,16 +1,18 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import imageCompression from "browser-image-compression";
 import "./Evidencias.css";
 
 export default function Evidencias({
 
-  titulo = "Evidencias"
+  titulo = "Evidencias",
+
+  archivos = [],
+
+  setArchivos
 
 }) {
 
   const inputRef = useRef(null);
-
-  const [archivos, setArchivos] = useState([]);
 
   const seleccionarArchivos = async (e) => {
 
@@ -63,9 +65,9 @@ export default function Evidencias({
 
     }
 
-    setArchivos((anteriores) => [
+    setArchivos([
 
-      ...anteriores,
+      ...archivos,
       ...nuevosArchivos
 
     ]);
@@ -76,8 +78,10 @@ export default function Evidencias({
 
   const eliminarArchivo = (index) => {
 
-    setArchivos((anteriores) =>
-      anteriores.filter((_, i) => i !== index)
+    setArchivos(
+
+      archivos.filter((_, i) => i !== index)
+
     );
 
   };
