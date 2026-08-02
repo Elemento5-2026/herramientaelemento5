@@ -2,10 +2,16 @@ import { useEffect, useState } from "react";
 import "./Descripcion.css";
 
 import { obtenerCatalogo } from "../../../services/catalogosService";
+import { guardarDescripcion } from "../../../services/investigacionesService";
 
 import Evidencias from "../../../components/Evidencias/Evidencias";
+import BotonGuardar from "../../../components/Form/BotonGuardar";
 
 export default function Descripcion({
+
+  investigacionId,
+  descripcionId,
+  setDescripcionId,
 
   formulario,
   setFormulario
@@ -49,15 +55,36 @@ export default function Descripcion({
 
   };
 
-  const seleccionarArchivos = (e) => {
+  const guardar = async () => {
 
-    console.log(e.target.files);
+    if (!investigacionId) {
 
-  };
+      alert("Primero debe guardar el Encabezado.");
 
-  const eliminarArchivo = (index) => {
+      return;
 
-    console.log("Eliminar archivo:", index);
+    }
+
+    try {
+
+      const data = await guardarDescripcion(
+
+        investigacionId,
+        formulario
+
+      );
+
+      setDescripcionId(data.id);
+
+      alert("Descripción guardada correctamente.");
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(error.message);
+
+    }
 
   };
 
@@ -106,11 +133,15 @@ export default function Descripcion({
 
       </div>
 
+      <BotonGuardar
+        texto="Guardar descripción"
+        onClick={guardar}
+      />
+
       <Evidencias
         titulo="Evidencias"
-        archivos={[]}
-        onSeleccionarArchivos={seleccionarArchivos}
-        onEliminarArchivo={eliminarArchivo}
+        moduloOrigen="descripcion"
+        moduloId={descripcionId}
       />
 
     </div>
