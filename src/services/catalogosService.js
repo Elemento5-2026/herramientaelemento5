@@ -1,7 +1,7 @@
 import supabase from "../lib/supabase";
 
 /**
- * Obtiene cualquier catálogo activo ordenado por nombre.
+ * Obtiene cualquier catálogo.
  * Ejemplo:
  * obtenerCatalogo("catalogo_gerencias")
  * obtenerCatalogo("catalogo_procesos")
@@ -11,8 +11,11 @@ export async function obtenerCatalogo(tabla) {
   const { data, error } = await supabase
     .from(tabla)
     .select("*")
-    .eq("activo", true)
     .order("nombre");
+
+  console.log("TABLA:", tabla);
+  console.log("DATA:", data);
+  console.log("ERROR:", error);
 
   if (error) throw error;
 
@@ -21,7 +24,7 @@ export async function obtenerCatalogo(tabla) {
 }
 
 /**
- * Obtiene un catálogo por ID.
+ * Obtiene un registro por ID.
  */
 export async function obtenerRegistro(tabla, id) {
 
@@ -38,7 +41,7 @@ export async function obtenerRegistro(tabla, id) {
 }
 
 /**
- * Crea un registro en cualquier catálogo.
+ * Crea un registro.
  */
 export async function crearRegistro(tabla, registro) {
 
@@ -91,8 +94,7 @@ export async function cambiarEstado(tabla, id, activo) {
 }
 
 /**
- * Elimina un registro físicamente.
- * (Solo usar si realmente deseas borrarlo.)
+ * Elimina un registro.
  */
 export async function eliminarRegistro(tabla, id) {
 
