@@ -17,9 +17,14 @@ export default function NuevaInvestigacion({ setScreen }) {
 
   const [pasoActual, setPasoActual] = useState(0);
 
+  const [investigacionId, setInvestigacionId] = useState(null);
+
+  const [descripcionId, setDescripcionId] = useState(null);
+
   const [formulario, setFormulario] = useState({
 
     // Encabezado
+
     codigo_controlado: "",
 
     participantes: "",
@@ -49,17 +54,24 @@ export default function NuevaInvestigacion({ setScreen }) {
     clasificacion_incidente_id: "",
     turno_id: "",
 
-    indicador_impactado: "Incidentes"
+    indicador_impactado: "Incidentes",
+
+    // Descripción
+
+    descripcion_incidente: "",
+    parte_cuerpo_lesionada_id: ""
 
   });
 
   const pasos = [
+
     "Encabezado",
     "Identificación",
     "Descripción",
     "Acciones inmediatas",
     "Análisis de causa",
     "Plan de acción"
+
   ];
 
   const renderPaso = () => {
@@ -68,50 +80,68 @@ export default function NuevaInvestigacion({ setScreen }) {
 
       case 0:
         return (
+
           <Encabezado
+            investigacionId={investigacionId}
+            setInvestigacionId={setInvestigacionId}
             formulario={formulario}
             setFormulario={setFormulario}
           />
+
         );
 
       case 1:
         return (
+
           <Identificacion
+            investigacionId={investigacionId}
             formulario={formulario}
             setFormulario={setFormulario}
           />
+
         );
 
       case 2:
         return (
+
           <Descripcion
+            investigacionId={investigacionId}
+            descripcionId={descripcionId}
+            setDescripcionId={setDescripcionId}
             formulario={formulario}
             setFormulario={setFormulario}
           />
+
         );
 
       case 3:
         return (
+
           <AccionesInmediatas
             formulario={formulario}
             setFormulario={setFormulario}
           />
+
         );
 
       case 4:
         return (
+
           <ArbolCausas
             formulario={formulario}
             setFormulario={setFormulario}
           />
+
         );
 
       case 5:
         return (
+
           <PlanAccion
             formulario={formulario}
             setFormulario={setFormulario}
           />
+
         );
 
       default:
@@ -149,7 +179,9 @@ export default function NuevaInvestigacion({ setScreen }) {
             <h1>Nueva investigación</h1>
 
             <p>
+
               Complete la información para registrar la investigación.
+
             </p>
 
           </div>
@@ -157,7 +189,9 @@ export default function NuevaInvestigacion({ setScreen }) {
           <div className="estado-header">
 
             <span className="estado borrador">
+
               Borrador
+
             </span>
 
           </div>
@@ -181,11 +215,15 @@ export default function NuevaInvestigacion({ setScreen }) {
               >
 
                 <span className="wizard-number">
+
                   {index + 1}
+
                 </span>
 
                 <span>
+
                   {paso}
+
                 </span>
 
               </button>
@@ -213,11 +251,15 @@ export default function NuevaInvestigacion({ setScreen }) {
             disabled={pasoActual === 0}
             onClick={() => setPasoActual(pasoActual - 1)}
           >
+
             ← Anterior
+
           </button>
 
           <button className="btn-primary">
+
             Guardar borrador
+
           </button>
 
           <button
@@ -225,7 +267,9 @@ export default function NuevaInvestigacion({ setScreen }) {
             disabled={pasoActual === pasos.length - 1}
             onClick={() => setPasoActual(pasoActual + 1)}
           >
+
             Siguiente →
+
           </button>
 
         </div>
