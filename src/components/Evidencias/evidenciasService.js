@@ -1,4 +1,4 @@
-import supabase from "../lib/supabase";
+import supabase from "../../lib/supabase";
 
 /**
  * Obtiene las evidencias de un módulo.
@@ -22,7 +22,7 @@ export async function obtenerEvidencias(
 }
 
 /**
- * Guarda una evidencia.
+ * Guarda una evidencia en la base de datos.
  */
 export async function guardarEvidencia(evidencia) {
 
@@ -39,7 +39,7 @@ export async function guardarEvidencia(evidencia) {
 }
 
 /**
- * Elimina una evidencia.
+ * Elimina una evidencia de la base de datos.
  */
 export async function eliminarEvidencia(id) {
 
@@ -47,6 +47,48 @@ export async function eliminarEvidencia(id) {
     .from("investigaciones_evidencias")
     .delete()
     .eq("id", id);
+
+  if (error) throw error;
+
+  return true;
+
+}
+
+/**
+ * Sube un archivo al bucket de Storage.
+ */
+export async function subirArchivoStorage(
+  moduloOrigen,
+  moduloId,
+  archivo
+) {
+
+  const nombreStorage =
+    `${moduloOrigen}/${moduloId}/${Date.now()}_${archivo.name}`;
+
+  const { data, error } = await supabase.storage
+    .from("investigaciones")
+    .upload(nombreStorage, archivo);
+
+  if (error) throw error;
+
+  return {
+
+    nombreStorage,
+    rutaStorage: data.path
+
+  };
+
+}
+
+/**
+ * Elimina un archivo del Storage.
+ */
+export async function eliminarArchivoStorage(rutaStorage) {
+
+  const { error } = await supabase.storage
+    .from("investigaciones")
+    .remove([rutaStorage]);
 
   if (error) throw error;
 
