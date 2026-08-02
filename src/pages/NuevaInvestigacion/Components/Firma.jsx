@@ -8,8 +8,6 @@ export default function Firma({
   handleChange
 }) {
 
-  console.log("GERENCIAS EN FIRMA:", gerencias);
-
   return (
 
     <div className="firma-row">
@@ -48,7 +46,7 @@ export default function Firma({
 
           <option
             key={g.id}
-            value={g.id}
+            value={g.nombre}
           >
             {g.nombre}
           </option>
