@@ -1,10 +1,14 @@
 import supabase from "../lib/supabase";
 
+/**
+ * Guarda el Encabezado (crea la investigación)
+ */
 export async function guardarEncabezado(formulario) {
 
   const { data, error } = await supabase
     .from("investigaciones")
     .insert([{
+
       codigo_controlado: formulario.codigo_controlado,
       estado: "Borrador",
 
@@ -27,7 +31,34 @@ export async function guardarEncabezado(formulario) {
       aprobado_gerencia: formulario.aprobado_gerencia,
       aprobado_area: formulario.aprobado_area,
       aprobado_fecha: formulario.aprobado_fecha
+
     }])
+    .select()
+    .single();
+
+  if (error) throw error;
+
+  return data;
+
+}
+
+/**
+ * Guarda la Identificación
+ */
+export async function guardarIdentificacion(investigacionId, formulario) {
+
+  const { data, error } = await supabase
+    .from("investigaciones")
+    .update({
+
+      macroproceso_id: formulario.macroproceso_id,
+      proceso_id: formulario.proceso_id,
+      clasificacion_incidente_id: formulario.clasificacion_incidente_id,
+      turno_id: formulario.turno_id,
+      indicador_impactado: formulario.indicador_impactado
+
+    })
+    .eq("id", investigacionId)
     .select()
     .single();
 
