@@ -1,81 +1,83 @@
 import "./Firma.css";
 
 export default function Firma({
-    titulo,
-    prefijo,
-    formulario,
-    gerencias,
-    handleChange
+  titulo,
+  prefijo,
+  formulario,
+  gerencias,
+  handleChange
 }) {
 
-    return (
+  console.log("GERENCIAS EN FIRMA:", gerencias);
 
-        <div className="firma-row">
+  return (
 
-            <label>{titulo}:</label>
+    <div className="firma-row">
 
-            <input
-                type="text"
-                name={`${prefijo}_nombre`}
-                value={formulario[`${prefijo}_nombre`]}
-                onChange={handleChange}
-                placeholder="Nombre"
-            />
+      <label>{titulo}:</label>
 
-            <label>Puesto:</label>
+      <input
+        type="text"
+        name={`${prefijo}_nombre`}
+        value={formulario[`${prefijo}_nombre`]}
+        onChange={handleChange}
+        placeholder="Nombre"
+      />
 
-            <input
-                type="text"
-                name={`${prefijo}_puesto`}
-                value={formulario[`${prefijo}_puesto`]}
-                onChange={handleChange}
-                placeholder="Puesto"
-            />
+      <label>Puesto:</label>
 
-            <label>Gerencia:</label>
+      <input
+        type="text"
+        name={`${prefijo}_puesto`}
+        value={formulario[`${prefijo}_puesto`]}
+        onChange={handleChange}
+        placeholder="Puesto"
+      />
 
-            <select
-                name={`${prefijo}_gerencia`}
-                value={formulario[`${prefijo}_gerencia`]}
-                onChange={handleChange}
-            >
+      <label>Gerencia:</label>
 
-                <option value="">Seleccione...</option>
+      <select
+        name={`${prefijo}_gerencia`}
+        value={formulario[`${prefijo}_gerencia`]}
+        onChange={handleChange}
+      >
 
-                {gerencias.map((g) => (
+        <option value="">Seleccione...</option>
 
-                    <option
-                        key={g.id}
-                        value={g.id}
-                    >
-                        {g.nombre}
-                    </option>
+        {gerencias.map((g) => (
 
-                ))}
+          <option
+            key={g.id}
+            value={g.id}
+          >
+            {g.nombre}
+          </option>
 
-            </select>
+        ))}
 
-            <label>Área:</label>
+      </select>
 
-            <input
-                type="text"
-                name={`${prefijo}_area`}
-                value={formulario[`${prefijo}_area`]}
-                onChange={handleChange}
-                placeholder="Área"
-            />
+      <label>Área:</label>
 
-            <label>Fecha:</label>
+      <input
+        type="text"
+        name={`${prefijo}_area`}
+        value={formulario[`${prefijo}_area`]}
+        onChange={handleChange}
+        placeholder="Área"
+      />
 
-            <input
-                type="date"
-                name={`${prefijo}_fecha`}
-                value={formulario[`${prefijo}_fecha`]}
-                onChange={handleChange}
-            />
+      <label>Fecha:</label>
 
-        </div>
+      <input
+        type="date"
+        name={`${prefijo}_fecha`}
+        value={formulario[`${prefijo}_fecha`]}
+        onChange={handleChange}
+      />
 
-    );
+    </div>
+
+  );
 
 }
