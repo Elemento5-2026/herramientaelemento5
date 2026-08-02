@@ -16,7 +16,42 @@ import PlanAccion from "./Components/PlanAccion";
 export default function NuevaInvestigacion({ setScreen }) {
 
   const [pasoActual, setPasoActual] = useState(0);
-  const [investigacionId, setInvestigacionId] = useState(null);
+
+  const [formulario, setFormulario] = useState({
+
+    // Encabezado
+    codigo_controlado: "",
+
+    participantes: "",
+
+    elaborado_nombre: "",
+    elaborado_puesto: "",
+    elaborado_gerencia: "",
+    elaborado_area: "",
+    elaborado_fecha: "",
+
+    revisado_nombre: "",
+    revisado_puesto: "",
+    revisado_gerencia: "",
+    revisado_area: "",
+    revisado_fecha: "",
+
+    aprobado_nombre: "",
+    aprobado_puesto: "",
+    aprobado_gerencia: "",
+    aprobado_area: "",
+    aprobado_fecha: "",
+
+    // Identificación
+
+    macroproceso_id: "",
+    proceso_id: "",
+    clasificacion_incidente_id: "",
+    turno_id: "",
+
+    indicador_impactado: "Incidentes"
+
+  });
 
   const pasos = [
     "Encabezado",
@@ -34,43 +69,48 @@ export default function NuevaInvestigacion({ setScreen }) {
       case 0:
         return (
           <Encabezado
-            investigacionId={investigacionId}
-            setInvestigacionId={setInvestigacionId}
+            formulario={formulario}
+            setFormulario={setFormulario}
           />
         );
 
       case 1:
         return (
           <Identificacion
-            investigacionId={investigacionId}
+            formulario={formulario}
+            setFormulario={setFormulario}
           />
         );
 
       case 2:
         return (
           <Descripcion
-            investigacionId={investigacionId}
+            formulario={formulario}
+            setFormulario={setFormulario}
           />
         );
 
       case 3:
         return (
           <AccionesInmediatas
-            investigacionId={investigacionId}
+            formulario={formulario}
+            setFormulario={setFormulario}
           />
         );
 
       case 4:
         return (
           <ArbolCausas
-            investigacionId={investigacionId}
+            formulario={formulario}
+            setFormulario={setFormulario}
           />
         );
 
       case 5:
         return (
           <PlanAccion
-            investigacionId={investigacionId}
+            formulario={formulario}
+            setFormulario={setFormulario}
           />
         );
 
