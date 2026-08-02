@@ -1,46 +1,18 @@
 import { useEffect, useState } from "react";
 import "./Encabezado.css";
 
-import { guardarEncabezado } from "../../../services/investigacionesService";
 import { obtenerCatalogo } from "../../../services/catalogosService";
 
 import Firma from "./Firma";
-import BotonGuardar from "../../../components/Form/BotonGuardar";
 
 export default function Encabezado({
 
-  investigacionId,
-  setInvestigacionId
+  formulario,
+  setFormulario
 
 }) {
 
   const [gerencias, setGerencias] = useState([]);
-
-  const [formulario, setFormulario] = useState({
-
-    codigo_controlado: "",
-
-    participantes: "",
-
-    elaborado_nombre: "",
-    elaborado_puesto: "",
-    elaborado_gerencia: "",
-    elaborado_area: "",
-    elaborado_fecha: "",
-
-    revisado_nombre: "",
-    revisado_puesto: "",
-    revisado_gerencia: "",
-    revisado_area: "",
-    revisado_fecha: "",
-
-    aprobado_nombre: "",
-    aprobado_puesto: "",
-    aprobado_gerencia: "",
-    aprobado_area: "",
-    aprobado_fecha: ""
-
-  });
 
   useEffect(() => {
     cargarGerencias();
@@ -59,28 +31,6 @@ export default function Encabezado({
       console.error(error);
 
       alert("Error al cargar las gerencias.");
-
-    }
-
-  };
-
-  const guardar = async () => {
-
-    try {
-
-      const data = await guardarEncabezado(formulario);
-
-      setInvestigacionId(data.id);
-
-      console.log(data);
-
-      alert("Encabezado guardado correctamente.");
-
-    } catch (error) {
-
-      console.error(error);
-
-      alert(error.message);
 
     }
 
@@ -155,11 +105,6 @@ export default function Encabezado({
         />
 
       ))}
-
-      <BotonGuardar
-        texto="Guardar encabezado"
-        onClick={guardar}
-      />
 
     </div>
 
