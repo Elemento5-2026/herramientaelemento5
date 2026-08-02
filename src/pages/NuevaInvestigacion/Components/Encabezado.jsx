@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import "./Encabezado.css";
-import {
-  guardarEncabezado,
-  obtenerGerencias
-} from "../../../services/investigacionesService";
+
+import { guardarEncabezado } from "../../../services/investigacionesService";
+import { obtenerCatalogo } from "../../../services/catalogosService";
+
+import Firma from "./Firma";
 
 export default function Encabezado() {
 
@@ -43,7 +44,7 @@ export default function Encabezado() {
 
     try {
 
-      const data = await obtenerGerencias();
+      const data = await obtenerCatalogo("catalogo_gerencias");
 
       setGerencias(data);
 
@@ -88,6 +89,25 @@ export default function Encabezado() {
 
   };
 
+  const firmas = [
+
+    {
+      titulo: "Elaboró",
+      prefijo: "elaborado"
+    },
+
+    {
+      titulo: "Revisó",
+      prefijo: "revisado"
+    },
+
+    {
+      titulo: "Aprobó",
+      prefijo: "aprobado"
+    }
+
+  ];
+
   return (
 
     <div className="encabezado">
@@ -111,204 +131,35 @@ export default function Encabezado() {
         <label>Participantes</label>
 
         <div className="catalogo-placeholder">
+
           Aquí irá el selector múltiple de participantes.
+
         </div>
 
       </div>
 
-      {/* ELABORÓ */}
+      {firmas.map((firma) => (
 
-      <div className="firma-row">
-
-        <label>Elaboró:</label>
-
-        <input
-          type="text"
-          name="elaborado_nombre"
-          value={formulario.elaborado_nombre}
-          onChange={handleChange}
-          placeholder="Nombre"
+        <Firma
+          key={firma.prefijo}
+          titulo={firma.titulo}
+          prefijo={firma.prefijo}
+          formulario={formulario}
+          gerencias={gerencias}
+          handleChange={handleChange}
         />
 
-        <label>Puesto:</label>
-
-        <input
-          type="text"
-          name="elaborado_puesto"
-          value={formulario.elaborado_puesto}
-          onChange={handleChange}
-          placeholder="Puesto"
-        />
-
-        <label>Gerencia:</label>
-
-        <select
-          name="elaborado_gerencia"
-          value={formulario.elaborado_gerencia}
-          onChange={handleChange}
-        >
-          <option value="">Seleccione...</option>
-
-          {gerencias.map((g) => (
-            <option key={g.id} value={g.id}>
-              {g.nombre}
-            </option>
-          ))}
-
-        </select>
-
-        <label>Área:</label>
-
-        <input
-          type="text"
-          name="elaborado_area"
-          value={formulario.elaborado_area}
-          onChange={handleChange}
-          placeholder="Área"
-        />
-
-        <label>Fecha:</label>
-
-        <input
-          type="date"
-          name="elaborado_fecha"
-          value={formulario.elaborado_fecha}
-          onChange={handleChange}
-        />
-
-      </div>
-
-      {/* REVISÓ */}
-
-      <div className="firma-row">
-
-        <label>Revisó:</label>
-
-        <input
-          type="text"
-          name="revisado_nombre"
-          value={formulario.revisado_nombre}
-          onChange={handleChange}
-          placeholder="Nombre"
-        />
-
-        <label>Puesto:</label>
-
-        <input
-          type="text"
-          name="revisado_puesto"
-          value={formulario.revisado_puesto}
-          onChange={handleChange}
-          placeholder="Puesto"
-        />
-
-        <label>Gerencia:</label>
-
-        <select
-          name="revisado_gerencia"
-          value={formulario.revisado_gerencia}
-          onChange={handleChange}
-        >
-          <option value="">Seleccione...</option>
-
-          {gerencias.map((g) => (
-            <option key={g.id} value={g.id}>
-              {g.nombre}
-            </option>
-          ))}
-
-        </select>
-
-        <label>Área:</label>
-
-        <input
-          type="text"
-          name="revisado_area"
-          value={formulario.revisado_area}
-          onChange={handleChange}
-          placeholder="Área"
-        />
-
-        <label>Fecha:</label>
-
-        <input
-          type="date"
-          name="revisado_fecha"
-          value={formulario.revisado_fecha}
-          onChange={handleChange}
-        />
-
-      </div>
-
-      {/* APROBÓ */}
-
-      <div className="firma-row">
-
-        <label>Aprobó:</label>
-
-        <input
-          type="text"
-          name="aprobado_nombre"
-          value={formulario.aprobado_nombre}
-          onChange={handleChange}
-          placeholder="Nombre"
-        />
-
-        <label>Puesto:</label>
-
-        <input
-          type="text"
-          name="aprobado_puesto"
-          value={formulario.aprobado_puesto}
-          onChange={handleChange}
-          placeholder="Puesto"
-        />
-
-        <label>Gerencia:</label>
-
-        <select
-          name="aprobado_gerencia"
-          value={formulario.aprobado_gerencia}
-          onChange={handleChange}
-        >
-          <option value="">Seleccione...</option>
-
-          {gerencias.map((g) => (
-            <option key={g.id} value={g.id}>
-              {g.nombre}
-            </option>
-          ))}
-
-        </select>
-
-        <label>Área:</label>
-
-        <input
-          type="text"
-          name="aprobado_area"
-          value={formulario.aprobado_area}
-          onChange={handleChange}
-          placeholder="Área"
-        />
-
-        <label>Fecha:</label>
-
-        <input
-          type="date"
-          name="aprobado_fecha"
-          value={formulario.aprobado_fecha}
-          onChange={handleChange}
-        />
-
-      </div>
+      ))}
 
       <div style={{ marginTop: "30px" }}>
+
         <button
           className="btn-primary"
           onClick={guardar}
         >
           💾 Guardar encabezado
         </button>
+
       </div>
 
     </div>
