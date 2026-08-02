@@ -3,9 +3,7 @@ import "./Evidencias.css";
 
 export default function Evidencias({
 
-  titulo = "Evidencias",
-  moduloOrigen,
-  moduloId
+  titulo = "Evidencias"
 
 }) {
 
@@ -13,19 +11,7 @@ export default function Evidencias({
 
   const [archivos, setArchivos] = useState([]);
 
-  const seleccionarArchivos = async (e) => {
-
-    if (!moduloId) {
-
-      alert(
-        "Primero debe guardar la información antes de agregar evidencias."
-      );
-
-      e.target.value = "";
-
-      return;
-
-    }
+  const seleccionarArchivos = (e) => {
 
     const nuevosArchivos = Array.from(e.target.files);
 
@@ -35,10 +21,6 @@ export default function Evidencias({
       ...nuevosArchivos
 
     ]);
-
-    console.log("Módulo:", moduloOrigen);
-    console.log("ID:", moduloId);
-    console.log("Archivos:", nuevosArchivos);
 
     e.target.value = "";
 
@@ -84,29 +66,12 @@ export default function Evidencias({
         <button
           type="button"
           className="btn-upload"
-          disabled={!moduloId}
           onClick={() => inputRef.current.click()}
         >
 
           Seleccionar archivos
 
         </button>
-
-        {!moduloId && (
-
-          <p
-            style={{
-              marginTop: "10px",
-              color: "#b91c1c",
-              fontSize: "13px"
-            }}
-          >
-
-            Primero guarde la descripción para poder agregar evidencias.
-
-          </p>
-
-        )}
 
       </div>
 
