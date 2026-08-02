@@ -7,7 +7,12 @@ import { obtenerCatalogo } from "../../../services/catalogosService";
 import Firma from "./Firma";
 import BotonGuardar from "../../../components/Form/BotonGuardar";
 
-export default function Encabezado() {
+export default function Encabezado({
+
+  investigacionId,
+  setInvestigacionId
+
+}) {
 
   const [gerencias, setGerencias] = useState([]);
 
@@ -64,6 +69,8 @@ export default function Encabezado() {
     try {
 
       const data = await guardarEncabezado(formulario);
+
+      setInvestigacionId(data.id);
 
       console.log(data);
 
