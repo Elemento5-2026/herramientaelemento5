@@ -2,16 +2,10 @@ import { useEffect, useState } from "react";
 import "./Descripcion.css";
 
 import { obtenerCatalogo } from "../../../services/catalogosService";
-import { guardarDescripcion } from "../../../services/investigacionesService";
 
 import Evidencias from "../../../components/Evidencias/Evidencias";
-import BotonGuardar from "../../../components/Form/BotonGuardar";
 
 export default function Descripcion({
-
-  investigacionId,
-  descripcionId,
-  setDescripcionId,
 
   formulario,
   setFormulario
@@ -52,39 +46,6 @@ export default function Descripcion({
       ...formulario,
       [name]: value
     });
-
-  };
-
-  const guardar = async () => {
-
-    if (!investigacionId) {
-
-      alert("Primero debe guardar el Encabezado.");
-
-      return;
-
-    }
-
-    try {
-
-      const data = await guardarDescripcion(
-
-        investigacionId,
-        formulario
-
-      );
-
-      setDescripcionId(data.id);
-
-      alert("Descripción guardada correctamente.");
-
-    } catch (error) {
-
-      console.error(error);
-
-      alert(error.message);
-
-    }
 
   };
 
@@ -133,15 +94,8 @@ export default function Descripcion({
 
       </div>
 
-      <BotonGuardar
-        texto="Guardar descripción"
-        onClick={guardar}
-      />
-
       <Evidencias
         titulo="Evidencias"
-        moduloOrigen="descripcion"
-        moduloId={descripcionId}
       />
 
     </div>
