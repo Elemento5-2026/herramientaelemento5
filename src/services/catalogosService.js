@@ -1,15 +1,20 @@
 import supabase from "../lib/supabase";
 
 /**
- * Obtiene cualquier catálogo activo ordenado por nombre.
+ * Obtiene cualquier catálogo.
  */
 export async function obtenerCatalogo(tabla) {
 
-  const { data, error } = await supabase
+  const { data, error, status } = await supabase
     .from(tabla)
-    .select("*")
-    .eq("activo", true)
-    .order("nombre");
+    .select("*");
+
+  console.log("====================================");
+  console.log("TABLA:", tabla);
+  console.log("STATUS:", status);
+  console.log("DATA:", data);
+  console.log("ERROR:", error);
+  console.log("====================================");
 
   if (error) throw error;
 
