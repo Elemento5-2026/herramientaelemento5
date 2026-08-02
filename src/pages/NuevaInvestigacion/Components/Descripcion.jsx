@@ -15,16 +15,21 @@ export default function Descripcion({
   const [partesCuerpo, setPartesCuerpo] = useState([]);
 
   useEffect(() => {
+
     cargarCatalogos();
+
   }, []);
 
   const cargarCatalogos = async () => {
 
     try {
 
+      // PRUEBA TEMPORAL
       const data = await obtenerCatalogo(
-        "catalogo_partes_cuerpo"
+        "catalogo_gerencias"
       );
+
+      console.log("DATA:", data);
 
       setPartesCuerpo(data);
 
@@ -32,7 +37,7 @@ export default function Descripcion({
 
       console.error(error);
 
-      alert("Error al cargar las partes del cuerpo.");
+      alert("Error al cargar el catálogo.");
 
     }
 
