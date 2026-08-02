@@ -5,6 +5,7 @@ import { guardarEncabezado } from "../../../services/investigacionesService";
 import { obtenerCatalogo } from "../../../services/catalogosService";
 
 import Firma from "./Firma";
+import BotonGuardar from "../../../components/Form/BotonGuardar";
 
 export default function Encabezado() {
 
@@ -148,16 +149,10 @@ export default function Encabezado() {
 
       ))}
 
-      <div style={{ marginTop: "30px" }}>
-
-        <button
-          className="btn-primary"
-          onClick={guardar}
-        >
-          💾 Guardar encabezado
-        </button>
-
-      </div>
+      <BotonGuardar
+        texto="Guardar encabezado"
+        onClick={guardar}
+      />
 
     </div>
 
