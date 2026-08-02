@@ -17,10 +17,6 @@ export default function NuevaInvestigacion({ setScreen }) {
 
   const [pasoActual, setPasoActual] = useState(0);
 
-  const [investigacionId, setInvestigacionId] = useState(null);
-
-  const [descripcionId, setDescripcionId] = useState(null);
-
   const [formulario, setFormulario] = useState({
 
     // Encabezado
@@ -82,8 +78,6 @@ export default function NuevaInvestigacion({ setScreen }) {
         return (
 
           <Encabezado
-            investigacionId={investigacionId}
-            setInvestigacionId={setInvestigacionId}
             formulario={formulario}
             setFormulario={setFormulario}
           />
@@ -94,7 +88,6 @@ export default function NuevaInvestigacion({ setScreen }) {
         return (
 
           <Identificacion
-            investigacionId={investigacionId}
             formulario={formulario}
             setFormulario={setFormulario}
           />
@@ -105,9 +98,6 @@ export default function NuevaInvestigacion({ setScreen }) {
         return (
 
           <Descripcion
-            investigacionId={investigacionId}
-            descripcionId={descripcionId}
-            setDescripcionId={setDescripcionId}
             formulario={formulario}
             setFormulario={setFormulario}
           />
@@ -186,16 +176,6 @@ export default function NuevaInvestigacion({ setScreen }) {
 
           </div>
 
-          <div className="estado-header">
-
-            <span className="estado borrador">
-
-              Borrador
-
-            </span>
-
-          </div>
-
         </div>
 
         <div className="wizard-layout">
@@ -256,21 +236,28 @@ export default function NuevaInvestigacion({ setScreen }) {
 
           </button>
 
-          <button className="btn-primary">
+          {pasoActual < pasos.length - 1 ? (
 
-            Guardar borrador
+            <button
+              className="btn-primary"
+              onClick={() => setPasoActual(pasoActual + 1)}
+            >
 
-          </button>
+              Siguiente →
 
-          <button
-            className="btn-primary"
-            disabled={pasoActual === pasos.length - 1}
-            onClick={() => setPasoActual(pasoActual + 1)}
-          >
+            </button>
 
-            Siguiente →
+          ) : (
 
-          </button>
+            <button
+              className="btn-primary"
+            >
+
+              Guardar TF
+
+            </button>
+
+          )}
 
         </div>
 
