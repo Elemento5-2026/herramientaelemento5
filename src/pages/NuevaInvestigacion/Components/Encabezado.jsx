@@ -1,8 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./Encabezado.css";
-import { guardarEncabezado } from "../../../services/investigacionesService";
+import {
+  guardarEncabezado,
+  obtenerGerencias
+} from "../../../services/investigacionesService";
 
 export default function Encabezado() {
+
+  const [gerencias, setGerencias] = useState([]);
 
   const [formulario, setFormulario] = useState({
 
@@ -30,6 +35,27 @@ export default function Encabezado() {
 
   });
 
+  useEffect(() => {
+    cargarGerencias();
+  }, []);
+
+  const cargarGerencias = async () => {
+
+    try {
+
+      const data = await obtenerGerencias();
+
+      setGerencias(data);
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert("Error al cargar las gerencias.");
+
+    }
+
+  };
 
   const guardar = async () => {
 
@@ -85,12 +111,12 @@ export default function Encabezado() {
         <label>Participantes</label>
 
         <div className="catalogo-placeholder">
-
           Aquí irá el selector múltiple de participantes.
-
         </div>
 
       </div>
+
+      {/* ELABORÓ */}
 
       <div className="firma-row">
 
@@ -106,13 +132,13 @@ export default function Encabezado() {
 
         <label>Puesto:</label>
 
-        <select
+        <input
+          type="text"
           name="elaborado_puesto"
           value={formulario.elaborado_puesto}
           onChange={handleChange}
-        >
-          <option value="">Seleccione...</option>
-        </select>
+          placeholder="Puesto"
+        />
 
         <label>Gerencia:</label>
 
@@ -122,17 +148,24 @@ export default function Encabezado() {
           onChange={handleChange}
         >
           <option value="">Seleccione...</option>
+
+          {gerencias.map((g) => (
+            <option key={g.id} value={g.id}>
+              {g.nombre}
+            </option>
+          ))}
+
         </select>
 
         <label>Área:</label>
 
-        <select
+        <input
+          type="text"
           name="elaborado_area"
           value={formulario.elaborado_area}
           onChange={handleChange}
-        >
-          <option value="">Seleccione...</option>
-        </select>
+          placeholder="Área"
+        />
 
         <label>Fecha:</label>
 
@@ -144,6 +177,8 @@ export default function Encabezado() {
         />
 
       </div>
+
+      {/* REVISÓ */}
 
       <div className="firma-row">
 
@@ -159,13 +194,13 @@ export default function Encabezado() {
 
         <label>Puesto:</label>
 
-        <select
+        <input
+          type="text"
           name="revisado_puesto"
           value={formulario.revisado_puesto}
           onChange={handleChange}
-        >
-          <option value="">Seleccione...</option>
-        </select>
+          placeholder="Puesto"
+        />
 
         <label>Gerencia:</label>
 
@@ -175,17 +210,24 @@ export default function Encabezado() {
           onChange={handleChange}
         >
           <option value="">Seleccione...</option>
+
+          {gerencias.map((g) => (
+            <option key={g.id} value={g.id}>
+              {g.nombre}
+            </option>
+          ))}
+
         </select>
 
         <label>Área:</label>
 
-        <select
+        <input
+          type="text"
           name="revisado_area"
           value={formulario.revisado_area}
           onChange={handleChange}
-        >
-          <option value="">Seleccione...</option>
-        </select>
+          placeholder="Área"
+        />
 
         <label>Fecha:</label>
 
@@ -197,6 +239,8 @@ export default function Encabezado() {
         />
 
       </div>
+
+      {/* APROBÓ */}
 
       <div className="firma-row">
 
@@ -212,13 +256,13 @@ export default function Encabezado() {
 
         <label>Puesto:</label>
 
-        <select
+        <input
+          type="text"
           name="aprobado_puesto"
           value={formulario.aprobado_puesto}
           onChange={handleChange}
-        >
-          <option value="">Seleccione...</option>
-        </select>
+          placeholder="Puesto"
+        />
 
         <label>Gerencia:</label>
 
@@ -228,17 +272,24 @@ export default function Encabezado() {
           onChange={handleChange}
         >
           <option value="">Seleccione...</option>
+
+          {gerencias.map((g) => (
+            <option key={g.id} value={g.id}>
+              {g.nombre}
+            </option>
+          ))}
+
         </select>
 
         <label>Área:</label>
 
-        <select
+        <input
+          type="text"
           name="aprobado_area"
           value={formulario.aprobado_area}
           onChange={handleChange}
-        >
-          <option value="">Seleccione...</option>
-        </select>
+          placeholder="Área"
+        />
 
         <label>Fecha:</label>
 
@@ -252,8 +303,14 @@ export default function Encabezado() {
       </div>
 
       <div style={{ marginTop: "30px" }}>
-        <button className="btn-primary" onClick={guardar}>💾 Guardar encabezado</button>
+        <button
+          className="btn-primary"
+          onClick={guardar}
+        >
+          💾 Guardar encabezado
+        </button>
       </div>
+
     </div>
 
   );
