@@ -28,8 +28,6 @@ export default function Descripcion({
         "catalogo_partes_cuerpo"
       );
 
-      console.log("PARTES DEL CUERPO:", data);
-
       setPartesCuerpo(data || []);
 
     } catch (error) {
@@ -47,8 +45,10 @@ export default function Descripcion({
     const { name, value } = e.target;
 
     setFormulario({
+
       ...formulario,
       [name]: value
+
     });
 
   };
@@ -99,7 +99,23 @@ export default function Descripcion({
       </div>
 
       <Evidencias
+
         titulo="Evidencias"
+
+        archivos={formulario.evidencias_descripcion}
+
+        setArchivos={(archivos) =>
+
+          setFormulario({
+
+            ...formulario,
+
+            evidencias_descripcion: archivos
+
+          })
+
+        }
+
       />
 
     </div>
