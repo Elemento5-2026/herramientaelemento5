@@ -90,22 +90,18 @@ export default function Encabezado() {
   };
 
   const firmas = [
-
     {
       titulo: "Elaboró",
       prefijo: "elaborado"
     },
-
     {
       titulo: "Revisó",
       prefijo: "revisado"
     },
-
     {
       titulo: "Aprobó",
       prefijo: "aprobado"
     }
-
   ];
 
   return (
@@ -131,9 +127,7 @@ export default function Encabezado() {
         <label>Participantes</label>
 
         <div className="catalogo-placeholder">
-
           Aquí irá el selector múltiple de participantes.
-
         </div>
 
       </div>
