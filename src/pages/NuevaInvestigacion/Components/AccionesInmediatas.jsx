@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import "./AccionesInmediatas.css";
 
 export default function AccionesInmediatas({
@@ -7,6 +7,10 @@ export default function AccionesInmediatas({
   setFormulario
 
 }) {
+
+  const fileInputsRef = useRef({});
+
+  const [imagenVista, setImagenVista] = useState(null);
 
   const agregarAccion = () => {
 
@@ -85,212 +89,242 @@ export default function AccionesInmediatas({
 
   return (
 
-    <div className="acciones-inmediatas">
+    <>
 
-      <div className="acciones-header">
+      <div className="acciones-inmediatas">
 
-        <button
-          type="button"
-          className="btn-primary"
-          onClick={agregarAccion}
-        >
+        <div className="acciones-header">
 
-          + Agregar acción inmediata
+          <button
+            type="button"
+            className="btn-primary"
+            onClick={agregarAccion}
+          >
 
-        </button>
+            + Agregar acción inmediata
 
-      </div>
+          </button>
 
-      <table className="tabla-acciones">
+        </div>
 
-        <thead>
+        <table className="tabla-acciones">
 
-          <tr>
-
-            <th>#</th>
-            <th>Acción inmediata</th>
-            <th>Responsable</th>
-            <th>Fecha inicio</th>
-            <th>Fecha fin</th>
-            <th>Evidencia</th>
-            <th></th>
-
-          </tr>
-
-        </thead>
-
-        <tbody>
-
-          {formulario.acciones_inmediatas.length === 0 ? (
+          <thead>
 
             <tr>
 
-              <td
-                colSpan="7"
-                style={{ textAlign: "center" }}
-              >
-
-                No hay acciones inmediatas registradas.
-
-              </td>
+              <th>#</th>
+              <th>Acción inmediata</th>
+              <th>Responsable</th>
+              <th>Fecha inicio</th>
+              <th>Fecha fin</th>
+              <th>Evidencia</th>
+              <th></th>
 
             </tr>
 
-          ) : (
+          </thead>
 
-            formulario.acciones_inmediatas.map((accion, index) => (
+          <tbody>
 
-              <tr key={index}>
+            {formulario.acciones_inmediatas.length === 0 ? (
 
-                <td>
+              <tr>
 
-                  {accion.numero}
+                <td
+                  colSpan="7"
+                  style={{ textAlign: "center" }}
+                >
 
-                </td>
-
-                <td>
-
-                  <textarea
-                    rows="2"
-                    value={accion.accion_inmediata}
-                    onChange={(e) =>
-                      actualizarCampo(
-                        index,
-                        "accion_inmediata",
-                        e.target.value
-                      )
-                    }
-                  />
-
-                </td>
-
-                <td>
-
-                  <input
-                    type="text"
-                    value={accion.responsable}
-                    onChange={(e) =>
-                      actualizarCampo(
-                        index,
-                        "responsable",
-                        e.target.value
-                      )
-                    }
-                  />
-
-                </td>
-
-                <td>
-
-                  <input
-                    type="date"
-                    value={accion.fecha_inicio}
-                    onChange={(e) =>
-                      actualizarCampo(
-                        index,
-                        "fecha_inicio",
-                        e.target.value
-                      )
-                    }
-                  />
-
-                </td>
-
-                <td>
-
-                  <input
-                    type="date"
-                    value={accion.fecha_fin}
-                    onChange={(e) =>
-                      actualizarCampo(
-                        index,
-                        "fecha_fin",
-                        e.target.value
-                      )
-                    }
-                  />
-
-                </td>
-
-                <td>
-
-                  <input
-                    id={`evidencia-${index}`}
-                    type="file"
-                    accept="image/*"
-                    hidden
-                    onChange={(e) =>
-                      seleccionarImagen(e, index)
-                    }
-                  />
-
-                  {!accion.evidencia ? (
-
-                    <button
-                      type="button"
-                      className="btn-upload"
-                      onClick={() =>
-                        document
-                          .getElementById(
-                            `evidencia-${index}`
-                          )
-                          .click()
-                      }
-                    >
-
-                      📷 Seleccionar
-
-                    </button>
-
-                  ) : (
-
-                    <span>
-
-                      <a
-                        href={URL.createObjectURL(
-                          accion.evidencia
-                        )}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-
-                        {accion.evidencia.name}
-
-                      </a>
-
-                    </span>
-
-                  )}
-
-                </td>
-
-                <td>
-
-                  <button
-                    type="button"
-                    className="btn-delete"
-                    onClick={() =>
-                      eliminarAccion(index)
-                    }
-                  >
-
-                    🗑
-
-                  </button>
+                  No hay acciones inmediatas registradas.
 
                 </td>
 
               </tr>
 
-            ))
+            ) : (
 
-          )}
+              formulario.acciones_inmediatas.map((accion, index) => (
 
-        </tbody>
+                <tr key={index}>
 
-      </table>
+                  <td>
 
-    </div>
+                    {accion.numero}
+
+                  </td>
+
+                  <td>
+
+                    <textarea
+                      rows="2"
+                      value={accion.accion_inmediata}
+                      onChange={(e) =>
+                        actualizarCampo(
+                          index,
+                          "accion_inmediata",
+                          e.target.value
+                        )
+                      }
+                    />
+
+                  </td>
+
+                  <td>
+
+                    <input
+                      type="text"
+                      value={accion.responsable}
+                      onChange={(e) =>
+                        actualizarCampo(
+                          index,
+                          "responsable",
+                          e.target.value
+                        )
+                      }
+                    />
+
+                  </td>
+
+                  <td>
+
+                    <input
+                      type="date"
+                      value={accion.fecha_inicio}
+                      onChange={(e) =>
+                        actualizarCampo(
+                          index,
+                          "fecha_inicio",
+                          e.target.value
+                        )
+                      }
+                    />
+
+                  </td>
+
+                  <td>
+
+                    <input
+                      type="date"
+                      value={accion.fecha_fin}
+                      onChange={(e) =>
+                        actualizarCampo(
+                          index,
+                          "fecha_fin",
+                          e.target.value
+                        )
+                      }
+                    />
+
+                  </td>
+
+                  <td>
+
+                    <input
+                      ref={(el) => fileInputsRef.current[index] = el}
+                      type="file"
+                      accept="image/*"
+                      hidden
+                      onChange={(e) =>
+                        seleccionarImagen(e, index)
+                      }
+                    />
+                                        {!accion.evidencia ? (
+
+                      <button
+                        type="button"
+                        className="btn-upload"
+                        onClick={() =>
+                          fileInputsRef.current[index]?.click()
+                        }
+                      >
+
+                        📷 Seleccionar
+
+                      </button>
+
+                    ) : (
+
+                      <div>
+
+                        <button
+                          type="button"
+                          className="btn-link"
+                          onClick={() =>
+                            setImagenVista(accion.evidencia)
+                          }
+                        >
+
+                          {accion.evidencia.name}
+
+                        </button>
+
+                        <br />
+
+                        <button
+                          type="button"
+                          className="btn-upload"
+                          onClick={() =>
+                            fileInputsRef.current[index]?.click()
+                          }
+                        >
+
+                          Cambiar
+
+                        </button>
+
+                      </div>
+
+                    )}
+
+                  </td>
+
+                  <td>
+
+                    <button
+                      type="button"
+                      className="btn-delete"
+                      onClick={() =>
+                        eliminarAccion(index)
+                      }
+                    >
+
+                      🗑
+
+                    </button>
+
+                  </td>
+
+                </tr>
+
+              ))
+
+            )}
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+      {imagenVista && (
+
+        <div
+          className="modal-imagen"
+          onClick={() => setImagenVista(null)}
+        >
+
+          <img
+            src={URL.createObjectURL(imagenVista)}
+            alt="Evidencia"
+            onClick={(e) => e.stopPropagation()}
+          />
+
+        </div>
+
+      )}
+
+    </>
 
   );
 
