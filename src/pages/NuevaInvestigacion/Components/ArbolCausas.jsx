@@ -16,7 +16,10 @@ import Nodo from "./Nodo";
 const DISTANCIA_HORIZONTAL = 260;
 const DISTANCIA_VERTICAL = 180;
 
-export default function ArbolCausas() {
+export default function ArbolCausas({
+  formulario,
+  setFormulario
+}) {
 
   //---------------------------------------------------------
   // REFS
@@ -58,22 +61,28 @@ export default function ArbolCausas() {
   // NODES
   //---------------------------------------------------------
 
-  const [nodes, setNodes] = useState([
-    {
-      id: "1",
-      type: "causa",
-      position: {
-        x: 0,
-        y: 0
-      },
-      data: {
-        id: "1",
-        label: "",
-        parentId: null,
-        tipo: null
-      }
+  const nodes = formulario.arbol_causas.nodes;
+
+const setNodes = (nuevoValor) => {
+
+  setFormulario((anterior) => ({
+
+    ...anterior,
+
+    arbol_causas: {
+
+      ...anterior.arbol_causas,
+
+      nodes:
+        typeof nuevoValor === "function"
+          ? nuevoValor(anterior.arbol_causas.nodes)
+          : nuevoValor
+
     }
-  ]);
+
+  }));
+
+};
 
   //---------------------------------------------------------
   // EDGES
