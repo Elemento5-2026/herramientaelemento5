@@ -12,7 +12,8 @@
     "@supabase/supabase-js": "^2.56.0",
     "browser-image-compression": "^2.0.2",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "reactflow": "^11.11.4"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^5.0.0",
