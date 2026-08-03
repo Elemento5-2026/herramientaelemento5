@@ -61,29 +61,22 @@ export default function ArbolCausas({
   // NODES
   //---------------------------------------------------------
 
-  const nodes = formulario.arbol_causas.nodes;
-
-const setNodes = (nuevoValor) => {
-
-  setFormulario((anterior) => ({
-
-    ...anterior,
-
-    arbol_causas: {
-
-      ...anterior.arbol_causas,
-
-      nodes:
-        typeof nuevoValor === "function"
-          ? nuevoValor(anterior.arbol_causas.nodes)
-          : nuevoValor
-
+ const [nodes, setNodes] = useState([
+  {
+    id: "1",
+    type: "causa",
+    position: {
+      x: 0,
+      y: 0
+    },
+    data: {
+      id: "1",
+      label: "",
+      parentId: null,
+      tipo: null
     }
-
-  }));
-
-};
-
+  }
+]);
   //---------------------------------------------------------
   // EDGES
   //---------------------------------------------------------
