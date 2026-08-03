@@ -4,9 +4,7 @@ import ReactFlow, {
   Background,
   Controls,
   MiniMap,
-  addEdge,
-  useNodesState,
-  useEdgesState
+  addEdge
 } from "reactflow";
 
 import "reactflow/dist/style.css";
@@ -21,33 +19,62 @@ export default function ArbolCausas() {
     causa: Nodo
   }), []);
 
-  const [nodes, setNodes, onNodesChange] = useNodesState([
+  const [nodes, setNodes] = useState([
     {
       id: "1",
       type: "causa",
-      position: { x: 500, y: 80 },
+      position: {
+        x: 500,
+        y: 80
+      },
       data: {
-        label: "Lesión en el dedo meñique de la mano izquierda"
+        id: "1",
+        label: "",
+        parentId: null
       }
     }
   ]);
 
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [edges, setEdges] = useState([]);
 
   const [nodoSeleccionado, setNodoSeleccionado] = useState(null);
 
-  const onConnect = useCallback(
-    (params) => setEdges((eds) => addEdge(params, eds)),
-    []
-  );
+  const actualizarTexto = (id, texto) => {
 
-  const agregarHijo = () => {
+    setNodes((anteriores) =>
+      anteriores.map((nodo) =>
 
-    if (!nodoSeleccionado) return;
+        nodo.id === id
 
-    const padre = nodes.find(n => n.id === nodoSeleccionado);
+          ? {
 
-    const nuevoId = Date.now().toString();
+              ...nodo,
+
+              data: {
+
+                ...nodo.data,
+
+                label: texto
+
+              }
+
+            }
+
+          : nodo
+
+      )
+
+    );
+
+  };
+
+  const agregarHijo = useCallback((idPadre) => {
+
+    const padre = nodes.find((n) => n.id === idPadre);
+
+    if (!padre) return;
+
+    const nuevoId = crypto.randomUUID();
 
     const nuevoNodo = {
 
@@ -65,7 +92,11 @@ export default function ArbolCausas() {
 
       data: {
 
-        label: ""
+        id: nuevoId,
+
+        label: "",
+
+        parentId: padre.id
 
       }
 
@@ -81,12 +112,60 @@ export default function ArbolCausas() {
 
     };
 
-    setNodes((nds) => [...nds, nuevoNodo]);
+    setNodes((anteriores) => [
 
-    setEdges((eds) => [...eds, nuevaLinea]);
+      ...anteriores,
+
+      nuevoNodo
+
+    ]);
+
+    setEdges((anteriores) => [
+
+      ...anteriores,
+
+      nuevaLinea
+
+    ]);
+
+  }, [nodes]);
+
+  const eliminarNodo = (id) => {
+
+    if (id === "1") return;
+
+    setNodes((anteriores) =>
+      anteriores.filter((n) => n.id !== id)
+    );
+
+    setEdges((anteriores) =>
+      anteriores.filter(
+        (e) => e.source !== id && e.target !== id
+      )
+    );
 
   };
 
+  const nodesRender = nodes.map((nodo) => ({
+
+    ...nodo,
+
+    data: {
+
+      ...nodo.data,
+
+      onChange: (texto) =>
+        actualizarTexto(nodo.id, texto),
+
+      onAgregarHijo: () =>
+        agregarHijo(nodo.id),
+
+      onEliminar: () =>
+        eliminarNodo(nodo.id)
+
+    }
+
+  }));
   return (
 
     <div className="arbol-causas">
@@ -113,49 +192,76 @@ export default function ArbolCausas() {
 
       </div>
 
-      {nodoSeleccionado && (
-
-        <div
-          style={{
-            marginBottom: 15
-          }}
-        >
-
-          <button
-            className="btn-primary"
-            onClick={agregarHijo}
-          >
-
-            ➕ Agregar causa
-
-          </button>
-
-        </div>
-
-      )}
-
       <div className="canvas-arbol">
 
         <ReactFlow
 
-          nodes={nodes}
+          nodes={nodesRender}
 
           edges={edges}
 
           nodeTypes={nodeTypes}
 
-          onNodesChange={onNodesChange}
+          onNodeClick={(event, node) =>
 
-          onEdgesChange={onEdgesChange}
-
-          onConnect={onConnect}
-
-          onNodeClick={(e, node) =>
             setNodoSeleccionado(node.id)
+
           }
 
           onPaneClick={() =>
+
             setNodoSeleccionado(null)
+
+          }
+
+          onNodesChange={(changes) =>
+
+            setNodes((nds) => {
+
+              return nds.map((node) => {
+
+                const cambio = changes.find(
+
+                  (c) => c.id === node.id
+
+                );
+
+                if (
+
+                  cambio &&
+
+                  cambio.type === "position" &&
+
+                  cambio.position
+
+                ) {
+
+                  return {
+
+                    ...node,
+
+                    position: cambio.position
+
+                  };
+
+                }
+
+                return node;
+
+              });
+
+            })
+
+          }
+
+          onConnect={(params) =>
+
+            setEdges((eds) =>
+
+              addEdge(params, eds)
+
+            )
+
           }
 
           fitView
