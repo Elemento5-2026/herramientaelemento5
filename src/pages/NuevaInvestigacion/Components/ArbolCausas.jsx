@@ -1,105 +1,74 @@
-import { useMemo } from "react";
+.arbol-causas{
 
-import ReactFlow, {
-  Background,
-  Controls,
-  MiniMap
-} from "reactflow";
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+    height:100%;
 
-import "reactflow/dist/style.css";
+}
 
-import "./ArbolCausas.css";
+.leyenda{
 
-import Nodo from "./Nodo";
+    display:flex;
+    gap:15px;
+    flex-wrap:wrap;
 
-export default function ArbolCausas() {
+}
 
-  const nodeTypes = useMemo(
-    () => ({
-      causa: Nodo
-    }),
-    []
-  );
+.leyenda-item{
 
-  const nodes = [
+    padding:10px 18px;
+    border-radius:8px;
+    color:white;
+    font-weight:bold;
 
-    {
+}
 
-      id: "1",
+.fisica{
 
-      type: "causa",
+    background:#28a745;
 
-      position: {
+}
 
-        x: 500,
-        y: 80
+.procedimiento{
 
-      },
+    background:#dc3545;
 
-      data: {
+}
 
-        label: ""
+.comportamiento{
 
-      }
+    background:#ffc107;
+    color:#222;
 
-    }
+}
 
-  ];
+.canvas-arbol{
 
-  const edges = [];
+    width:100%;
+    height:750px;
+    border:2px dashed #d9d9d9;
+    border-radius:10px;
+    overflow:hidden;
+    background:white;
 
-  return (
+}
 
-    <div className="arbol-causas">
+.react-flow{
 
-      <div className="leyenda">
+    background:#fafafa;
 
-        <div className="leyenda-item fisica">
+}
 
-          Condición física
+.react-flow__controls{
 
-        </div>
+    border-radius:8px;
 
-        <div className="leyenda-item procedimiento">
+}
 
-          Procedimiento / Sistema
+.react-flow__minimap{
 
-        </div>
-
-        <div className="leyenda-item comportamiento">
-
-          Comportamiento
-
-        </div>
-
-      </div>
-
-      <div className="canvas-arbol">
-
-        <ReactFlow
-
-          nodes={nodes}
-
-          edges={edges}
-
-          nodeTypes={nodeTypes}
-
-          fitView
-
-        >
-
-          <Background />
-
-          <Controls />
-
-          <MiniMap />
-
-        </ReactFlow>
-
-      </div>
-
-    </div>
-
-  );
+    border-radius:8px;
+    overflow:hidden;
 
 }
