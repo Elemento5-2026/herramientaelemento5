@@ -9,25 +9,23 @@ export default function NodoArbol() {
 
   const agregarHijo = () => {
 
-    setHijos([
+    setHijos((anteriores) => [
 
-      ...hijos,
+      ...anteriores,
 
       {
-
-        id: Date.now()
-
+        id: Date.now() + Math.random()
       }
 
     ]);
 
   };
 
-  const eliminar = (id) => {
+  const eliminarHijo = (id) => {
 
-    setHijos(
+    setHijos((anteriores) =>
 
-      hijos.filter((hijo) => hijo.id !== id)
+      anteriores.filter((hijo) => hijo.id !== id)
 
     );
 
@@ -40,27 +38,18 @@ export default function NodoArbol() {
       <div className="nodo">
 
         <textarea
-
           rows="3"
-
           value={texto}
-
           placeholder="Escriba la causa..."
-
           onChange={(e) => setTexto(e.target.value)}
-
         />
 
         <div className="nodo-botones">
 
           <button
-
             type="button"
-
             className="btn-primary"
-
             onClick={agregarHijo}
-
           >
 
             ➕ Agregar causa
@@ -73,41 +62,32 @@ export default function NodoArbol() {
 
       {hijos.length > 0 && (
 
-        <div className="linea-vertical">
+        <div className="hijos">
 
-          <div className="hijos">
+          {hijos.map((hijo) => (
 
-            {hijos.map((hijo) => (
+            <div
+              key={hijo.id}
+              className="hijo"
+            >
 
-              <div
+              <div className="linea"></div>
 
-                key={hijo.id}
+              <NodoArbol />
 
-                className="hijo"
-
+              <button
+                type="button"
+                className="btn-delete"
+                onClick={() => eliminarHijo(hijo.id)}
               >
 
-                <NodoArbol />
+                🗑 Eliminar
 
-                <button
+              </button>
 
-                  type="button"
+            </div>
 
-                  className="btn-delete"
-
-                  onClick={() => eliminar(hijo.id)}
-
-                >
-
-                  🗑
-
-                </button>
-
-              </div>
-
-            ))}
-
-          </div>
+          ))}
 
         </div>
 
