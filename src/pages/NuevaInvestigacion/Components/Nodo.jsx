@@ -1,6 +1,15 @@
 import { Handle, Position } from "reactflow";
 
 export default function Nodo({ data, selected }) {
+  const colorBorde = {
+
+  fisica: "#28a745",
+
+  procedimiento: "#dc3545",
+
+  comportamiento: "#ffc107"
+
+}[data.tipo] || (selected ? "#0d6efd" : "#d9d9d9");
 
   return (
 
@@ -18,9 +27,7 @@ export default function Nodo({ data, selected }) {
         style={{
           width: 320,
           background: "#fff",
-          border: selected
-            ? "2px solid #0d6efd"
-            : "2px solid #d9d9d9",
+          border: `2px solid ${colorBorde}`,
           borderRadius: 12,
           padding: 14,
           boxShadow: "0 2px 8px rgba(0,0,0,.10)"
@@ -75,52 +82,85 @@ export default function Nodo({ data, selected }) {
 
 />
 
-        {selected && (
+/>
 
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              gap: 10,
-              marginTop: 12
-            }}
-          >
+{data.tipo && (
 
-            <button
+  <div
+    style={{
+      marginTop: 10,
+      textAlign: "center",
+      fontWeight: 600,
+      fontSize: 13,
+      color: colorBorde
+    }}
+  >
 
-              type="button"
+    {data.tipo === "fisica" && "🟢 Condición física"}
 
-              className="btn-primary"
+    {data.tipo === "procedimiento" && "🔴 Procedimiento / Sistema"}
 
-              onClick={data.onAgregarHijo}
+    {data.tipo === "comportamiento" && "🟠 Comportamiento"}
 
-            >
+  </div>
 
-              ➕
+)}
 
-            </button>
+{selected && (
 
-            {data.parentId && (
+  <>
 
-              <button
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        gap: 10,
+        marginTop: 12
+      }}
+    >
 
-                type="button"
+      <button
+        type="button"
+        className="btn-primary"
+        onClick={data.onAgregarHijo}
+      >
+        ➕
+      </button>
 
-                className="btn-delete"
+      {data.parentId && (
 
-                onClick={data.onEliminar}
+        <button
+          type="button"
+          className="btn-delete"
+          onClick={data.onEliminar}
+        >
+          🗑
+        </button>
 
-              >
+      )}
 
-                🗑
+    </div>
 
-              </button>
+    <button
+      type="button"
+      style={{
+        marginTop: 10,
+        width: "100%",
+        padding: "8px",
+        borderRadius: 8,
+        border: "1px solid #0d6efd",
+        background: "#fff",
+        color: "#0d6efd",
+        cursor: "pointer",
+        fontWeight: 600
+      }}
+    >
+      🎯 Asignar como causa raíz
+    </button>
 
-            )}
+  </>
 
-          </div>
-
-        )}
+)}
 
       </div>
 
