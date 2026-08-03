@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 
-import ReactFlow, {
+import ReactFlow, 
   Background,
   Controls,
   MiniMap,
@@ -562,13 +562,25 @@ export default function ArbolCausas({
 
           ),
 
-        onEliminar: () =>
+       onEliminar: () =>
 
-          eliminarNodo(
+  eliminarNodo(
 
-            nodo.id
+    nodo.id
 
-          )
+  ),
+
+onCambiarTipo: (tipo) =>
+
+  cambiarTipo(
+
+    nodo.id,
+
+    tipo
+
+  )
+
+          
 
       }
 
@@ -579,12 +591,34 @@ export default function ArbolCausas({
     nodes,
 
     actualizarTexto,
+    const cambiarTipo = useCallback((idNodo, tipo) => {
+
+  setNodes((anteriores) =>
+
+    anteriores.map((nodo) =>
+
+      nodo.id === idNodo
+        ? {
+            ...nodo,
+            data: {
+              ...nodo.data,
+              tipo
+            }
+          }
+        : nodo
+
+    )
+
+  );
+
+}, []);
 
     agregarHijo,
 
     agregarHermano,
 
-    eliminarNodo
+    eliminarNodo,
+    cambiarTipo
 
   ]);
 
