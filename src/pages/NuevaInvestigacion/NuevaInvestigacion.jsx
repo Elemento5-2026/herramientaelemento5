@@ -80,77 +80,6 @@ export default function NuevaInvestigacion({ setScreen }) {
 
   ];
 
-  const renderPaso = () => {
-
-    switch (pasoActual) {
-
-      case 0:
-        return (
-
-          <Encabezado
-            formulario={formulario}
-            setFormulario={setFormulario}
-          />
-
-        );
-
-      case 1:
-        return (
-
-          <Identificacion
-            formulario={formulario}
-            setFormulario={setFormulario}
-          />
-
-        );
-
-      case 2:
-        return (
-
-          <Descripcion
-            formulario={formulario}
-            setFormulario={setFormulario}
-          />
-
-        );
-
-      case 3:
-        return (
-
-          <AccionesInmediatas
-            formulario={formulario}
-            setFormulario={setFormulario}
-          />
-
-        );
-
-      case 4:
-        return (
-
-          <ArbolCausas
-            formulario={formulario}
-            setFormulario={setFormulario}
-          />
-
-        );
-
-      case 5:
-        return (
-
-          <PlanAccion
-            formulario={formulario}
-            setFormulario={setFormulario}
-          />
-
-        );
-
-      default:
-        return null;
-
-    }
-
-  };
-
   return (
 
     <Layout
@@ -179,9 +108,7 @@ export default function NuevaInvestigacion({ setScreen }) {
             <h1>Nueva investigación</h1>
 
             <p>
-
               Complete la información para registrar la investigación.
-
             </p>
 
           </div>
@@ -205,15 +132,11 @@ export default function NuevaInvestigacion({ setScreen }) {
               >
 
                 <span className="wizard-number">
-
                   {index + 1}
-
                 </span>
 
                 <span>
-
                   {paso}
-
                 </span>
 
               </button>
@@ -228,7 +151,47 @@ export default function NuevaInvestigacion({ setScreen }) {
 
             <hr />
 
-            {renderPaso()}
+            <div style={{ display: pasoActual === 0 ? "block" : "none" }}>
+              <Encabezado
+                formulario={formulario}
+                setFormulario={setFormulario}
+              />
+            </div>
+
+            <div style={{ display: pasoActual === 1 ? "block" : "none" }}>
+              <Identificacion
+                formulario={formulario}
+                setFormulario={setFormulario}
+              />
+            </div>
+
+            <div style={{ display: pasoActual === 2 ? "block" : "none" }}>
+              <Descripcion
+                formulario={formulario}
+                setFormulario={setFormulario}
+              />
+            </div>
+
+            <div style={{ display: pasoActual === 3 ? "block" : "none" }}>
+              <AccionesInmediatas
+                formulario={formulario}
+                setFormulario={setFormulario}
+              />
+            </div>
+
+            <div style={{ display: pasoActual === 4 ? "block" : "none" }}>
+              <ArbolCausas
+                formulario={formulario}
+                setFormulario={setFormulario}
+              />
+            </div>
+
+            <div style={{ display: pasoActual === 5 ? "block" : "none" }}>
+              <PlanAccion
+                formulario={formulario}
+                setFormulario={setFormulario}
+              />
+            </div>
 
           </section>
 
@@ -241,9 +204,7 @@ export default function NuevaInvestigacion({ setScreen }) {
             disabled={pasoActual === 0}
             onClick={() => setPasoActual(pasoActual - 1)}
           >
-
             ← Anterior
-
           </button>
 
           {pasoActual < pasos.length - 1 ? (
@@ -252,19 +213,13 @@ export default function NuevaInvestigacion({ setScreen }) {
               className="btn-primary"
               onClick={() => setPasoActual(pasoActual + 1)}
             >
-
               Siguiente →
-
             </button>
 
           ) : (
 
-            <button
-              className="btn-primary"
-            >
-
+            <button className="btn-primary">
               Guardar TF
-
             </button>
 
           )}
