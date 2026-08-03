@@ -14,7 +14,7 @@ import "./ArbolCausas.css";
 import Nodo from "./Nodo";
 
 const DISTANCIA_HORIZONTAL = 360;
-const DISTANCIA_VERTICAL = 180;
+const DISTANCIA_VERTICAL = 250;
 
 export default function ArbolCausas({
   formulario,
