@@ -1,9 +1,12 @@
-import { useMemo } from "react";
+import { useMemo, useState, useCallback } from "react";
 
 import ReactFlow, {
   Background,
   Controls,
-  MiniMap
+  MiniMap,
+  addEdge,
+  useNodesState,
+  useEdgesState
 } from "reactflow";
 
 import "reactflow/dist/style.css";
@@ -14,25 +17,49 @@ import Nodo from "./Nodo";
 
 export default function ArbolCausas() {
 
-  const nodeTypes = useMemo(
-    () => ({
-      causa: Nodo
-    }),
+  const nodeTypes = useMemo(() => ({
+    causa: Nodo
+  }), []);
+
+  const [nodes, setNodes, onNodesChange] = useNodesState([
+    {
+      id: "1",
+      type: "causa",
+      position: { x: 500, y: 80 },
+      data: {
+        label: "Lesión en el dedo meñique de la mano izquierda"
+      }
+    }
+  ]);
+
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+
+  const [nodoSeleccionado, setNodoSeleccionado] = useState(null);
+
+  const onConnect = useCallback(
+    (params) => setEdges((eds) => addEdge(params, eds)),
     []
   );
 
-  const nodes = [
+  const agregarHijo = () => {
 
-    {
+    if (!nodoSeleccionado) return;
 
-      id: "1",
+    const padre = nodes.find(n => n.id === nodoSeleccionado);
+
+    const nuevoId = Date.now().toString();
+
+    const nuevoNodo = {
+
+      id: nuevoId,
 
       type: "causa",
 
       position: {
 
-        x: 500,
-        y: 80
+        x: padre.position.x,
+
+        y: padre.position.y + 220
 
       },
 
@@ -42,11 +69,23 @@ export default function ArbolCausas() {
 
       }
 
-    }
+    };
 
-  ];
+    const nuevaLinea = {
 
-  const edges = [];
+      id: `${padre.id}-${nuevoId}`,
+
+      source: padre.id,
+
+      target: nuevoId
+
+    };
+
+    setNodes((nds) => [...nds, nuevoNodo]);
+
+    setEdges((eds) => [...eds, nuevaLinea]);
+
+  };
 
   return (
 
@@ -74,6 +113,27 @@ export default function ArbolCausas() {
 
       </div>
 
+      {nodoSeleccionado && (
+
+        <div
+          style={{
+            marginBottom: 15
+          }}
+        >
+
+          <button
+            className="btn-primary"
+            onClick={agregarHijo}
+          >
+
+            ➕ Agregar causa
+
+          </button>
+
+        </div>
+
+      )}
+
       <div className="canvas-arbol">
 
         <ReactFlow
@@ -84,15 +144,29 @@ export default function ArbolCausas() {
 
           nodeTypes={nodeTypes}
 
+          onNodesChange={onNodesChange}
+
+          onEdgesChange={onEdgesChange}
+
+          onConnect={onConnect}
+
+          onNodeClick={(e, node) =>
+            setNodoSeleccionado(node.id)
+          }
+
+          onPaneClick={() =>
+            setNodoSeleccionado(null)
+          }
+
           fitView
 
         >
 
           <Background />
 
-          <Controls />
-
           <MiniMap />
+
+          <Controls />
 
         </ReactFlow>
 
