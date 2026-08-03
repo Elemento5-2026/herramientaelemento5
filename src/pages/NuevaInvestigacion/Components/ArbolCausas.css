@@ -6,39 +6,12 @@
 
 }
 
-.toolbar{
-
-    display:flex;
-    gap:15px;
-
-}
-
-.btn-primary{
-
-    background:#0d6efd;
-    color:white;
-    border:none;
-    padding:10px 18px;
-    border-radius:8px;
-    cursor:pointer;
-
-}
-
-.btn-secondary{
-
-    background:#6c757d;
-    color:white;
-    border:none;
-    padding:10px 18px;
-    border-radius:8px;
-    cursor:pointer;
-
-}
-
 .leyenda{
 
     display:flex;
     gap:15px;
+    justify-content:center;
+    flex-wrap:wrap;
 
 }
 
@@ -70,18 +43,18 @@
 
 }
 
-.canvas-placeholder{
+.canvas-arbol{
 
-    min-height:600px;
-    border:2px dashed #d9d9d9;
-    border-radius:10px;
+    min-height:700px;
+    width:100%;
     background:#fafafa;
+    border:2px dashed #d9d9d9;
+    border-radius:12px;
+    padding:40px;
+    overflow:auto;
 
     display:flex;
-    flex-direction:column;
     justify-content:center;
-    align-items:center;
-
-    text-align:center;
+    align-items:flex-start;
 
 }
