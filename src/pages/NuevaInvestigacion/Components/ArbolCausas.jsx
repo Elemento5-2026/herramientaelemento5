@@ -1,74 +1,105 @@
-.arbol-causas{
+import { useMemo } from "react";
 
-    display:flex;
-    flex-direction:column;
-    gap:20px;
-    height:100%;
+import ReactFlow, {
+  Background,
+  Controls,
+  MiniMap
+} from "reactflow";
 
-}
+import "reactflow/dist/style.css";
 
-.leyenda{
+import "./ArbolCausas.css";
 
-    display:flex;
-    gap:15px;
-    flex-wrap:wrap;
+import Nodo from "./Nodo";
 
-}
+export default function ArbolCausas() {
 
-.leyenda-item{
+  const nodeTypes = useMemo(
+    () => ({
+      causa: Nodo
+    }),
+    []
+  );
 
-    padding:10px 18px;
-    border-radius:8px;
-    color:white;
-    font-weight:bold;
+  const nodes = [
 
-}
+    {
 
-.fisica{
+      id: "1",
 
-    background:#28a745;
+      type: "causa",
 
-}
+      position: {
 
-.procedimiento{
+        x: 500,
+        y: 80
 
-    background:#dc3545;
+      },
 
-}
+      data: {
 
-.comportamiento{
+        label: ""
 
-    background:#ffc107;
-    color:#222;
+      }
 
-}
+    }
 
-.canvas-arbol{
+  ];
 
-    width:100%;
-    height:750px;
-    border:2px dashed #d9d9d9;
-    border-radius:10px;
-    overflow:hidden;
-    background:white;
+  const edges = [];
 
-}
+  return (
 
-.react-flow{
+    <div className="arbol-causas">
 
-    background:#fafafa;
+      <div className="leyenda">
 
-}
+        <div className="leyenda-item fisica">
 
-.react-flow__controls{
+          Condición física
 
-    border-radius:8px;
+        </div>
 
-}
+        <div className="leyenda-item procedimiento">
 
-.react-flow__minimap{
+          Procedimiento / Sistema
 
-    border-radius:8px;
-    overflow:hidden;
+        </div>
+
+        <div className="leyenda-item comportamiento">
+
+          Comportamiento
+
+        </div>
+
+      </div>
+
+      <div className="canvas-arbol">
+
+        <ReactFlow
+
+          nodes={nodes}
+
+          edges={edges}
+
+          nodeTypes={nodeTypes}
+
+          fitView
+
+        >
+
+          <Background />
+
+          <Controls />
+
+          <MiniMap />
+
+        </ReactFlow>
+
+      </div>
+
+    </div>
+
+  );
 
 }
