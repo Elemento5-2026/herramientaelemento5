@@ -81,9 +81,6 @@ export default function Nodo({ data, selected }) {
   }}
 
 />
-
-/>
-
 {data.tipo && (
 
   <div
