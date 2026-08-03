@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useRef } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 
 import ReactFlow, {
   Background,
@@ -31,6 +31,20 @@ export default function ArbolCausas() {
   //---------------------------------------------------------
 
   const [fullscreen, setFullscreen] = useState(false);
+
+  //---------------------------------------------------------
+  // BLOQUEAR SCROLL DEL BODY EN FULLSCREEN
+  //---------------------------------------------------------
+
+  useEffect(() => {
+
+    document.body.style.overflow = fullscreen ? "hidden" : "auto";
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+
+  }, [fullscreen]);
 
   //---------------------------------------------------------
   // NODE TYPES
@@ -296,7 +310,8 @@ export default function ArbolCausas() {
     return nuevos;
 
   }, []);
-    //---------------------------------------------------------
+
+  //---------------------------------------------------------
   // ACTUALIZAR TEXTO
   //---------------------------------------------------------
 
@@ -570,7 +585,8 @@ export default function ArbolCausas() {
     eliminarNodo
 
   ]);
-    //---------------------------------------------------------
+
+  //---------------------------------------------------------
   // RENDER
   //---------------------------------------------------------
 
