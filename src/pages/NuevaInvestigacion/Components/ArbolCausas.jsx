@@ -13,7 +13,7 @@ import "./ArbolCausas.css";
 
 import Nodo from "./Nodo";
 
-const DISTANCIA_HORIZONTAL = 260;
+const DISTANCIA_HORIZONTAL = 360;
 const DISTANCIA_VERTICAL = 180;
 
 export default function ArbolCausas({
