@@ -1,8 +1,8 @@
+import { useState } from "react";
 import { Handle, Position } from "reactflow";
 
 export default function Nodo({ data, selected }) {
   const colorBorde = {
-
   fisica: "#28a745",
 
   procedimiento: "#dc3545",
@@ -10,6 +10,7 @@ export default function Nodo({ data, selected }) {
   comportamiento: "#ffc107"
 
 }[data.tipo] || (selected ? "#0d6efd" : "#d9d9d9");
+  const [mostrarMenu, setMostrarMenu] = useState(false);
 
   return (
 
