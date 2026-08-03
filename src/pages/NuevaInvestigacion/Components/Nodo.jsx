@@ -29,8 +29,6 @@ export default function Nodo({ data, selected }) {
 
         <textarea
 
-   <textarea
-
   rows={4}
 
   placeholder="Escriba la causa..."
