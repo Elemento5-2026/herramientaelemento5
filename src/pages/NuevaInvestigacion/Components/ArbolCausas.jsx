@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useRef } from "react";
 
 import ReactFlow, {
   Background,
@@ -18,9 +18,31 @@ const DISTANCIA_VERTICAL = 180;
 
 export default function ArbolCausas() {
 
+  //---------------------------------------------------------
+  // REFS
+  //---------------------------------------------------------
+
+  const reactFlowWrapper = useRef(null);
+
+  const [reactFlowInstance, setReactFlowInstance] = useState(null);
+
+  //---------------------------------------------------------
+  // UI
+  //---------------------------------------------------------
+
+  const [fullscreen, setFullscreen] = useState(false);
+
+  //---------------------------------------------------------
+  // NODE TYPES
+  //---------------------------------------------------------
+
   const nodeTypes = useMemo(() => ({
     causa: Nodo
   }), []);
+
+  //---------------------------------------------------------
+  // NODES
+  //---------------------------------------------------------
 
   const [nodes, setNodes] = useState([
     {
@@ -39,37 +61,73 @@ export default function ArbolCausas() {
     }
   ]);
 
-  //==========================================================
+  //---------------------------------------------------------
   // EDGES
-  //==========================================================
+  //---------------------------------------------------------
 
   const edges = useMemo(() => {
 
     return nodes
-      .filter((nodo) => nodo.data.parentId !== null)
+      .filter((nodo) => nodo.data.parentId)
       .map((nodo) => ({
+
         id: `${nodo.data.parentId}-${nodo.id}`,
+
         source: nodo.data.parentId,
-        target: nodo.id
+
+        target: nodo.id,
+
+        type: "smoothstep",
+
+        pathOptions: {
+          borderRadius: 0
+        }
+
       }));
 
   }, [nodes]);
 
-  //==========================================================
-  // HIJOS
-  //==========================================================
+  //---------------------------------------------------------
+  // FULLSCREEN
+  //---------------------------------------------------------
 
-  const obtenerHijos = useCallback((lista, idPadre) => {
+  const toggleFullscreen = () => {
 
-    return lista.filter(
-      (nodo) => nodo.data.parentId === idPadre
-    );
+    setFullscreen((anterior) => !anterior);
 
-  }, []);
+    setTimeout(() => {
 
-  //==========================================================
+      reactFlowInstance?.fitView({
+
+        padding: 0.25,
+
+        duration: 500
+
+      });
+
+    }, 250);
+
+  };
+
+  //---------------------------------------------------------
+  // CENTRAR ÁRBOL
+  //---------------------------------------------------------
+
+  const centrarArbol = () => {
+
+    reactFlowInstance?.fitView({
+
+      padding: 0.25,
+
+      duration: 600
+
+    });
+
+  };
+
+  //---------------------------------------------------------
   // DESCENDIENTES
-  //==========================================================
+  //---------------------------------------------------------
 
   const obtenerDescendientes = useCallback((lista, idNodo) => {
 
@@ -77,17 +135,15 @@ export default function ArbolCausas() {
 
     const recorrer = (padre) => {
 
-      const hijos = lista.filter(
-        (n) => n.data.parentId === padre
-      );
+      lista
+        .filter((n) => n.data.parentId === padre)
+        .forEach((hijo) => {
 
-      hijos.forEach((hijo) => {
+          ids.push(hijo.id);
 
-        ids.push(hijo.id);
+          recorrer(hijo.id);
 
-        recorrer(hijo.id);
-
-      });
+        });
 
     };
 
@@ -97,24 +153,40 @@ export default function ArbolCausas() {
 
   }, []);
 
-  //==========================================================
+  //---------------------------------------------------------
   // LAYOUT
-  //==========================================================
+  //---------------------------------------------------------
 
   const recalcularLayout = useCallback((lista) => {
 
-    const nuevos = structuredClone(lista);
+    const nuevos = lista.map((nodo) => ({
+
+      ...nodo,
+
+      position: {
+
+        ...nodo.position
+
+      },
+
+      data: {
+
+        ...nodo.data
+
+      }
+
+    }));
 
     const anchos = {};
 
-    //------------------------------------------------------
-    // CALCULAR EL ANCHO DE CADA SUBÁRBOL
     //------------------------------------------------------
 
     const calcularAncho = (idNodo) => {
 
       const hijos = nuevos.filter(
+
         (n) => n.data.parentId === idNodo
+
       );
 
       if (hijos.length === 0) {
@@ -142,45 +214,60 @@ export default function ArbolCausas() {
     calcularAncho("1");
 
     //------------------------------------------------------
-    // ASIGNAR POSICIONES
-    //------------------------------------------------------
 
-    const asignarPosiciones = (
+    const posicionar = (
+
       idNodo,
+
       nivel,
+
       izquierda
+
     ) => {
 
       const nodo = nuevos.find(
+
         (n) => n.id === idNodo
+
       );
 
       if (!nodo) return;
 
-      const ancho = anchos[idNodo];
-
       nodo.position = {
 
         x:
-          izquierda * DISTANCIA_HORIZONTAL +
-          ((ancho - 1) *
+
+          izquierda *
+
+            DISTANCIA_HORIZONTAL +
+
+          ((anchos[idNodo] - 1) *
+
             DISTANCIA_HORIZONTAL) /
+
             2,
 
         y:
-          nivel * DISTANCIA_VERTICAL
+
+          nivel *
+
+          DISTANCIA_VERTICAL
 
       };
 
       const hijos = nuevos.filter(
-        (n) => n.data.parentId === idNodo
+
+        (n) =>
+
+          n.data.parentId === idNodo
+
       );
 
       let inicio = izquierda;
 
       hijos.forEach((hijo) => {
 
-        asignarPosiciones(
+        posicionar(
 
           hijo.id,
 
@@ -196,7 +283,7 @@ export default function ArbolCausas() {
 
     };
 
-    asignarPosiciones(
+    posicionar(
 
       "1",
 
@@ -207,36 +294,45 @@ export default function ArbolCausas() {
     );
 
     return nuevos;
-    }, []);
-      //==========================================================
+
+  }, []);
+    //---------------------------------------------------------
   // ACTUALIZAR TEXTO
-  //==========================================================
+  //---------------------------------------------------------
 
   const actualizarTexto = useCallback((idNodo, texto) => {
 
     setNodes((anteriores) =>
+
       anteriores.map((nodo) =>
 
         nodo.id === idNodo
 
           ? {
+
               ...nodo,
+
               data: {
+
                 ...nodo.data,
+
                 label: texto
+
               }
+
             }
 
           : nodo
 
       )
+
     );
 
   }, []);
 
-  //==========================================================
+  //---------------------------------------------------------
   // AGREGAR HIJO
-  //==========================================================
+  //---------------------------------------------------------
 
   const agregarHijo = useCallback((idPadre) => {
 
@@ -255,8 +351,11 @@ export default function ArbolCausas() {
           type: "causa",
 
           position: {
+
             x: 0,
+
             y: 0
+
           },
 
           data: {
@@ -281,9 +380,9 @@ export default function ArbolCausas() {
 
   }, [recalcularLayout]);
 
-  //==========================================================
+  //---------------------------------------------------------
   // AGREGAR HERMANO
-  //==========================================================
+  //---------------------------------------------------------
 
   const agregarHermano = useCallback((idNodo) => {
 
@@ -313,8 +412,11 @@ export default function ArbolCausas() {
           type: "causa",
 
           position: {
+
             x: 0,
+
             y: 0
+
           },
 
           data: {
@@ -339,9 +441,9 @@ export default function ArbolCausas() {
 
   }, [recalcularLayout]);
 
-  //==========================================================
-  // ELIMINAR NODO + SUBÁRBOL
-  //==========================================================
+  //---------------------------------------------------------
+  // ELIMINAR NODO
+  //---------------------------------------------------------
 
   const eliminarNodo = useCallback((idNodo) => {
 
@@ -354,8 +456,11 @@ export default function ArbolCausas() {
         idNodo,
 
         ...obtenerDescendientes(
+
           anteriores,
+
           idNodo
+
         )
 
       ];
@@ -380,9 +485,9 @@ export default function ArbolCausas() {
 
   ]);
 
-  //==========================================================
-  // MOVER NODOS
-  //==========================================================
+  //---------------------------------------------------------
+  // DRAG
+  //---------------------------------------------------------
 
   const onNodesChange = useCallback((changes) => {
 
@@ -400,9 +505,9 @@ export default function ArbolCausas() {
 
   }, []);
 
-  //==========================================================
-  // NODOS PARA REACT FLOW
-  //==========================================================
+  //---------------------------------------------------------
+  // NODOS RENDER
+  //---------------------------------------------------------
 
   const nodesRender = useMemo(() => {
 
@@ -465,31 +570,93 @@ export default function ArbolCausas() {
     eliminarNodo
 
   ]);
-      //==========================================================
+    //---------------------------------------------------------
   // RENDER
-  //==========================================================
+  //---------------------------------------------------------
 
   return (
 
-    <div className="arbol-causas">
+    <div
+      className={
+        fullscreen
+          ? "arbol-causas fullscreen"
+          : "arbol-causas"
+      }
+    >
 
-      <div className="leyenda">
+      <div className="arbol-toolbar">
 
-        <div className="leyenda-item fisica">
-          Condición física
+        <div>
+
+          <h3>Árbol de causas</h3>
+
         </div>
 
-        <div className="leyenda-item procedimiento">
-          Procedimiento / Sistema
-        </div>
+        <div
+          style={{
+            display: "flex",
+            gap: 10
+          }}
+        >
 
-        <div className="leyenda-item comportamiento">
-          Comportamiento
+          <button
+            className="btn-secondary"
+            onClick={centrarArbol}
+          >
+
+            🧭 Centrar
+
+          </button>
+
+          <button
+            className="btn-primary"
+            onClick={toggleFullscreen}
+          >
+
+            {fullscreen
+              ? "🗗 Restaurar"
+              : "⛶ Pantalla completa"}
+
+          </button>
+
         </div>
 
       </div>
 
-      <div className="canvas-arbol">
+      {!fullscreen && (
+
+        <div className="leyenda">
+
+          <div className="leyenda-item fisica">
+
+            Condición física
+
+          </div>
+
+          <div className="leyenda-item procedimiento">
+
+            Procedimiento / Sistema
+
+          </div>
+
+          <div className="leyenda-item comportamiento">
+
+            Comportamiento
+
+          </div>
+
+        </div>
+
+      )}
+
+      <div
+        ref={reactFlowWrapper}
+        className={
+          fullscreen
+            ? "canvas-arbol fullscreen"
+            : "canvas-arbol"
+        }
+      >
 
         <ReactFlow
 
@@ -501,7 +668,17 @@ export default function ArbolCausas() {
 
           onNodesChange={onNodesChange}
 
+          onInit={setReactFlowInstance}
+
           fitView
+
+          fitViewOptions={{
+            padding: 0.25
+          }}
+
+          minZoom={0.20}
+
+          maxZoom={2}
 
         >
 
