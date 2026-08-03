@@ -346,6 +346,38 @@ export default function ArbolCausas({
     );
 
   }, []);
+  //---------------------------------------------------------
+// CAMBIAR TIPO
+//---------------------------------------------------------
+
+const cambiarTipo = useCallback((idNodo, tipo) => {
+
+  setNodes((anteriores) =>
+
+    anteriores.map((nodo) =>
+
+      nodo.id === idNodo
+        ? {
+
+            ...nodo,
+
+            data: {
+
+              ...nodo.data,
+
+              tipo
+
+            }
+
+          }
+
+        : nodo
+
+    )
+
+  );
+
+}, []);
 
   //---------------------------------------------------------
   // AGREGAR HIJO
@@ -588,37 +620,18 @@ onCambiarTipo: (tipo) =>
 
   }, [
 
-    nodes,
+   nodes,
 
-    actualizarTexto,
-    const cambiarTipo = useCallback((idNodo, tipo) => {
+actualizarTexto,
 
-  setNodes((anteriores) =>
+agregarHijo,
 
-    anteriores.map((nodo) =>
+agregarHermano,
 
-      nodo.id === idNodo
-        ? {
-            ...nodo,
-            data: {
-              ...nodo.data,
-              tipo
-            }
-          }
-        : nodo
+eliminarNodo,
 
-    )
-
-  );
-
-}, []);
-
-    agregarHijo,
-
-    agregarHermano,
-
-    eliminarNodo,
-    cambiarTipo
+cambiarTipo
+    
 
   ]);
 
