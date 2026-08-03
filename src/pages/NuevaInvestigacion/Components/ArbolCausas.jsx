@@ -1,8 +1,52 @@
+import { useMemo } from "react";
+
+import ReactFlow, {
+  Background,
+  Controls,
+  MiniMap
+} from "reactflow";
+
+import "reactflow/dist/style.css";
+
 import "./ArbolCausas.css";
 
-import NodoArbol from "./NodoArbol";
+import Nodo from "./Nodo";
 
 export default function ArbolCausas() {
+
+  const nodeTypes = useMemo(
+    () => ({
+      causa: Nodo
+    }),
+    []
+  );
+
+  const nodes = [
+
+    {
+
+      id: "1",
+
+      type: "causa",
+
+      position: {
+
+        x: 500,
+        y: 80
+
+      },
+
+      data: {
+
+        label: ""
+
+      }
+
+    }
+
+  ];
+
+  const edges = [];
 
   return (
 
@@ -32,7 +76,25 @@ export default function ArbolCausas() {
 
       <div className="canvas-arbol">
 
-        <NodoArbol />
+        <ReactFlow
+
+          nodes={nodes}
+
+          edges={edges}
+
+          nodeTypes={nodeTypes}
+
+          fitView
+
+        >
+
+          <Background />
+
+          <Controls />
+
+          <MiniMap />
+
+        </ReactFlow>
 
       </div>
 
