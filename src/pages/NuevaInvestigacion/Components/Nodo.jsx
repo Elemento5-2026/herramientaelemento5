@@ -9,16 +9,19 @@ export default function Nodo({ data }) {
       <Handle
         type="target"
         position={Position.Top}
+        style={{
+          opacity: 0
+        }}
       />
 
       <div
         style={{
           width: 320,
           background: "#fff",
-          border: "2px solid #222",
+          border: "2px solid #d9d9d9",
           borderRadius: 12,
           padding: 14,
-          boxShadow: "0 3px 10px rgba(0,0,0,.12)"
+          boxShadow: "0 2px 8px rgba(0,0,0,.10)"
         }}
       >
 
@@ -28,7 +31,17 @@ export default function Nodo({ data }) {
 
           placeholder="Escriba la causa..."
 
-          defaultValue={data.label}
+          value={data.label}
+
+          onChange={(e) => {
+
+            if (data.onChange) {
+
+              data.onChange(e.target.value);
+
+            }
+
+          }}
 
           style={{
             width: "100%",
@@ -37,7 +50,8 @@ export default function Nodo({ data }) {
             padding: 10,
             resize: "none",
             fontSize: 14,
-            boxSizing: "border-box"
+            boxSizing: "border-box",
+            outline: "none"
           }}
 
         />
@@ -47,6 +61,9 @@ export default function Nodo({ data }) {
       <Handle
         type="source"
         position={Position.Bottom}
+        style={{
+          opacity: 0
+        }}
       />
 
     </>
