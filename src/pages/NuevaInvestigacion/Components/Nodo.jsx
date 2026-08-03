@@ -1,6 +1,6 @@
 import { Handle, Position } from "reactflow";
 
-export default function Nodo({ data }) {
+export default function Nodo({ data, selected }) {
 
   return (
 
@@ -18,7 +18,9 @@ export default function Nodo({ data }) {
         style={{
           width: 320,
           background: "#fff",
-          border: "2px solid #d9d9d9",
+          border: selected
+            ? "2px solid #0d6efd"
+            : "2px solid #d9d9d9",
           borderRadius: 12,
           padding: 14,
           boxShadow: "0 2px 8px rgba(0,0,0,.10)"
@@ -33,15 +35,9 @@ export default function Nodo({ data }) {
 
           value={data.label}
 
-          onChange={(e) => {
-
-            if (data.onChange) {
-
-              data.onChange(e.target.value);
-
-            }
-
-          }}
+          onChange={(e) =>
+            data.onChange(e.target.value)
+          }
 
           style={{
             width: "100%",
@@ -55,6 +51,53 @@ export default function Nodo({ data }) {
           }}
 
         />
+
+        {selected && (
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              gap: 10,
+              marginTop: 12
+            }}
+          >
+
+            <button
+
+              type="button"
+
+              className="btn-primary"
+
+              onClick={data.onAgregarHijo}
+
+            >
+
+              ➕
+
+            </button>
+
+            {data.parentId && (
+
+              <button
+
+                type="button"
+
+                className="btn-delete"
+
+                onClick={data.onEliminar}
+
+              >
+
+                🗑
+
+              </button>
+
+            )}
+
+          </div>
+
+        )}
 
       </div>
 
