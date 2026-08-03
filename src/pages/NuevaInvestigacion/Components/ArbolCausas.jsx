@@ -558,82 +558,50 @@ const cambiarTipo = useCallback((idNodo, tipo) => {
   // NODOS RENDER
   //---------------------------------------------------------
 
-  const nodesRender = useMemo(() => {
+const nodesRender = useMemo(() => {
 
-    return nodes.map((nodo) => ({
+  return nodes.map((nodo) => ({
 
-      ...nodo,
+    ...nodo,
 
-      data: {
+    data: {
 
-        ...nodo.data,
+      ...nodo.data,
 
-        onChange: (texto) =>
+      onChange: (texto) => {
+        actualizarTexto(nodo.id, texto);
+      },
 
-          actualizarTexto(
+      onAgregarHijo: () => {
+        agregarHijo(nodo.id);
+      },
 
-            nodo.id,
+      onAgregarHermano: () => {
+        agregarHermano(nodo.id);
+      },
 
-            texto
+      onEliminar: () => {
+        eliminarNodo(nodo.id);
+      },
 
-          ),
-
-        onAgregarHijo: () =>
-
-          agregarHijo(
-
-            nodo.id
-
-          ),
-
-        onAgregarHermano: () =>
-
-          agregarHermano(
-
-            nodo.id
-
-          ),
-
-       onEliminar: () =>
-
-  eliminarNodo(
-
-    nodo.id
-
-  ),
-
-onCambiarTipo: (tipo) =>
-
-  cambiarTipo(
-
-    nodo.id,
-
-    tipo
-
-  )
-
-          
-
+      onCambiarTipo: (tipo) => {
+        cambiarTipo(nodo.id, tipo);
       }
 
-    }));
+    }
 
-  }, [
+  }));
 
-   nodes,
+}, [
 
-actualizarTexto,
+  nodes,
+  actualizarTexto,
+  agregarHijo,
+  agregarHermano,
+  eliminarNodo,
+  cambiarTipo
 
-agregarHijo,
-
-agregarHermano,
-
-eliminarNodo,
-
-cambiarTipo
-    
-
-  ]);
+]);
 
   //---------------------------------------------------------
   // RENDER
