@@ -158,6 +158,7 @@ export default function AccionesInmediatas({
 
                     <textarea
                       rows="2"
+                      placeholder="Acción inmediata..."
                       value={accion.accion_inmediata}
                       onChange={(e) =>
                         actualizarCampo(
@@ -174,6 +175,7 @@ export default function AccionesInmediatas({
 
                     <input
                       type="text"
+                      placeholder="Responsable"
                       value={accion.responsable}
                       onChange={(e) =>
                         actualizarCampo(
@@ -221,7 +223,7 @@ export default function AccionesInmediatas({
                   <td>
 
                     <input
-                      ref={(el) => fileInputsRef.current[index] = el}
+                      ref={(el) => (fileInputsRef.current[index] = el)}
                       type="file"
                       accept="image/*"
                       hidden
@@ -255,7 +257,12 @@ export default function AccionesInmediatas({
                           }
                         >
 
-                          {accion.evidencia.name}
+                          📷 {accion.evidencia.name}{" "}
+                          (
+                          {accion.evidencia.size >= 1024 * 1024
+                            ? `${(accion.evidencia.size / 1024 / 1024).toFixed(2)} MB`
+                            : `${(accion.evidencia.size / 1024).toFixed(0)} KB`}
+                          )
 
                         </button>
 
@@ -269,7 +276,7 @@ export default function AccionesInmediatas({
                           }
                         >
 
-                          Cambiar
+                          🔄 Cambiar
 
                         </button>
 
