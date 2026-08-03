@@ -29,28 +29,53 @@ export default function Nodo({ data, selected }) {
 
         <textarea
 
-          rows={4}
+   <textarea
 
-          placeholder="Escriba la causa..."
+  rows={4}
 
-          value={data.label}
+  placeholder="Escriba la causa..."
 
-          onChange={(e) =>
-            data.onChange(e.target.value)
-          }
+  value={data.label}
 
-          style={{
-            width: "100%",
-            border: "1px solid #d9d9d9",
-            borderRadius: 8,
-            padding: 10,
-            resize: "none",
-            fontSize: 14,
-            boxSizing: "border-box",
-            outline: "none"
-          }}
+  onChange={(e) =>
+    data.onChange(e.target.value)
+  }
 
-        />
+  style={{
+
+    width: "100%",
+
+    height: 90,
+
+    border: "1px solid #d9d9d9",
+
+    borderRadius: 8,
+
+    padding: 12,
+
+    resize: "none",
+
+    fontSize: 14,
+
+    fontWeight: 500,
+
+    fontFamily: "Segoe UI",
+
+    lineHeight: "22px",
+
+    textAlign: "center",
+
+    display: "flex",
+
+    justifyContent: "center",
+
+    boxSizing: "border-box",
+
+    outline: "none"
+
+  }}
+
+/>
 
         {selected && (
 
