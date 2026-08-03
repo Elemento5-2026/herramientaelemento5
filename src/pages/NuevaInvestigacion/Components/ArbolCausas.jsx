@@ -207,6 +207,7 @@ export default function ArbolCausas() {
     );
 
     return nuevos;
+    }, []);
       //==========================================================
   // ACTUALIZAR TEXTO
   //==========================================================
@@ -519,5 +520,3 @@ export default function ArbolCausas() {
   );
 
 }
-
-  }, []);
