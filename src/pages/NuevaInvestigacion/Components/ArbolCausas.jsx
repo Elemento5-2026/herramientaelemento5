@@ -1,10 +1,10 @@
-import { useMemo, useState, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 
 import ReactFlow, {
   Background,
   Controls,
   MiniMap,
-  addEdge
+  applyNodeChanges
 } from "reactflow";
 
 import "reactflow/dist/style.css";
@@ -12,6 +12,9 @@ import "reactflow/dist/style.css";
 import "./ArbolCausas.css";
 
 import Nodo from "./Nodo";
+
+const DISTANCIA_HORIZONTAL = 260;
+const DISTANCIA_VERTICAL = 180;
 
 export default function ArbolCausas() {
 
@@ -24,148 +27,447 @@ export default function ArbolCausas() {
       id: "1",
       type: "causa",
       position: {
-        x: 500,
-        y: 80
+        x: 0,
+        y: 0
       },
       data: {
         id: "1",
         label: "",
-        parentId: null
+        parentId: null,
+        tipo: null
       }
     }
   ]);
 
-  const [edges, setEdges] = useState([]);
+  //==========================================================
+  // EDGES
+  //==========================================================
 
-  const [nodoSeleccionado, setNodoSeleccionado] = useState(null);
+  const edges = useMemo(() => {
 
-  const actualizarTexto = (id, texto) => {
+    return nodes
+      .filter((nodo) => nodo.data.parentId !== null)
+      .map((nodo) => ({
+        id: `${nodo.data.parentId}-${nodo.id}`,
+        source: nodo.data.parentId,
+        target: nodo.id
+      }));
+
+  }, [nodes]);
+
+  //==========================================================
+  // HIJOS
+  //==========================================================
+
+  const obtenerHijos = useCallback((lista, idPadre) => {
+
+    return lista.filter(
+      (nodo) => nodo.data.parentId === idPadre
+    );
+
+  }, []);
+
+  //==========================================================
+  // DESCENDIENTES
+  //==========================================================
+
+  const obtenerDescendientes = useCallback((lista, idNodo) => {
+
+    const ids = [];
+
+    const recorrer = (padre) => {
+
+      const hijos = lista.filter(
+        (n) => n.data.parentId === padre
+      );
+
+      hijos.forEach((hijo) => {
+
+        ids.push(hijo.id);
+
+        recorrer(hijo.id);
+
+      });
+
+    };
+
+    recorrer(idNodo);
+
+    return ids;
+
+  }, []);
+
+  //==========================================================
+  // LAYOUT
+  //==========================================================
+
+  const recalcularLayout = useCallback((lista) => {
+
+    const nuevos = structuredClone(lista);
+
+    const anchos = {};
+
+    //------------------------------------------------------
+    // CALCULAR EL ANCHO DE CADA SUBÁRBOL
+    //------------------------------------------------------
+
+    const calcularAncho = (idNodo) => {
+
+      const hijos = nuevos.filter(
+        (n) => n.data.parentId === idNodo
+      );
+
+      if (hijos.length === 0) {
+
+        anchos[idNodo] = 1;
+
+        return 1;
+
+      }
+
+      let ancho = 0;
+
+      hijos.forEach((hijo) => {
+
+        ancho += calcularAncho(hijo.id);
+
+      });
+
+      anchos[idNodo] = ancho;
+
+      return ancho;
+
+    };
+
+    calcularAncho("1");
+
+    //------------------------------------------------------
+    // ASIGNAR POSICIONES
+    //------------------------------------------------------
+
+    const asignarPosiciones = (
+      idNodo,
+      nivel,
+      izquierda
+    ) => {
+
+      const nodo = nuevos.find(
+        (n) => n.id === idNodo
+      );
+
+      if (!nodo) return;
+
+      const ancho = anchos[idNodo];
+
+      nodo.position = {
+
+        x:
+          izquierda * DISTANCIA_HORIZONTAL +
+          ((ancho - 1) *
+            DISTANCIA_HORIZONTAL) /
+            2,
+
+        y:
+          nivel * DISTANCIA_VERTICAL
+
+      };
+
+      const hijos = nuevos.filter(
+        (n) => n.data.parentId === idNodo
+      );
+
+      let inicio = izquierda;
+
+      hijos.forEach((hijo) => {
+
+        asignarPosiciones(
+
+          hijo.id,
+
+          nivel + 1,
+
+          inicio
+
+        );
+
+        inicio += anchos[hijo.id];
+
+      });
+
+    };
+
+    asignarPosiciones(
+
+      "1",
+
+      0,
+
+      0
+
+    );
+
+    return nuevos;
+      //==========================================================
+  // ACTUALIZAR TEXTO
+  //==========================================================
+
+  const actualizarTexto = useCallback((idNodo, texto) => {
 
     setNodes((anteriores) =>
       anteriores.map((nodo) =>
 
-        nodo.id === id
+        nodo.id === idNodo
 
           ? {
-
               ...nodo,
-
               data: {
-
                 ...nodo.data,
-
                 label: texto
-
               }
-
             }
 
           : nodo
 
       )
-
     );
 
-  };
+  }, []);
+
+  //==========================================================
+  // AGREGAR HIJO
+  //==========================================================
 
   const agregarHijo = useCallback((idPadre) => {
 
-    const padre = nodes.find((n) => n.id === idPadre);
+    setNodes((anteriores) => {
 
-    if (!padre) return;
+      const nuevoId = crypto.randomUUID();
 
-    const nuevoId = crypto.randomUUID();
+      const nuevos = [
 
-    const nuevoNodo = {
+        ...anteriores,
 
-      id: nuevoId,
+        {
 
-      type: "causa",
+          id: nuevoId,
 
-      position: {
+          type: "causa",
 
-        x: padre.position.x,
+          position: {
+            x: 0,
+            y: 0
+          },
 
-        y: padre.position.y + 220
+          data: {
 
-      },
+            id: nuevoId,
+
+            label: "",
+
+            parentId: idPadre,
+
+            tipo: null
+
+          }
+
+        }
+
+      ];
+
+      return recalcularLayout(nuevos);
+
+    });
+
+  }, [recalcularLayout]);
+
+  //==========================================================
+  // AGREGAR HERMANO
+  //==========================================================
+
+  const agregarHermano = useCallback((idNodo) => {
+
+    setNodes((anteriores) => {
+
+      const actual = anteriores.find(
+
+        (n) => n.id === idNodo
+
+      );
+
+      if (!actual) return anteriores;
+
+      if (actual.data.parentId === null)
+        return anteriores;
+
+      const nuevoId = crypto.randomUUID();
+
+      const nuevos = [
+
+        ...anteriores,
+
+        {
+
+          id: nuevoId,
+
+          type: "causa",
+
+          position: {
+            x: 0,
+            y: 0
+          },
+
+          data: {
+
+            id: nuevoId,
+
+            label: "",
+
+            parentId: actual.data.parentId,
+
+            tipo: null
+
+          }
+
+        }
+
+      ];
+
+      return recalcularLayout(nuevos);
+
+    });
+
+  }, [recalcularLayout]);
+
+  //==========================================================
+  // ELIMINAR NODO + SUBÁRBOL
+  //==========================================================
+
+  const eliminarNodo = useCallback((idNodo) => {
+
+    if (idNodo === "1") return;
+
+    setNodes((anteriores) => {
+
+      const eliminar = [
+
+        idNodo,
+
+        ...obtenerDescendientes(
+          anteriores,
+          idNodo
+        )
+
+      ];
+
+      const nuevos = anteriores.filter(
+
+        (nodo) =>
+
+          !eliminar.includes(nodo.id)
+
+      );
+
+      return recalcularLayout(nuevos);
+
+    });
+
+  }, [
+
+    obtenerDescendientes,
+
+    recalcularLayout
+
+  ]);
+
+  //==========================================================
+  // MOVER NODOS
+  //==========================================================
+
+  const onNodesChange = useCallback((changes) => {
+
+    setNodes((anteriores) =>
+
+      applyNodeChanges(
+
+        changes,
+
+        anteriores
+
+      )
+
+    );
+
+  }, []);
+
+  //==========================================================
+  // NODOS PARA REACT FLOW
+  //==========================================================
+
+  const nodesRender = useMemo(() => {
+
+    return nodes.map((nodo) => ({
+
+      ...nodo,
 
       data: {
 
-        id: nuevoId,
+        ...nodo.data,
 
-        label: "",
+        onChange: (texto) =>
 
-        parentId: padre.id
+          actualizarTexto(
+
+            nodo.id,
+
+            texto
+
+          ),
+
+        onAgregarHijo: () =>
+
+          agregarHijo(
+
+            nodo.id
+
+          ),
+
+        onAgregarHermano: () =>
+
+          agregarHermano(
+
+            nodo.id
+
+          ),
+
+        onEliminar: () =>
+
+          eliminarNodo(
+
+            nodo.id
+
+          )
 
       }
 
-    };
+    }));
 
-    const nuevaLinea = {
+  }, [
 
-      id: `${padre.id}-${nuevoId}`,
+    nodes,
 
-      source: padre.id,
+    actualizarTexto,
 
-      target: nuevoId
+    agregarHijo,
 
-    };
+    agregarHermano,
 
-    setNodes((anteriores) => [
+    eliminarNodo
 
-      ...anteriores,
+  ]);
+      //==========================================================
+  // RENDER
+  //==========================================================
 
-      nuevoNodo
-
-    ]);
-
-    setEdges((anteriores) => [
-
-      ...anteriores,
-
-      nuevaLinea
-
-    ]);
-
-  }, [nodes]);
-
-  const eliminarNodo = (id) => {
-
-    if (id === "1") return;
-
-    setNodes((anteriores) =>
-      anteriores.filter((n) => n.id !== id)
-    );
-
-    setEdges((anteriores) =>
-      anteriores.filter(
-        (e) => e.source !== id && e.target !== id
-      )
-    );
-
-  };
-
-  const nodesRender = nodes.map((nodo) => ({
-
-    ...nodo,
-
-    data: {
-
-      ...nodo.data,
-
-      onChange: (texto) =>
-        actualizarTexto(nodo.id, texto),
-
-      onAgregarHijo: () =>
-        agregarHijo(nodo.id),
-
-      onEliminar: () =>
-        eliminarNodo(nodo.id)
-
-    }
-
-  }));
   return (
 
     <div className="arbol-causas">
@@ -173,21 +475,15 @@ export default function ArbolCausas() {
       <div className="leyenda">
 
         <div className="leyenda-item fisica">
-
           Condición física
-
         </div>
 
         <div className="leyenda-item procedimiento">
-
           Procedimiento / Sistema
-
         </div>
 
         <div className="leyenda-item comportamiento">
-
           Comportamiento
-
         </div>
 
       </div>
@@ -202,67 +498,7 @@ export default function ArbolCausas() {
 
           nodeTypes={nodeTypes}
 
-          onNodeClick={(event, node) =>
-
-            setNodoSeleccionado(node.id)
-
-          }
-
-          onPaneClick={() =>
-
-            setNodoSeleccionado(null)
-
-          }
-
-          onNodesChange={(changes) =>
-
-            setNodes((nds) => {
-
-              return nds.map((node) => {
-
-                const cambio = changes.find(
-
-                  (c) => c.id === node.id
-
-                );
-
-                if (
-
-                  cambio &&
-
-                  cambio.type === "position" &&
-
-                  cambio.position
-
-                ) {
-
-                  return {
-
-                    ...node,
-
-                    position: cambio.position
-
-                  };
-
-                }
-
-                return node;
-
-              });
-
-            })
-
-          }
-
-          onConnect={(params) =>
-
-            setEdges((eds) =>
-
-              addEdge(params, eds)
-
-            )
-
-          }
+          onNodesChange={onNodesChange}
 
           fitView
 
@@ -283,3 +519,5 @@ export default function ArbolCausas() {
   );
 
 }
+
+  }, []);
