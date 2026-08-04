@@ -15,7 +15,8 @@ import PlanAccion from "./Components/PlanAccion";
 import {
   guardarEncabezado,
   guardarIdentificacion,
-  guardarDescripcion
+  guardarDescripcion,
+  subirEvidenciasDescripcion
 } from "../../services/investigacionesService";
 
 export default function NuevaInvestigacion({ setScreen }) {
@@ -84,12 +85,17 @@ export default function NuevaInvestigacion({ setScreen }) {
       formulario
     );
 
-    await guardarDescripcion(
-      investigacion.id,
-      formulario
-    );
+   const descripcion = await guardarDescripcion(
+  investigacion.id,
+  formulario
+);
 
-    alert("Se guardó correctamente.");
+await subirEvidenciasDescripcion(
+  descripcion.id,
+  formulario.evidencias_descripcion
+);
+
+alert("Se guardó correctamente.");
 
     console.log(investigacion);
 
