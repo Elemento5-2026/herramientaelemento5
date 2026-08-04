@@ -78,7 +78,53 @@ export async function guardarDescripcion(
   investigacionId,
   formulario
 ) {
+/**
+ * Guarda las Acciones Inmediatas
+ */
+export async function guardarAccionesInmediatas(
+  investigacionId,
+  acciones
+) {
 
+  if (!acciones || acciones.length === 0) return [];
+
+  const accionesGuardadas = [];
+
+  for (let i = 0; i < acciones.length; i++) {
+
+    const accion = acciones[i];
+
+    const { data, error } = await supabase
+      .from("investigaciones_acciones_inmediatas")
+      .insert({
+
+        investigacion_id: investigacionId,
+
+        numero: i + 1,
+
+        accion_inmediata: accion.accion,
+
+        como: accion.como,
+
+        responsable: accion.responsable,
+
+        fecha_inicio: accion.fechaInicio,
+
+        fecha_fin: accion.fechaFin
+
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    accionesGuardadas.push(data);
+
+  }
+
+  return accionesGuardadas;
+
+}
   const { data: existente, error: errorBusqueda } = await supabase
     .from("investigaciones_descripcion")
     .select("id")
