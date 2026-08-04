@@ -16,7 +16,7 @@ import {
   guardarEncabezado,
   guardarIdentificacion,
   guardarDescripcion,
-  subirEvidenciasDescripcion
+  subirEvidencias
 } from "../../services/investigacionesService";
 
 export default function NuevaInvestigacion({ setScreen }) {
@@ -90,14 +90,15 @@ export default function NuevaInvestigacion({ setScreen }) {
   formulario
 );
 
-await subirEvidenciasDescripcion(
+await subirEvidencias(
+  "descripciones",
   descripcion.id,
   formulario.evidencias_descripcion
 );
 
 alert("Se guardó correctamente.");
 
-    console.log(investigacion);
+    
 
   } catch (error) {
 
