@@ -129,3 +129,58 @@ export async function guardarDescripcion(
   return data;
 
 }
+/**
+ * Sube las evidencias de la descripción
+ */
+export async function subirEvidenciasDescripcion(
+  descripcionId,
+  archivos
+) {
+
+  if (!archivos || archivos.length === 0) return;
+
+  for (const archivo of archivos) {
+
+    const nombreStorage =
+      `${crypto.randomUUID()}-${archivo.name}`;
+
+    const ruta =
+      `descripcion/${descripcionId}/${nombreStorage}`;
+
+    const { error: errorStorage } =
+      await supabase.storage
+        .from("investigaciones")
+        .upload(
+          ruta,
+          archivo
+        );
+
+    if (errorStorage) throw errorStorage;
+
+    const { error } = await supabase
+      .from("investigaciones_evidencias")
+      .insert({
+
+        modulo_origen: "descripcion",
+
+        modulo_id: descripcionId,
+
+        descripcion: null,
+
+        nombre_original: archivo.name,
+
+        nombre_storage: nombreStorage,
+
+        ruta_storage: ruta,
+
+        tipo_archivo: archivo.type,
+
+        tamano_bytes: archivo.size
+
+      });
+
+    if (error) throw error;
+
+  }
+
+}
