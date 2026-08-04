@@ -132,20 +132,24 @@ export async function guardarDescripcion(
 /**
  * Sube las evidencias de la descripción
  */
-export async function subirEvidenciasDescripcion(
-  descripcionId,
+export async function subirEvidencias(
+  moduloOrigen,
+  moduloId,
   archivos
-) {
+){
 
   if (!archivos || archivos.length === 0) return;
 
   for (const archivo of archivos) {
 
-    const nombreStorage =
-      `${crypto.randomUUID()}-${archivo.name}`;
+    const extension =
+  archivo.name.split(".").pop();
+
+const nombreStorage =
+  `${crypto.randomUUID()}.${extension}`;
 
     const ruta =
-      `descripcion/${descripcionId}/${nombreStorage}`;
+  `${moduloOrigen}/${moduloId}/${nombreStorage}`;
 
     const { error: errorStorage } =
       await supabase.storage
@@ -161,9 +165,9 @@ export async function subirEvidenciasDescripcion(
       .from("investigaciones_evidencias")
       .insert({
 
-        modulo_origen: "descripcion",
+        modulo_origen: moduloOrigen,
 
-        modulo_id: descripcionId,
+modulo_id: moduloId,
 
         descripcion: null,
 
