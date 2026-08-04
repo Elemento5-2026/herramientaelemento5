@@ -139,23 +139,79 @@ export default function Nodo({ data, selected }) {
 
     </div>
 
+<button
+  type="button"
+
+  onClick={() => setMostrarMenu(!mostrarMenu)}
+
+  style={{
+    marginTop: 10,
+    width: "100%",
+    padding: "8px",
+    borderRadius: 8,
+    border: "1px solid #0d6efd",
+    background: "#fff",
+    color: "#0d6efd",
+    cursor: "pointer",
+    fontWeight: 600
+  }}
+>
+  🏷 Clasificar
+</button>
+{mostrarMenu && (
+
+  <div
+    style={{
+      display: "flex",
+      flexDirection: "column",
+      gap: 8,
+      marginTop: 10
+    }}
+  >
+
     <button
       type="button"
-      style={{
-        marginTop: 10,
-        width: "100%",
-        padding: "8px",
-        borderRadius: 8,
-        border: "1px solid #0d6efd",
-        background: "#fff",
-        color: "#0d6efd",
-        cursor: "pointer",
-        fontWeight: 600
+      className="btn-secondary"
+      onClick={() => {
+
+        data.onCambiarTipo("fisica");
+        setMostrarMenu(false);
+
       }}
     >
-      🎯 Asignar como causa raíz
+      🟢 Condición física
     </button>
 
+    <button
+      type="button"
+      className="btn-secondary"
+      onClick={() => {
+
+        data.onCambiarTipo("procedimiento");
+        setMostrarMenu(false);
+
+      }}
+    >
+      🔴 Procedimiento / Sistema
+    </button>
+
+    <button
+      type="button"
+      className="btn-secondary"
+      onClick={() => {
+
+        data.onCambiarTipo("comportamiento");
+        setMostrarMenu(false);
+
+      }}
+    >
+      🟠 Comportamiento
+    </button>
+
+  </div>
+
+)}
+    
   </>
 
 )}
