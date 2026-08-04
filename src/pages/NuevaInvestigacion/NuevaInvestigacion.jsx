@@ -64,7 +64,7 @@ export default function NuevaInvestigacion({ setScreen }) {
     acciones_inmediatas: [],
 
     // Plan de acción
-
+    plan_accion: [],
     evidencias_plan_accion: []
 
   });
