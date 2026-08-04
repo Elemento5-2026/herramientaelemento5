@@ -12,6 +12,11 @@ import Descripcion from "./Components/Descripcion";
 import AccionesInmediatas from "./Components/AccionesInmediatas";
 import ArbolCausas from "./Components/ArbolCausas";
 import PlanAccion from "./Components/PlanAccion";
+import {
+  guardarEncabezado,
+  guardarIdentificacion,
+  guardarDescripcion
+} from "../../services/investigacionesService";
 
 export default function NuevaInvestigacion({ setScreen }) {
 
@@ -68,6 +73,35 @@ export default function NuevaInvestigacion({ setScreen }) {
     evidencias_plan_accion: []
 
   });
+  const guardarTF = async () => {
+
+  try {
+
+    const investigacion = await guardarEncabezado(formulario);
+
+    await guardarIdentificacion(
+      investigacion.id,
+      formulario
+    );
+
+    await guardarDescripcion(
+      investigacion.id,
+      formulario
+    );
+
+    alert("Se guardó correctamente.");
+
+    console.log(investigacion);
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert("Ocurrió un error al guardar.");
+
+  }
+
+};
 
   const pasos = [
 
@@ -218,9 +252,12 @@ export default function NuevaInvestigacion({ setScreen }) {
 
           ) : (
 
-            <button className="btn-primary">
-              Guardar TF
-            </button>
+<button
+  className="btn-primary"
+  onClick={guardarTF}
+>
+  Guardar TF
+</button>
 
           )}
 
