@@ -16,6 +16,7 @@ import {
   guardarEncabezado,
   guardarIdentificacion,
   guardarDescripcion,
+  guardarAccionesInmediatas,
   subirEvidencias
 } from "../../services/investigacionesService";
 
@@ -94,6 +95,10 @@ await subirEvidencias(
   "descripciones",
   descripcion.id,
   formulario.evidencias_descripcion
+);
+const acciones = await guardarAccionesInmediatas(
+  investigacion.id,
+  formulario.acciones_inmediatas
 );
 
 alert("Se guardó correctamente.");
