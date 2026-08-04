@@ -95,11 +95,14 @@ export default function NuevaInvestigacion({ setScreen }) {
 
   } catch (error) {
 
-    console.error(error);
+  console.error("ERROR COMPLETO:", error);
 
-    alert("Ocurrió un error al guardar.");
+  alert(
+    error.message ||
+    JSON.stringify(error)
+  );
 
-  }
+}
 
 };
 
