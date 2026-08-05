@@ -35,6 +35,7 @@ export default function AppNavigator() {
         <ReporteIncidentes
           setScreen={setScreen}
           setIncidenteSeleccionado={setIncidenteSeleccionado}
+          setInvestigacionSeleccionada={setInvestigacionSeleccionada}
         />
       );
 
@@ -65,6 +66,7 @@ export default function AppNavigator() {
       return (
         <NuevaInvestigacion
           setScreen={setScreen}
+          investigacionId={investigacionSeleccionada}
         />
       );
 
