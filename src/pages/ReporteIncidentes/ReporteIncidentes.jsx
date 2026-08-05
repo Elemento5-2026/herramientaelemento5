@@ -6,16 +6,49 @@ import Sidebar from "../../components/Sidebar";
 
 import "./ReporteIncidentes.css";
 
+import supabase from "../../lib/supabase";
+
 export default function ReporteIncidentes({ setScreen }) {
 
   const [incidentes, setIncidentes] = useState([]);
 
   useEffect(() => {
 
-    // Más adelante cargaremos desde Supabase
-    setIncidentes([]);
+    cargarIncidentes();
 
   }, []);
+
+  async function cargarIncidentes() {
+
+    const { data, error } = await supabase
+
+      .from("incidentes")
+
+      .select(`
+        *,
+        catalogo_direcciones(nombre),
+        catalogo_sedes(nombre),
+        catalogo_tipos_incidente(nombre),
+        catalogo_danos(codigo)
+      `)
+
+      .order("created_at", {
+
+        ascending: false
+
+      });
+
+    if (error) {
+
+      console.error(error);
+
+      return;
+
+    }
+
+    setIncidentes(data);
+
+  }
 
   return (
 
@@ -121,33 +154,83 @@ export default function ReporteIncidentes({ setScreen }) {
 
                   <tr key={incidente.id}>
 
-                    <td>{incidente.codigo}</td>
+                    <td>
 
-                    <td>{incidente.fecha}</td>
+                      {incidente.codigo ?? "-"}
 
-                    <td>{incidente.hora}</td>
-
-                    <td>{incidente.direccion}</td>
-
-                    <td>{incidente.sede}</td>
-
-                    <td>{incidente.seccion}</td>
-
-                    <td>{incidente.colaborador}</td>
-
-                    <td>{incidente.clasificacion}</td>
-
-                    <td>{incidente.dano}</td>
+                    </td>
 
                     <td>
 
-                      <button
-                        className="btn-link"
-                      >
+                      {incidente.fecha}
 
-                        🟢 Realizar TF
+                    </td>
 
-                      </button>
+                    <td>
+
+                      {incidente.hora}
+
+                    </td>
+
+                    <td>
+
+                      {incidente.catalogo_direcciones?.nombre}
+
+                    </td>
+
+                    <td>
+
+                      {incidente.catalogo_sedes?.nombre}
+
+                    </td>
+
+                    <td>
+
+                      {incidente.seccion}
+
+                    </td>
+
+                    <td>
+
+                      {incidente.nombre_colaborador}
+
+                    </td>
+
+                    <td>
+
+                      {incidente.catalogo_tipos_incidente?.nombre}
+
+                    </td>
+
+                    <td>
+
+                      {incidente.catalogo_danos?.codigo}
+
+                    </td>
+
+                    <td>
+
+                      {incidente.investigacion_id ? (
+
+                        <button
+                          className="btn-link"
+                        >
+
+                          🔵 Ver TF
+
+                        </button>
+
+                      ) : (
+
+                        <button
+                          className="btn-link"
+                        >
+
+                          🟢 Iniciar TF
+
+                        </button>
+
+                      )}
 
                     </td>
 
