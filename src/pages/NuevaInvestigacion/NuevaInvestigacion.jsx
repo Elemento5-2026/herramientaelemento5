@@ -17,6 +17,7 @@ import {
   guardarIdentificacion,
   guardarDescripcion,
   guardarAccionesInmediatas,
+  guardarPlanAccion,
   subirEvidencias
 } from "../../services/investigacionesService";
 
@@ -116,7 +117,27 @@ for (let i = 0; i < acciones.length; i++) {
   }
 
 }
+const planAccion = await guardarPlanAccion(
+  investigacion.id,
+  formulario.plan_accion
+);
 
+for (let i = 0; i < planAccion.length; i++) {
+
+  const evidencia =
+    formulario.plan_accion[i].evidencia;
+
+  if (evidencia) {
+
+    await subirEvidencias(
+      "plan_accion",
+      planAccion[i].id,
+      [evidencia]
+    );
+
+  }
+
+}
 alert("Se guardó correctamente.");
 
     
