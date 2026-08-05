@@ -1,157 +1,634 @@
-import { useEffect, useState } from "react";
+return (
 
-import Layout from "../../components/Layout";
-import Header from "../../components/Header";
-import Sidebar from "../../components/Sidebar";
-
-import supabase from "../../lib/supabase";
-
-import "./InvestigacionDetalle.css";
-
-export default function InvestigacionDetalle({
-
-  setScreen,
-  investigacionId
-
-}) {
-
-  const [investigacion, setInvestigacion] = useState(null);
-
-  useEffect(() => {
-
-    async function cargarInvestigacion() {
-
-      const { data, error } = await supabase
-        .from("investigaciones")
-        .select("*")
-        .eq("id", investigacionId)
-        .single();
-
-      if (error) {
-
-        console.error(error);
-        return;
-
-      }
-
-      setInvestigacion(data);
-
-    }
-
-    if (investigacionId) {
-
-      cargarInvestigacion();
-
-    }
-
-  }, [investigacionId]);
-
-  return (
-
-    <Layout
-      header={<Header />}
-      sidebar={
+<Layout
+    header={<Header />}
+    sidebar={
         <Sidebar
-          screen="investigaciones"
-          setScreen={setScreen}
+            screen="investigaciones"
+            setScreen={setScreen}
         />
-      }
-    >
+    }
+>
 
-      <div className="investigacion-detalle">
+<div className="investigacion-detalle">
 
-        <div className="page-header">
+<div className="page-header">
 
-          <div>
+<div>
 
-            <button
-              className="btn-link"
-              onClick={() =>
-                setScreen("investigaciones")
-              }
-            >
-              ← Volver a investigaciones
-            </button>
+<button
+className="btn-link"
+onClick={() => setScreen("investigaciones")}
+>
 
-            <h1>
+← Volver
 
-              Investigación
+</button>
 
-            </h1>
+<h1>
 
-            <p>
+Investigación de Incidente
 
-              Visualización de la investigación.
+</h1>
 
-            </p>
+<p>
 
-          </div>
+Visualización de la investigación.
 
-        </div>
+</p>
 
-        {!investigacion ? (
+</div>
 
-          <p>
+<div className="acciones-superiores">
 
-            Cargando...
+<button className="btn-secondary">
 
-          </p>
+🖨 Imprimir
 
-        ) : (
+</button>
 
-          <div className="detalle-card">
+<button className="btn-primary">
 
-            <h2>
+✏ Editar
 
-              {investigacion.codigo_controlado}
+</button>
 
-            </h2>
+</div>
 
-            <hr />
+</div>
 
-            <p>
+{/* ================================================= */}
 
-              <strong>ID:</strong>{" "}
-              {investigacion.id}
+<div className="detalle-card">
 
-            </p>
+<h2>
 
-            <p>
+Información General
 
-              <strong>Estado:</strong>{" "}
-              {investigacion.estado}
+</h2>
 
-            </p>
+<hr/>
 
-            <p>
+<div className="detalle-grid">
 
-              <strong>Elaboró:</strong>{" "}
-              {investigacion.elaborado_nombre}
+<div>
 
-            </p>
+<label>Código</label>
 
-            <p>
+<p>
 
-              <strong>Área:</strong>{" "}
-              {investigacion.elaborado_area}
+INV-2026-0005
 
-            </p>
+</p>
 
-            <p>
+</div>
 
-              <strong>Fecha:</strong>{" "}
-              {investigacion.elaborado_fecha}
+<div>
 
-            </p>
+<label>Estado</label>
 
-          </div>
+<p>
 
-        )}
+<span className="estado borrador">
 
-      </div>
+Borrador
 
-    </Layout>
+</span>
 
-  );
+</p>
 
-}
+</div>
+
+<div>
+
+<label>Fecha</label>
+
+<p>
+
+05/08/2026
+
+</p>
+
+</div>
+
+<div>
+
+<label>Indicador</label>
+
+<p>
+
+Incidentes
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+{/* ================================================= */}
+
+<div className="detalle-card">
+
+<h2>
+
+Equipo Investigador
+
+</h2>
+
+<hr/>
+
+<table className="tabla-detalle">
+
+<thead>
+
+<tr>
+
+<th></th>
+
+<th>Nombre</th>
+
+<th>Puesto</th>
+
+<th>Área</th>
+
+<th>Fecha</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td>
+
+Elaboró
+
+</td>
+
+<td>
+
+Pablo Hernández
+
+</td>
+
+<td>
+
+Jefe de Producción
+
+</td>
+
+<td>
+
+Producción
+
+</td>
+
+<td>
+
+05/08/2026
+
+</td>
+
+</tr>
+
+<tr>
+
+<td>
+
+Revisó
+
+</td>
+
+<td>
+
+José Suruy
+
+</td>
+
+<td>
+
+...
+
+</td>
+
+<td>
+
+...
+
+</td>
+
+<td>
+
+...
+
+</td>
+
+</tr>
+
+<tr>
+
+<td>
+
+Aprobó
+
+</td>
+
+<td>
+
+Ricardo Estrada
+
+</td>
+
+<td>
+
+...
+
+</td>
+
+<td>
+
+...
+
+</td>
+
+<td>
+
+...
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+{/* ================================================= */}
+
+<div className="detalle-card">
+
+<h2>
+
+Identificación
+
+</h2>
+
+<hr/>
+
+<div className="detalle-grid">
+
+<div>
+
+<label>
+
+Macroproceso
+
+</label>
+
+<p>
+
+Trefilación
+
+</p>
+
+</div>
+
+<div>
+
+<label>
+
+Proceso
+
+</label>
+
+<p>
+
+Línea 2
+
+</p>
+
+</div>
+
+<div>
+
+<label>
+
+Dirección
+
+</label>
+
+<p>
+
+Industrial
+
+</p>
+
+</div>
+
+<div>
+
+<label>
+
+Gerencia
+
+</label>
+
+<p>
+
+Producción
+
+</p>
+
+</div>
+
+<div>
+
+<label>
+
+Área
+
+</label>
+
+<p>
+
+Trefilación
+
+</p>
+
+</div>
+
+<div>
+
+<label>
+
+Turno
+
+</label>
+
+<p>
+
+A
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+{/* ================================================= */}
+
+<div className="detalle-card">
+
+<h2>
+
+Descripción del Incidente
+
+</h2>
+
+<hr/>
+
+<p>
+
+Aquí aparecerá la descripción completa del incidente...
+
+</p>
+
+<div className="galeria">
+
+<img src="/placeholder.png"/>
+
+<img src="/placeholder.png"/>
+
+<img src="/placeholder.png"/>
+
+</div>
+
+</div>
+
+{/* ================================================= */}
+
+<div className="detalle-card">
+
+<h2>
+
+Acciones Inmediatas
+
+</h2>
+
+<hr/>
+
+<table className="tabla-detalle">
+
+<thead>
+
+<tr>
+
+<th>#</th>
+
+<th>Acción</th>
+
+<th>Responsable</th>
+
+<th>Inicio</th>
+
+<th>Fin</th>
+
+<th>Evidencia</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td>
+
+1
+
+</td>
+
+<td>
+
+Retirar material.
+
+</td>
+
+<td>
+
+Juan Pérez
+
+</td>
+
+<td>
+
+05/08/2026
+
+</td>
+
+<td>
+
+06/08/2026
+
+</td>
+
+<td>
+
+📷
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+{/* ================================================= */}
+
+<div className="detalle-card">
+
+<h2>
+
+Árbol de Causas
+
+</h2>
+
+<hr/>
+
+<div
+style={{
+height:700,
+border:"1px solid #ddd",
+borderRadius:8
+}}
+>
+
+Aquí aparecerá React Flow
+
+</div>
+
+</div>
+
+{/* ================================================= */}
+
+<div className="detalle-card">
+
+<h2>
+
+Plan de Acción
+
+</h2>
+
+<hr/>
+
+<table className="tabla-detalle">
+
+<thead>
+
+<tr>
+
+<th>
+
+Qué hacer
+
+</th>
+
+<th>
+
+Cómo
+
+</th>
+
+<th>
+
+Responsable
+
+</th>
+
+<th>
+
+Inicio
+
+</th>
+
+<th>
+
+Fin
+
+</th>
+
+<th>
+
+Evidencia
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td>
+
+...
+
+</td>
+
+<td>
+
+...
+
+</td>
+
+<td>
+
+...
+
+</td>
+
+<td>
+
+...
+
+</td>
+
+<td>
+
+...
+
+</td>
+
+<td>
+
+📷
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</Layout>
+
+);
