@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import "./NuevaInvestigacion.css";
 
@@ -14,15 +14,20 @@ import ArbolCausas from "./Components/ArbolCausas";
 import PlanAccion from "./Components/PlanAccion";
 import {
   guardarEncabezado,
+  actualizarEncabezado,
   guardarIdentificacion,
   guardarDescripcion,
   guardarAccionesInmediatas,
   guardarPlanAccion,
   guardarArbolCausas,
-  subirEvidencias
+  subirEvidencias,
+  obtenerInvestigacionPorId
 } from "../../services/investigacionesService";
 
-export default function NuevaInvestigacion({ setScreen }) {
+export default function NuevaInvestigacion({
+  setScreen,
+  investigacionId
+}) {
 
   const [pasoActual, setPasoActual] = useState(0);
 
@@ -78,102 +83,118 @@ export default function NuevaInvestigacion({ setScreen }) {
     arbol_causas: []
 
   });
+
+  useEffect(() => {
+    if (!investigacionId) return;
+    cargarInvestigacion();
+  }, [investigacionId]);
+
+  async function cargarInvestigacion() {
+    try {
+      const investigacion = await obtenerInvestigacionPorId(investigacionId);
+      console.log(investigacion);
+      // Aquí puedes setear el formulario con los datos de la investigación
+      // setFormulario({
+      //   ...formulario,
+      //   participantes: investigacion.participantes,
+      //   elaborado_nombre: investigacion.elaborado_nombre,
+      //   ...etc
+      // });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   const guardarTF = async () => {
+    try {
+      let investigacion;
 
-  try {
+      if (investigacionId) {
+        await actualizarEncabezado({
+          id: investigacionId,
+          ...formulario
+        });
+        investigacion = {
+          id: investigacionId
+        };
+      } else {
+        investigacion = await guardarEncabezado(formulario);
+      }
 
-    const investigacion = await guardarEncabezado(formulario);
+      await guardarIdentificacion(
+        investigacion.id,
+        formulario
+      );
 
-    await guardarIdentificacion(
-      investigacion.id,
-      formulario
-    );
+      const descripcion = await guardarDescripcion(
+        investigacion.id,
+        formulario
+      );
 
-   const descripcion = await guardarDescripcion(
-  investigacion.id,
-  formulario
-);
+      await subirEvidencias(
+        "descripciones",
+        descripcion.id,
+        formulario.evidencias_descripcion
+      );
 
-await subirEvidencias(
-  "descripciones",
-  descripcion.id,
-  formulario.evidencias_descripcion
-);
-const acciones = await guardarAccionesInmediatas(
-  investigacion.id,
-  formulario.acciones_inmediatas
-);
-for (let i = 0; i < acciones.length; i++) {
+      const acciones = await guardarAccionesInmediatas(
+        investigacion.id,
+        formulario.acciones_inmediatas
+      );
 
-  const evidencia =
-    formulario.acciones_inmediatas[i].evidencia;
+      for (let i = 0; i < acciones.length; i++) {
+        const evidencia = formulario.acciones_inmediatas[i].evidencia;
+        if (evidencia) {
+          await subirEvidencias(
+            "acciones_inmediatas",
+            acciones[i].id,
+            [evidencia]
+          );
+        }
+      }
 
-  if (evidencia) {
+      const planAccion = await guardarPlanAccion(
+        investigacion.id,
+        formulario.plan_accion
+      );
 
-    await subirEvidencias(
-      "acciones_inmediatas",
-      acciones[i].id,
-      [evidencia]
-    );
+      for (let i = 0; i < planAccion.length; i++) {
+        const evidencia = formulario.plan_accion[i].evidencia;
+        if (evidencia) {
+          await subirEvidencias(
+            "plan_accion",
+            planAccion[i].id,
+            [evidencia]
+          );
+        }
+      }
 
-  }
+      await guardarArbolCausas(
+        investigacion.id,
+        formulario.arbol_causas
+      );
 
-}
-const planAccion = await guardarPlanAccion(
-  investigacion.id,
-  formulario.plan_accion
-);
+      alert("Se guardó correctamente.");
 
-for (let i = 0; i < planAccion.length; i++) {
-
-  const evidencia =
-    formulario.plan_accion[i].evidencia;
-
-  if (evidencia) {
-
-    await subirEvidencias(
-      "plan_accion",
-      planAccion[i].id,
-      [evidencia]
-    );
-
-  }
-
-}
-await guardarArbolCausas(
-  investigacion.id,
-  formulario.arbol_causas
-);
-alert("Se guardó correctamente.");
-
-    
-
-  } catch (error) {
-
-  console.error("ERROR COMPLETO:", error);
-
-  alert(
-    error.message ||
-    JSON.stringify(error)
-  );
-
-}
-
-};
+    } catch (error) {
+      console.error("ERROR COMPLETO:", error);
+      alert(
+        error.message ||
+        JSON.stringify(error)
+      );
+    }
+  };
 
   const pasos = [
-
     "Encabezado",
     "Identificación",
     "Descripción",
     "Acciones inmediatas",
     "Análisis de causa",
     "Plan de acción"
-
   ];
 
   return (
-
     <Layout
       header={<Header />}
       sidebar={
@@ -183,36 +204,25 @@ alert("Se guardó correctamente.");
         />
       }
     >
-
       <div className="nueva-investigacion">
-
         <div className="page-header">
-
           <div>
-
             <button
               className="btn-link"
               onClick={() => setScreen("investigaciones")}
             >
               ← Volver a investigaciones
             </button>
-
-            <h1>Nueva investigación</h1>
-
+            <h1>{investigacionId ? "Editar investigación" : "Nueva investigación"}</h1>
             <p>
-              Complete la información para registrar la investigación.
+              Complete la información para {investigacionId ? "editar" : "registrar"} la investigación.
             </p>
-
           </div>
-
         </div>
 
         <div className="wizard-layout">
-
           <aside className="wizard-sidebar">
-
             {pasos.map((paso, index) => (
-
               <button
                 key={index}
                 className={
@@ -222,25 +232,18 @@ alert("Se guardó correctamente.");
                 }
                 onClick={() => setPasoActual(index)}
               >
-
                 <span className="wizard-number">
                   {index + 1}
                 </span>
-
                 <span>
                   {paso}
                 </span>
-
               </button>
-
             ))}
-
           </aside>
 
           <section className="wizard-content">
-
             <h2>{pasos[pasoActual]}</h2>
-
             <hr />
 
             <div style={{ display: pasoActual === 0 ? "block" : "none" }}>
@@ -284,13 +287,10 @@ alert("Se guardó correctamente.");
                 setFormulario={setFormulario}
               />
             </div>
-
           </section>
-
         </div>
 
         <div className="wizard-footer">
-
           <button
             className="btn-secondary"
             disabled={pasoActual === 0}
@@ -300,31 +300,22 @@ alert("Se guardó correctamente.");
           </button>
 
           {pasoActual < pasos.length - 1 ? (
-
             <button
               className="btn-primary"
               onClick={() => setPasoActual(pasoActual + 1)}
             >
               Siguiente →
             </button>
-
           ) : (
-
-<button
-  className="btn-primary"
-  onClick={guardarTF}
->
-  Guardar TF
-</button>
-
+            <button
+              className="btn-primary"
+              onClick={guardarTF}
+            >
+              {investigacionId ? "Actualizar TF" : "Guardar TF"}
+            </button>
           )}
-
         </div>
-
       </div>
-
     </Layout>
-
   );
-
 }
