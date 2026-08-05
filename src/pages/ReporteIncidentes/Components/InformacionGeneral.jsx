@@ -8,6 +8,9 @@ export default function InformacionGeneral({
 
 }) {
 
+  console.log("Direcciones:", direcciones);
+  console.log("Sedes:", sedes);
+
   return (
 
     <div className="form-grid">
