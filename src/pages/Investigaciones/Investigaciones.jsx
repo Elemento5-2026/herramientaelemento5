@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import Layout from "../../components/Layout";
 import Header from "../../components/Header";
@@ -10,16 +10,25 @@ import "./Investigaciones.css";
 
 export default function Investigaciones({ setScreen }) {
 
+  const [investigaciones, setInvestigaciones] = useState([]);
+
   useEffect(() => {
 
     async function cargarInvestigaciones() {
 
       const { data, error } = await supabase
         .from("investigaciones")
-        .select("*");
+        .select("*")
+        .order("created_at", { ascending: false });
 
-      console.log("DATA:", data);
-      console.log("ERROR:", error);
+      if (error) {
+
+        console.error(error);
+        return;
+
+      }
+
+      setInvestigaciones(data);
 
     }
 
@@ -97,25 +106,81 @@ export default function Investigaciones({ setScreen }) {
 
             <tbody>
 
-              <tr>
+              {investigaciones.length === 0 ? (
 
-                <td>INV-2026-0001</td>
-                <td>01/08/2026</td>
-                <td>CPT</td>
-                <td>Industrial</td>
-                <td>Trefilación</td>
+                <tr>
 
-                <td>
+                  <td
+                    colSpan="7"
+                    style={{ textAlign: "center" }}
+                  >
 
-                  <span className="estado borrador">
-                    Borrador
-                  </span>
+                    No hay investigaciones registradas.
 
-                </td>
+                  </td>
 
-                <td>Pablo Hernández</td>
+                </tr>
 
-              </tr>
+              ) : (
+
+                investigaciones.map((investigacion) => (
+
+                  <tr
+                    key={investigacion.id}
+                  >
+
+                    <td>
+
+                      {investigacion.codigo_controlado}
+
+                    </td>
+
+                    <td>
+
+                      {investigacion.created_at
+                        ?.substring(0, 10)}
+
+                    </td>
+
+                    <td>
+
+                      -
+
+                    </td>
+
+                    <td>
+
+                      -
+
+                    </td>
+
+                    <td>
+
+                      -
+
+                    </td>
+
+                    <td>
+
+                      <span className="estado borrador">
+
+                        {investigacion.estado}
+
+                      </span>
+
+                    </td>
+
+                    <td>
+
+                      {investigacion.elaborado_nombre}
+
+                    </td>
+
+                  </tr>
+
+                ))
+
+              )}
 
             </tbody>
 
