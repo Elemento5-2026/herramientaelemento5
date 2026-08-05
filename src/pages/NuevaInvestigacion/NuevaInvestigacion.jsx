@@ -73,7 +73,8 @@ export default function NuevaInvestigacion({ setScreen }) {
 
     // Plan de acción
     plan_accion: [],
-    evidencias_plan_accion: []
+    evidencias_plan_accion: [],
+    arbol_causas: []
 
   });
   const guardarTF = async () => {
