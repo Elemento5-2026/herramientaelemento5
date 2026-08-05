@@ -18,6 +18,7 @@ import {
   guardarDescripcion,
   guardarAccionesInmediatas,
   guardarPlanAccion,
+  guardarArbolCausas,
   subirEvidencias
 } from "../../services/investigacionesService";
 
@@ -139,6 +140,10 @@ for (let i = 0; i < planAccion.length; i++) {
   }
 
 }
+await guardarArbolCausas(
+  investigacion.id,
+  formulario.arbol_causas
+);
 alert("Se guardó correctamente.");
 
     
