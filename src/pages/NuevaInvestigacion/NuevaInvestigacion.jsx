@@ -100,6 +100,22 @@ const acciones = await guardarAccionesInmediatas(
   investigacion.id,
   formulario.acciones_inmediatas
 );
+for (let i = 0; i < acciones.length; i++) {
+
+  const evidencia =
+    formulario.acciones_inmediatas[i].evidencia;
+
+  if (evidencia) {
+
+    await subirEvidencias(
+      "acciones_inmediatas",
+      acciones[i].id,
+      [evidencia]
+    );
+
+  }
+
+}
 
 alert("Se guardó correctamente.");
 
