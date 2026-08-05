@@ -158,9 +158,9 @@ export async function guardarAccionesInmediatas(
 
         responsable: accion.responsable,
 
-        fecha_inicio: accion.fecha_inicio,
+        fecha_inicio: accion.fecha_inicio||null,
 
-        fecha_fin: accion.fecha_fin
+        fecha_fin: accion.fecha_fin|| null
 
       })
       .select()
@@ -175,6 +175,54 @@ export async function guardarAccionesInmediatas(
   return accionesGuardadas;
 
 }
+/**
+ * Guarda el Plan de Acción
+ */
+export async function guardarPlanAccion(
+  investigacionId,
+  acciones
+) {
+
+  if (!acciones || acciones.length === 0) return [];
+
+  const accionesGuardadas = [];
+
+  for (const accion of acciones) {
+
+    const { data, error } = await supabase
+      .from("investigaciones_plan_accion")
+      .insert({
+
+        investigacion_id: investigacionId,
+
+        causa_id: null,
+
+        que_hacer: accion.que_hacer,
+
+        como: accion.como,
+
+        responsable: accion.responsable,
+
+        fecha_plan_inicio:
+          accion.fecha_inicio || null,
+
+        fecha_plan_fin:
+          accion.fecha_fin || null
+
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    accionesGuardadas.push(data);
+
+  }
+
+  return accionesGuardadas;
+
+}
+
 /**
  * Sube las evidencias de la descripción
  */
