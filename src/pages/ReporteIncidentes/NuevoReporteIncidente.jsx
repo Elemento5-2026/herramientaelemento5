@@ -84,6 +84,18 @@ export default function NuevoReporteIncidente({ setScreen }) {
 
     ]);
 
+    console.log("========== DIRECCIONES ==========");
+    console.log(direccionesRes);
+
+    console.log("========== SEDES ==========");
+    console.log(sedesRes);
+
+    console.log("========== TIPOS ==========");
+    console.log(tiposRes);
+
+    console.log("========== DAÑOS ==========");
+    console.log(danosRes);
+
     setDirecciones(direccionesRes.data || []);
     setSedes(sedesRes.data || []);
     setTiposIncidente(tiposRes.data || []);
