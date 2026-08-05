@@ -61,16 +61,18 @@ export default function ArbolCausas({
   // NODES
   //---------------------------------------------------------
 
- const [nodes, setNodes] = useState([
+ const ROOT_ID = crypto.randomUUID();
+
+const [nodes, setNodes] = useState([
   {
-    id: "1",
+    id: ROOT_ID,
     type: "causa",
     position: {
       x: 0,
       y: 0
     },
     data: {
-      id: "1",
+      id: ROOT_ID,
       label: "",
       parentId: null,
       tipo: null
@@ -238,7 +240,7 @@ useEffect(() => {
 
     };
 
-    calcularAncho("1");
+    calcularAncho(ROOT_ID);
 
     //------------------------------------------------------
 
@@ -312,7 +314,7 @@ useEffect(() => {
 
     posicionar(
 
-      "1",
+      ROOT_ID,
 
       0,
 
@@ -507,7 +509,7 @@ const cambiarTipo = useCallback((idNodo, tipo) => {
 
   const eliminarNodo = useCallback((idNodo) => {
 
-    if (idNodo === "1") return;
+    if (idNodo === ROOT_ID) return;
 
     setNodes((anteriores) => {
 
