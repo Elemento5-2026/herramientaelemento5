@@ -8,7 +8,12 @@ import supabase from "../../lib/supabase";
 
 import "./Investigaciones.css";
 
-export default function Investigaciones({ setScreen }) {
+export default function Investigaciones({
+
+  setScreen,
+  setInvestigacionSeleccionada
+
+}) {
 
   const [investigaciones, setInvestigaciones] = useState([]);
 
@@ -127,6 +132,16 @@ export default function Investigaciones({ setScreen }) {
 
                   <tr
                     key={investigacion.id}
+                    style={{ cursor: "pointer" }}
+                    onClick={() => {
+
+                      setInvestigacionSeleccionada(
+                        investigacion.id
+                      );
+
+                      setScreen("investigacionDetalle");
+
+                    }}
                   >
 
                     <td>
