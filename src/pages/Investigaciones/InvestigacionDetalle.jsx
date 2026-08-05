@@ -1,634 +1,157 @@
-return (
+import { useEffect, useState } from "react";
 
-<Layout
-    header={<Header />}
-    sidebar={
-        <Sidebar
-            screen="investigaciones"
-            setScreen={setScreen}
-        />
+import Layout from "../../components/Layout";
+import Header from "../../components/Header";
+import Sidebar from "../../components/Sidebar";
+
+import supabase from "../../lib/supabase";
+
+import "./InvestigacionDetalle.css";
+
+export default function InvestigacionDetalle({
+
+  setScreen,
+  investigacionId
+
+}) {
+
+  const [investigacion, setInvestigacion] = useState(null);
+
+  useEffect(() => {
+
+    async function cargarInvestigacion() {
+
+      const { data, error } = await supabase
+        .from("investigaciones")
+        .select("*")
+        .eq("id", investigacionId)
+        .single();
+
+      if (error) {
+
+        console.error(error);
+        return;
+
+      }
+
+      setInvestigacion(data);
+
     }
->
 
-<div className="investigacion-detalle">
+    if (investigacionId) {
 
-<div className="page-header">
+      cargarInvestigacion();
 
-<div>
+    }
 
-<button
-className="btn-link"
-onClick={() => setScreen("investigaciones")}
->
+  }, [investigacionId]);
 
-← Volver
+  return (
 
-</button>
+    <Layout
+      header={<Header />}
+      sidebar={
+        <Sidebar
+          screen="investigaciones"
+          setScreen={setScreen}
+        />
+      }
+    >
 
-<h1>
+      <div className="investigacion-detalle">
 
-Investigación de Incidente
+        <div className="page-header">
 
-</h1>
+          <div>
 
-<p>
+            <button
+              className="btn-link"
+              onClick={() =>
+                setScreen("investigaciones")
+              }
+            >
+              ← Volver a investigaciones
+            </button>
 
-Visualización de la investigación.
+            <h1>
 
-</p>
+              Investigación
 
-</div>
+            </h1>
 
-<div className="acciones-superiores">
+            <p>
 
-<button className="btn-secondary">
+              Visualización de la investigación.
 
-🖨 Imprimir
+            </p>
 
-</button>
+          </div>
 
-<button className="btn-primary">
+        </div>
 
-✏ Editar
+        {!investigacion ? (
 
-</button>
+          <p>
 
-</div>
+            Cargando...
 
-</div>
+          </p>
 
-{/* ================================================= */}
+        ) : (
 
-<div className="detalle-card">
+          <div className="detalle-card">
 
-<h2>
+            <h2>
 
-Información General
+              {investigacion.codigo_controlado}
 
-</h2>
+            </h2>
 
-<hr/>
+            <hr />
 
-<div className="detalle-grid">
+            <p>
 
-<div>
+              <strong>ID:</strong>{" "}
+              {investigacion.id}
 
-<label>Código</label>
+            </p>
 
-<p>
+            <p>
 
-INV-2026-0005
+              <strong>Estado:</strong>{" "}
+              {investigacion.estado}
 
-</p>
+            </p>
 
-</div>
+            <p>
 
-<div>
+              <strong>Elaboró:</strong>{" "}
+              {investigacion.elaborado_nombre}
 
-<label>Estado</label>
+            </p>
 
-<p>
+            <p>
 
-<span className="estado borrador">
+              <strong>Área:</strong>{" "}
+              {investigacion.elaborado_area}
 
-Borrador
+            </p>
 
-</span>
+            <p>
 
-</p>
+              <strong>Fecha:</strong>{" "}
+              {investigacion.elaborado_fecha}
 
-</div>
+            </p>
 
-<div>
+          </div>
 
-<label>Fecha</label>
+        )}
 
-<p>
+      </div>
 
-05/08/2026
+    </Layout>
 
-</p>
+  );
 
-</div>
-
-<div>
-
-<label>Indicador</label>
-
-<p>
-
-Incidentes
-
-</p>
-
-</div>
-
-</div>
-
-</div>
-
-{/* ================================================= */}
-
-<div className="detalle-card">
-
-<h2>
-
-Equipo Investigador
-
-</h2>
-
-<hr/>
-
-<table className="tabla-detalle">
-
-<thead>
-
-<tr>
-
-<th></th>
-
-<th>Nombre</th>
-
-<th>Puesto</th>
-
-<th>Área</th>
-
-<th>Fecha</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr>
-
-<td>
-
-Elaboró
-
-</td>
-
-<td>
-
-Pablo Hernández
-
-</td>
-
-<td>
-
-Jefe de Producción
-
-</td>
-
-<td>
-
-Producción
-
-</td>
-
-<td>
-
-05/08/2026
-
-</td>
-
-</tr>
-
-<tr>
-
-<td>
-
-Revisó
-
-</td>
-
-<td>
-
-José Suruy
-
-</td>
-
-<td>
-
-...
-
-</td>
-
-<td>
-
-...
-
-</td>
-
-<td>
-
-...
-
-</td>
-
-</tr>
-
-<tr>
-
-<td>
-
-Aprobó
-
-</td>
-
-<td>
-
-Ricardo Estrada
-
-</td>
-
-<td>
-
-...
-
-</td>
-
-<td>
-
-...
-
-</td>
-
-<td>
-
-...
-
-</td>
-
-</tr>
-
-</tbody>
-
-</table>
-
-</div>
-
-{/* ================================================= */}
-
-<div className="detalle-card">
-
-<h2>
-
-Identificación
-
-</h2>
-
-<hr/>
-
-<div className="detalle-grid">
-
-<div>
-
-<label>
-
-Macroproceso
-
-</label>
-
-<p>
-
-Trefilación
-
-</p>
-
-</div>
-
-<div>
-
-<label>
-
-Proceso
-
-</label>
-
-<p>
-
-Línea 2
-
-</p>
-
-</div>
-
-<div>
-
-<label>
-
-Dirección
-
-</label>
-
-<p>
-
-Industrial
-
-</p>
-
-</div>
-
-<div>
-
-<label>
-
-Gerencia
-
-</label>
-
-<p>
-
-Producción
-
-</p>
-
-</div>
-
-<div>
-
-<label>
-
-Área
-
-</label>
-
-<p>
-
-Trefilación
-
-</p>
-
-</div>
-
-<div>
-
-<label>
-
-Turno
-
-</label>
-
-<p>
-
-A
-
-</p>
-
-</div>
-
-</div>
-
-</div>
-
-{/* ================================================= */}
-
-<div className="detalle-card">
-
-<h2>
-
-Descripción del Incidente
-
-</h2>
-
-<hr/>
-
-<p>
-
-Aquí aparecerá la descripción completa del incidente...
-
-</p>
-
-<div className="galeria">
-
-<img src="/placeholder.png"/>
-
-<img src="/placeholder.png"/>
-
-<img src="/placeholder.png"/>
-
-</div>
-
-</div>
-
-{/* ================================================= */}
-
-<div className="detalle-card">
-
-<h2>
-
-Acciones Inmediatas
-
-</h2>
-
-<hr/>
-
-<table className="tabla-detalle">
-
-<thead>
-
-<tr>
-
-<th>#</th>
-
-<th>Acción</th>
-
-<th>Responsable</th>
-
-<th>Inicio</th>
-
-<th>Fin</th>
-
-<th>Evidencia</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr>
-
-<td>
-
-1
-
-</td>
-
-<td>
-
-Retirar material.
-
-</td>
-
-<td>
-
-Juan Pérez
-
-</td>
-
-<td>
-
-05/08/2026
-
-</td>
-
-<td>
-
-06/08/2026
-
-</td>
-
-<td>
-
-📷
-
-</td>
-
-</tr>
-
-</tbody>
-
-</table>
-
-</div>
-
-{/* ================================================= */}
-
-<div className="detalle-card">
-
-<h2>
-
-Árbol de Causas
-
-</h2>
-
-<hr/>
-
-<div
-style={{
-height:700,
-border:"1px solid #ddd",
-borderRadius:8
-}}
->
-
-Aquí aparecerá React Flow
-
-</div>
-
-</div>
-
-{/* ================================================= */}
-
-<div className="detalle-card">
-
-<h2>
-
-Plan de Acción
-
-</h2>
-
-<hr/>
-
-<table className="tabla-detalle">
-
-<thead>
-
-<tr>
-
-<th>
-
-Qué hacer
-
-</th>
-
-<th>
-
-Cómo
-
-</th>
-
-<th>
-
-Responsable
-
-</th>
-
-<th>
-
-Inicio
-
-</th>
-
-<th>
-
-Fin
-
-</th>
-
-<th>
-
-Evidencia
-
-</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr>
-
-<td>
-
-...
-
-</td>
-
-<td>
-
-...
-
-</td>
-
-<td>
-
-...
-
-</td>
-
-<td>
-
-...
-
-</td>
-
-<td>
-
-...
-
-</td>
-
-<td>
-
-📷
-
-</td>
-
-</tr>
-
-</tbody>
-
-</table>
-
-</div>
-
-</div>
-
-</Layout>
-
-);
+}
