@@ -1,0 +1,234 @@
+.nuevo-reporte-incidente{
+
+    display:flex;
+    flex-direction:column;
+    gap:24px;
+
+}
+
+/* ===========================
+   Wizard
+=========================== */
+
+.wizard-layout{
+
+    display:grid;
+    grid-template-columns:260px 1fr;
+    gap:24px;
+
+}
+
+.wizard-sidebar{
+
+    background:white;
+    border-radius:12px;
+    padding:20px;
+
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+
+    box-shadow:0 2px 10px rgba(0,0,0,.06);
+
+}
+
+.wizard-item{
+
+    display:flex;
+    align-items:center;
+    gap:14px;
+
+    padding:12px;
+
+    border:none;
+    background:transparent;
+
+    border-radius:10px;
+
+    cursor:pointer;
+
+    transition:.2s;
+
+    text-align:left;
+
+}
+
+.wizard-item:hover{
+
+    background:#f8fafc;
+
+}
+
+.wizard-item.active{
+
+    background:#0d6efd;
+    color:white;
+
+}
+
+.wizard-number{
+
+    width:34px;
+    height:34px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:50%;
+
+    background:#e5e7eb;
+
+    font-weight:bold;
+
+}
+
+.wizard-item.active .wizard-number{
+
+    background:white;
+    color:#0d6efd;
+
+}
+
+.wizard-content{
+
+    background:white;
+
+    border-radius:12px;
+
+    padding:30px;
+
+    box-shadow:0 2px 10px rgba(0,0,0,.06);
+
+}
+
+.wizard-footer{
+
+    display:flex;
+    justify-content:space-between;
+
+    margin-top:25px;
+
+}
+
+/* ===========================
+   Formularios
+=========================== */
+
+.form-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:20px;
+
+}
+
+.form-group{
+
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+
+}
+
+.form-group.full{
+
+    grid-column:1 / -1;
+
+}
+
+.form-group label{
+
+    font-size:14px;
+    font-weight:600;
+
+    color:#334155;
+
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea{
+
+    padding:10px 12px;
+
+    border:1px solid #d1d5db;
+
+    border-radius:8px;
+
+    font-size:14px;
+
+}
+
+.form-group textarea{
+
+    resize:vertical;
+    min-height:120px;
+
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus{
+
+    outline:none;
+
+    border-color:#0d6efd;
+
+    box-shadow:0 0 0 3px rgba(13,110,253,.12);
+
+}
+
+/* ===========================
+   Evidencias
+=========================== */
+
+.upload-box{
+
+    border:2px dashed #cbd5e1;
+
+    border-radius:12px;
+
+    padding:40px;
+
+    text-align:center;
+
+    cursor:pointer;
+
+    transition:.2s;
+
+}
+
+.upload-box:hover{
+
+    border-color:#0d6efd;
+
+    background:#f8fbff;
+
+}
+
+/* ===========================
+   Responsive
+=========================== */
+
+@media(max-width:900px){
+
+    .wizard-layout{
+
+        grid-template-columns:1fr;
+
+    }
+
+}
+
+@media(max-width:700px){
+
+    .form-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+}
