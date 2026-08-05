@@ -4,10 +4,14 @@ import Login from "../pages/Login/Login";
 import Dashboard from "../pages/Dashboard/Dashboard";
 import Investigaciones from "../pages/Investigaciones/Investigaciones";
 import NuevaInvestigacion from "../pages/NuevaInvestigacion/NuevaInvestigacion";
+import InvestigacionDetalle from "../pages/Investigaciones/InvestigacionDetalle";
 
 export default function AppNavigator() {
 
   const [screen, setScreen] = useState("login");
+
+  const [investigacionSeleccionada, setInvestigacionSeleccionada] =
+    useState(null);
 
   switch (screen) {
 
@@ -22,6 +26,7 @@ export default function AppNavigator() {
       return (
         <Investigaciones
           setScreen={setScreen}
+          setInvestigacionSeleccionada={setInvestigacionSeleccionada}
         />
       );
 
@@ -29,6 +34,14 @@ export default function AppNavigator() {
       return (
         <NuevaInvestigacion
           setScreen={setScreen}
+        />
+      );
+
+    case "investigacionDetalle":
+      return (
+        <InvestigacionDetalle
+          setScreen={setScreen}
+          investigacionId={investigacionSeleccionada}
         />
       );
 
