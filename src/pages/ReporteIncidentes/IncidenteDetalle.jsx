@@ -1,8 +1,16 @@
+import { useEffect, useState } from "react";
+
 import Layout from "../../components/Layout";
 import Header from "../../components/Header";
 import Sidebar from "../../components/Sidebar";
 
+import InformacionGeneralDetalle from "./Components/InformacionGeneralDetalle";
+import ColaboradorDetalle from "./Components/ColaboradorDetalle";
+import IncidenteDetalleForm from "./Components/IncidenteDetalleForm";
+
 import "./IncidenteDetalle.css";
+
+import supabase from "../../lib/supabase";
 
 export default function IncidenteDetalle({
 
@@ -11,10 +19,106 @@ export default function IncidenteDetalle({
 
 }) {
 
-  return (
+  const [incidente,setIncidente]=useState(null);
+
+  const [tiposIncidente,setTiposIncidente]=useState([]);
+  const [danos,setDanos]=useState([]);
+
+  useEffect(()=>{
+
+    cargar();
+
+  },[]);
+
+  async function cargar(){
+
+    await Promise.all([
+
+      cargarIncidente(),
+      cargarCatalogos()
+
+    ]);
+
+  }
+
+  async function cargarIncidente(){
+
+    const {data,error}=await supabase
+
+      .from("incidentes")
+
+      .select(`
+        *,
+        catalogo_direcciones(*),
+        catalogo_sedes(*)
+      `)
+
+      .eq("id",incidenteId)
+
+      .single();
+
+    if(error){
+
+      console.error(error);
+
+      return;
+
+    }
+
+    setIncidente(data);
+
+  }
+
+  async function cargarCatalogos(){
+
+    const [
+
+      tiposRes,
+      danosRes
+
+    ]=await Promise.all([
+
+      supabase
+        .from("catalogo_tipos_incidente")
+        .select("*")
+        .eq("activo",true)
+        .order("nombre"),
+
+      supabase
+        .from("catalogo_danos")
+        .select("*")
+        .eq("activo",true)
+        .order("codigo")
+
+    ]);
+
+    setTiposIncidente(tiposRes.data||[]);
+    setDanos(danosRes.data||[]);
+
+  }
+
+  async function guardarCambios(){
+
+    // aquí actualizaremos el incidente
+
+  }
+
+  async function iniciarTF(){
+
+    // aquí crearemos la investigación
+
+  }
+
+  if(!incidente){
+
+    return <>Cargando...</>;
+
+  }
+
+  return(
 
     <Layout
-      header={<Header />}
+      header={<Header/>}
       sidebar={
         <Sidebar
           screen="reporteIncidentes"
@@ -31,22 +135,23 @@ export default function IncidenteDetalle({
 
             <button
               className="btn-link"
-              onClick={() => setScreen("reporteIncidentes")}
+              onClick={()=>setScreen("reporteIncidentes")}
             >
 
-              ← Volver a Reporte de Incidentes
+              ← Volver
 
             </button>
 
             <h1>
 
-              Detalle del Incidente
+              {incidente.codigo}
 
             </h1>
 
             <p>
 
-              Código del incidente: <strong>{incidenteId}</strong>
+              Estado:
+              <strong> {incidente.estado}</strong>
 
             </p>
 
@@ -56,6 +161,7 @@ export default function IncidenteDetalle({
 
             <button
               className="btn-primary"
+              onClick={guardarCambios}
             >
 
               💾 Guardar Cambios
@@ -64,6 +170,7 @@ export default function IncidenteDetalle({
 
             <button
               className="btn-primary"
+              onClick={iniciarTF}
             >
 
               📋 Iniciar TF
@@ -74,185 +181,27 @@ export default function IncidenteDetalle({
 
         </div>
 
-        <div className="card">
+        <InformacionGeneralDetalle
 
-          <h2>
+          incidente={incidente}
 
-            Información General
+        />
 
-          </h2>
+        <ColaboradorDetalle
 
-          <div className="form-grid">
+          incidente={incidente}
 
-            <div className="form-group">
+        />
 
-              <label>
+        <IncidenteDetalleForm
 
-                Dirección
+          incidente={incidente}
+          setIncidente={setIncidente}
 
-              </label>
+          tiposIncidente={tiposIncidente}
+          danos={danos}
 
-              <input disabled />
-
-            </div>
-
-            <div className="form-group">
-
-              <label>
-
-                Sede
-
-              </label>
-
-              <input disabled />
-
-            </div>
-
-            <div className="form-group">
-
-              <label>
-
-                Sección
-
-              </label>
-
-              <input disabled />
-
-            </div>
-
-            <div className="form-group">
-
-              <label>
-
-                Ubicación
-
-              </label>
-
-              <input disabled />
-
-            </div>
-
-          </div>
-
-        </div>
-
-        <div className="card">
-
-          <h2>
-
-            Colaborador
-
-          </h2>
-
-          <div className="form-grid">
-
-            <div className="form-group full">
-
-              <label>
-
-                Nombre del colaborador
-
-              </label>
-
-              <input disabled />
-
-            </div>
-
-          </div>
-
-        </div>
-
-        <div className="card">
-
-          <h2>
-
-            Incidente
-
-          </h2>
-
-          <div className="form-grid">
-
-            <div className="form-group">
-
-              <label>
-
-                Fecha
-
-              </label>
-
-              <input disabled />
-
-            </div>
-
-            <div className="form-group">
-
-              <label>
-
-                Hora
-
-              </label>
-
-              <input disabled />
-
-            </div>
-
-            <div className="form-group">
-
-              <label>
-
-                Clasificación
-
-              </label>
-
-              <select>
-
-                <option>
-
-                  Pendiente
-
-                </option>
-
-              </select>
-
-            </div>
-
-            <div className="form-group">
-
-              <label>
-
-                Daño
-
-              </label>
-
-              <select>
-
-                <option>
-
-                  Pendiente
-
-                </option>
-
-              </select>
-
-            </div>
-
-            <div className="form-group full">
-
-              <label>
-
-                Descripción
-
-              </label>
-
-              <textarea
-                rows={6}
-              />
-
-            </div>
-
-          </div>
-
-        </div>
+        />
 
       </div>
 
