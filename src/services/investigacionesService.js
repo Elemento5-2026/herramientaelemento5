@@ -323,3 +323,71 @@ modulo_id: moduloId,
   }
 
 }
+
+/**
+ * Crea una investigación desde un incidente
+ */
+export async function crearInvestigacionDesdeIncidente(
+  incidente
+) {
+
+  // Verificar si el incidente ya tiene investigación
+  if (incidente.investigacion_id) {
+    throw new Error(
+      "Este incidente ya tiene una investigación."
+    );
+  }
+
+  // Buscar el último código TF
+  const { data: ultimo } = await supabase
+    .from("investigaciones")
+    .select("codigo_controlado")
+    .order("created_at", {
+      ascending: false
+    })
+    .limit(1)
+    .maybeSingle();
+
+  let consecutivo = 1;
+
+  if (ultimo?.codigo_controlado) {
+    const partes = ultimo.codigo_controlado.split("-");
+    const ultimoNumero = Number(partes[2]);
+    if (!isNaN(ultimoNumero)) {
+      consecutivo = ultimoNumero + 1;
+    }
+  }
+
+  const codigo =
+    `TF-${new Date().getFullYear()}-${String(consecutivo).padStart(6, "0")}`;
+
+  // Crear la investigación
+  const {
+    data: investigacion,
+    error
+  } = await supabase
+    .from("investigaciones")
+    .insert({
+      codigo_controlado: codigo,
+      estado: "Borrador",
+      incidente_id: incidente.id
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+
+  // Actualizar el incidente
+  const {
+    error: errorIncidente
+  } = await supabase
+    .from("incidentes")
+    .update({
+      investigacion_id: investigacion.id
+    })
+    .eq("id", incidente.id);
+
+  if (errorIncidente) throw errorIncidente;
+
+  return investigacion;
+}
