@@ -61,9 +61,9 @@ export default function ArbolCausas({
   // NODES
   //---------------------------------------------------------
 
- const ROOT_ID = crypto.randomUUID();
+ const [ROOT_ID] = useState(() => crypto.randomUUID());
 
-const [nodes, setNodes] = useState([
+const [nodes, setNodes] = useState(() => [
   {
     id: ROOT_ID,
     type: "causa",
@@ -79,7 +79,7 @@ const [nodes, setNodes] = useState([
     }
   }
 ]);
-useEffect(() => {
+  useEffect(() => {
 
   setFormulario((anterior) => ({
 
