@@ -43,6 +43,46 @@ export async function guardarEncabezado(formulario) {
 }
 
 /**
+ * Actualiza el encabezado de una investigación
+ */
+export async function actualizarEncabezado(formulario) {
+
+  const { data, error } = await supabase
+    .from("investigaciones")
+    .update({
+
+      participantes: formulario.participantes,
+
+      elaborado_nombre: formulario.elaborado_nombre,
+      elaborado_puesto: formulario.elaborado_puesto,
+      elaborado_gerencia: formulario.elaborado_gerencia,
+      elaborado_area: formulario.elaborado_area,
+      elaborado_fecha: formulario.elaborado_fecha,
+
+      revisado_nombre: formulario.revisado_nombre,
+      revisado_puesto: formulario.revisado_puesto,
+      revisado_gerencia: formulario.revisado_gerencia,
+      revisado_area: formulario.revisado_area,
+      revisado_fecha: formulario.revisado_fecha,
+
+      aprobado_nombre: formulario.aprobado_nombre,
+      aprobado_puesto: formulario.aprobado_puesto,
+      aprobado_gerencia: formulario.aprobado_gerencia,
+      aprobado_area: formulario.aprobado_area,
+      aprobado_fecha: formulario.aprobado_fecha
+
+    })
+    .eq("id", formulario.id)
+    .select()
+    .single();
+
+  if (error) throw error;
+
+  return data;
+
+}
+
+/**
  * Guarda la Identificación
  */
 export async function guardarIdentificacion(
@@ -140,6 +180,14 @@ export async function guardarAccionesInmediatas(
 
   if (!acciones || acciones.length === 0) return [];
 
+  const { error: errorDelete } =
+    await supabase
+      .from("investigaciones_acciones_inmediatas")
+      .delete()
+      .eq("investigacion_id", investigacionId);
+
+  if (errorDelete) throw errorDelete;
+
   const accionesGuardadas = [];
 
   for (const accion of acciones) {
@@ -184,6 +232,14 @@ export async function guardarPlanAccion(
 ) {
 
   if (!acciones || acciones.length === 0) return [];
+
+  const { error: errorDelete } =
+    await supabase
+      .from("investigaciones_plan_accion")
+      .delete()
+      .eq("investigacion_id", investigacionId);
+
+  if (errorDelete) throw errorDelete;
 
   const accionesGuardadas = [];
 
@@ -232,31 +288,42 @@ export async function guardarArbolCausas(
 
   if (!nodos || nodos.length === 0) return;
 
+  // Eliminar árbol anterior
+  const { error: errorDelete } =
+    await supabase
+      .from("investigaciones_arbol_causas")
+      .delete()
+      .eq("investigacion_id", investigacionId);
+
+  if (errorDelete) throw errorDelete;
+
+  // Insertar nuevamente
   for (let i = 0; i < nodos.length; i++) {
 
     const nodo = nodos[i];
 
-    const { error } = await supabase
-      .from("investigaciones_arbol_causas")
-      .insert({
+    const { error } =
+      await supabase
+        .from("investigaciones_arbol_causas")
+        .insert({
 
-        id: nodo.id,
+          id: nodo.id,
 
-        investigacion_id: investigacionId,
+          investigacion_id: investigacionId,
 
-        padre_id: nodo.data.parentId,
+          padre_id: nodo.data.parentId,
 
-        descripcion: nodo.data.label,
+          descripcion: nodo.data.label,
 
-        categoria: nodo.data.tipo,
+          categoria: nodo.data.tipo,
 
-        posicion_x: nodo.position.x,
+          posicion_x: nodo.position.x,
 
-        posicion_y: nodo.position.y,
+          posicion_y: nodo.position.y,
 
-        orden: i + 1
+          orden: i + 1
 
-      });
+        });
 
     if (error) throw error;
 
