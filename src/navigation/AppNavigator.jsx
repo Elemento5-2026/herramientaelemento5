@@ -2,6 +2,10 @@ import { useState } from "react";
 
 import Login from "../pages/Login/Login";
 import Dashboard from "../pages/Dashboard/Dashboard";
+
+import ReporteIncidentes from "../pages/ReporteIncidentes/ReporteIncidentes";
+import NuevoReporteIncidente from "../pages/ReporteIncidentes/NuevoReporteIncidente";
+
 import Investigaciones from "../pages/Investigaciones/Investigaciones";
 import NuevaInvestigacion from "../pages/NuevaInvestigacion/NuevaInvestigacion";
 import InvestigacionDetalle from "../pages/Investigaciones/InvestigacionDetalle";
@@ -18,6 +22,20 @@ export default function AppNavigator() {
     case "dashboard":
       return (
         <Dashboard
+          setScreen={setScreen}
+        />
+      );
+
+    case "reporteIncidentes":
+      return (
+        <ReporteIncidentes
+          setScreen={setScreen}
+        />
+      );
+
+    case "nuevoReporteIncidente":
+      return (
+        <NuevoReporteIncidente
           setScreen={setScreen}
         />
       );
