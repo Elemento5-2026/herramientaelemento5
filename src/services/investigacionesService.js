@@ -458,3 +458,37 @@ export async function crearInvestigacionDesdeIncidente(
 
   return investigacion;
 }
+
+/**
+ * Obtiene una investigación completa con todas sus relaciones
+ */
+export async function obtenerInvestigacionPorId(id) {
+
+  const { data, error } = await supabase
+    .from("investigaciones")
+    .select(`
+      *,
+      investigaciones_descripcion(*),
+      investigaciones_acciones_inmediatas(*),
+      investigaciones_plan_accion(*),
+      investigaciones_arbol_causas(*)
+    `)
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) throw error;
+
+  if (!data) {
+    throw new Error("Investigación no encontrada");
+  }
+
+  // Asegurar que las relaciones existan aunque estén vacías
+  return {
+    ...data,
+    investigaciones_descripcion: data.investigaciones_descripcion || null,
+    investigaciones_acciones_inmediatas: data.investigaciones_acciones_inmediatas || [],
+    investigaciones_plan_accion: data.investigaciones_plan_accion || [],
+    investigaciones_arbol_causas: data.investigaciones_arbol_causas || []
+  };
+
+}
