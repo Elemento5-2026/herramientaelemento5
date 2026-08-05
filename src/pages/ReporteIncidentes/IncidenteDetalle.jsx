@@ -99,13 +99,33 @@ export default function IncidenteDetalle({
 
   async function guardarCambios() {
 
-    // Aquí actualizaremos el incidente
+    const { error } = await supabase
 
-  }
+      .from("incidentes")
 
-  async function iniciarTF() {
+      .update({
 
-    // Aquí crearemos la investigación
+        tipo_incidente_id: incidente.tipo_incidente_id || null,
+
+        dano_id: incidente.dano_id || null,
+
+        descripcion: incidente.descripcion
+
+      })
+
+      .eq("id", incidente.id);
+
+    if (error) {
+
+      console.error(error);
+
+      alert("Error al guardar los cambios.");
+
+      return;
+
+    }
+
+    alert("Incidente actualizado correctamente.");
 
   }
 
@@ -185,15 +205,6 @@ export default function IncidenteDetalle({
             >
 
               💾 Guardar Cambios
-
-            </button>
-
-            <button
-              className="btn-primary"
-              onClick={iniciarTF}
-            >
-
-              📋 Iniciar TF
 
             </button>
 
