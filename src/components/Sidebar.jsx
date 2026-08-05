@@ -1,7 +1,9 @@
 import "./Sidebar.css";
 
 export default function Sidebar({ screen, setScreen }) {
+
   return (
+
     <aside className="sidebar">
 
       <div>
@@ -30,10 +32,10 @@ export default function Sidebar({ screen, setScreen }) {
         </button>
 
         <button
-          className={`menu-item ${screen === "incidentes" ? "active" : ""}`}
-          onClick={() => setScreen("incidentes")}
+          className={`menu-item ${screen === "reporteIncidentes" ? "active" : ""}`}
+          onClick={() => setScreen("reporteIncidentes")}
         >
-          📁 Incidentes
+          📝 Reporte de Incidentes
         </button>
 
         <button
@@ -72,5 +74,7 @@ export default function Sidebar({ screen, setScreen }) {
       </div>
 
     </aside>
+
   );
+
 }
