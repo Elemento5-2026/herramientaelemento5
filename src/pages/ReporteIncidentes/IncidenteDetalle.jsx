@@ -6,7 +6,7 @@ import Sidebar from "../../components/Sidebar";
 
 import InformacionGeneralDetalle from "./Components/InformacionGeneralDetalle";
 import ColaboradorDetalle from "./Components/ColaboradorDetalle";
-import IncidenteDetalleForm from "./Components/IncidenteDetalleForm";
+import DatosIncidente from "./Components/DatosIncidente";
 
 import "./IncidenteDetalle.css";
 
@@ -19,18 +19,18 @@ export default function IncidenteDetalle({
 
 }) {
 
-  const [incidente,setIncidente]=useState(null);
+  const [incidente, setIncidente] = useState(null);
 
-  const [tiposIncidente,setTiposIncidente]=useState([]);
-  const [danos,setDanos]=useState([]);
+  const [tiposIncidente, setTiposIncidente] = useState([]);
+  const [danos, setDanos] = useState([]);
 
-  useEffect(()=>{
+  useEffect(() => {
 
     cargar();
 
-  },[]);
+  }, []);
 
-  async function cargar(){
+  async function cargar() {
 
     await Promise.all([
 
@@ -41,9 +41,9 @@ export default function IncidenteDetalle({
 
   }
 
-  async function cargarIncidente(){
+  async function cargarIncidente() {
 
-    const {data,error}=await supabase
+    const { data, error } = await supabase
 
       .from("incidentes")
 
@@ -53,11 +53,11 @@ export default function IncidenteDetalle({
         catalogo_sedes(*)
       `)
 
-      .eq("id",incidenteId)
+      .eq("id", incidenteId)
 
       .single();
 
-    if(error){
+    if (error) {
 
       console.error(error);
 
@@ -69,56 +69,76 @@ export default function IncidenteDetalle({
 
   }
 
-  async function cargarCatalogos(){
+  async function cargarCatalogos() {
 
     const [
 
       tiposRes,
       danosRes
 
-    ]=await Promise.all([
+    ] = await Promise.all([
 
       supabase
         .from("catalogo_tipos_incidente")
         .select("*")
-        .eq("activo",true)
+        .eq("activo", true)
         .order("nombre"),
 
       supabase
         .from("catalogo_danos")
         .select("*")
-        .eq("activo",true)
+        .eq("activo", true)
         .order("codigo")
 
     ]);
 
-    setTiposIncidente(tiposRes.data||[]);
-    setDanos(danosRes.data||[]);
+    setTiposIncidente(tiposRes.data || []);
+    setDanos(danosRes.data || []);
 
   }
 
-  async function guardarCambios(){
+  async function guardarCambios() {
 
-    // aquí actualizaremos el incidente
-
-  }
-
-  async function iniciarTF(){
-
-    // aquí crearemos la investigación
+    // Aquí actualizaremos el incidente
 
   }
 
-  if(!incidente){
+  async function iniciarTF() {
 
-    return <>Cargando...</>;
+    // Aquí crearemos la investigación
 
   }
 
-  return(
+  if (!incidente) {
+
+    return (
+
+      <Layout
+        header={<Header />}
+        sidebar={
+          <Sidebar
+            screen="reporteIncidentes"
+            setScreen={setScreen}
+          />
+        }
+      >
+
+        <div className="incidente-detalle">
+
+          Cargando incidente...
+
+        </div>
+
+      </Layout>
+
+    );
+
+  }
+
+  return (
 
     <Layout
-      header={<Header/>}
+      header={<Header />}
       sidebar={
         <Sidebar
           screen="reporteIncidentes"
@@ -135,10 +155,10 @@ export default function IncidenteDetalle({
 
             <button
               className="btn-link"
-              onClick={()=>setScreen("reporteIncidentes")}
+              onClick={() => setScreen("reporteIncidentes")}
             >
 
-              ← Volver
+              ← Volver a Reporte de Incidentes
 
             </button>
 
@@ -193,7 +213,7 @@ export default function IncidenteDetalle({
 
         />
 
-        <IncidenteDetalleForm
+        <DatosIncidente
 
           incidente={incidente}
           setIncidente={setIncidente}
