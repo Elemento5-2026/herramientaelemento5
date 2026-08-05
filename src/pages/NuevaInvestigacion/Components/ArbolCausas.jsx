@@ -77,6 +77,17 @@ export default function ArbolCausas({
     }
   }
 ]);
+useEffect(() => {
+
+  setFormulario((anterior) => ({
+
+    ...anterior,
+
+    arbol_causas: nodes
+
+  }));
+
+}, [nodes, setFormulario]);
   //---------------------------------------------------------
   // EDGES
   //---------------------------------------------------------
