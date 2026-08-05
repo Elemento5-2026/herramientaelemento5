@@ -7,11 +7,15 @@ import Sidebar from "../../components/Sidebar";
 import "./ReporteIncidentes.css";
 
 import supabase from "../../lib/supabase";
+import {
+  crearInvestigacionDesdeIncidente
+} from "../../services/investigacionesService";
 
 export default function ReporteIncidentes({
 
   setScreen,
-  setIncidenteSeleccionado
+  setIncidenteSeleccionado,
+  setInvestigacionSeleccionada
 
 }) {
 
@@ -55,9 +59,9 @@ export default function ReporteIncidentes({
 
   }
 
-  async function iniciarTF(incidente){
+  async function iniciarTF(incidente) {
 
-    if(!incidente.tipo_incidente_id){
+    if (!incidente.tipo_incidente_id) {
 
       alert(
         "Debe clasificar el incidente antes de iniciar el TF."
@@ -67,9 +71,29 @@ export default function ReporteIncidentes({
 
     }
 
-    alert(
-      "En el siguiente paso crearemos automáticamente la investigación."
-    );
+    try {
+
+      const investigacion =
+        await crearInvestigacionDesdeIncidente(
+          incidente
+        );
+
+      setInvestigacionSeleccionada(
+        investigacion.id
+      );
+
+      setScreen("nuevaInvestigacion");
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(
+        error.message ||
+        "No fue posible iniciar el TF."
+      );
+
+    }
 
   }
 
@@ -254,6 +278,15 @@ export default function ReporteIncidentes({
 
                         <button
                           className="btn-link"
+                          onClick={() => {
+
+                            setInvestigacionSeleccionada(
+                              incidente.investigacion_id
+                            );
+
+                            setScreen("nuevaInvestigacion");
+
+                          }}
                         >
 
                           📂 Abrir TF
