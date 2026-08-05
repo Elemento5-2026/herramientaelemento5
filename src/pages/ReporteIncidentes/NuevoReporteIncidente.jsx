@@ -84,18 +84,6 @@ export default function NuevoReporteIncidente({ setScreen }) {
 
     ]);
 
-    console.log("========== DIRECCIONES ==========");
-    console.log(direccionesRes);
-
-    console.log("========== SEDES ==========");
-    console.log(sedesRes);
-
-    console.log("========== TIPOS ==========");
-    console.log(tiposRes);
-
-    console.log("========== DAÑOS ==========");
-    console.log(danosRes);
-
     setDirecciones(direccionesRes.data || []);
     setSedes(sedesRes.data || []);
     setTiposIncidente(tiposRes.data || []);
@@ -105,7 +93,48 @@ export default function NuevoReporteIncidente({ setScreen }) {
 
   async function guardarReporte() {
 
-    console.log(formulario);
+    const { data, error } = await supabase
+      .from("incidentes")
+      .insert([
+        {
+
+          direccion_id: formulario.direccion_id || null,
+          sede_id: formulario.sede_id || null,
+
+          seccion: formulario.seccion,
+          ubicacion: formulario.ubicacion,
+
+          nombre_colaborador: formulario.nombre_colaborador,
+
+          fecha: formulario.fecha,
+          hora: formulario.hora,
+
+          tipo_incidente_id: formulario.tipo_incidente_id || null,
+          dano_id: formulario.dano_id || null,
+
+          descripcion: formulario.descripcion,
+
+          estado: "Pendiente TF"
+
+        }
+      ])
+      .select();
+
+    if (error) {
+
+      console.error(error);
+
+      alert("Error al guardar el incidente.");
+
+      return;
+
+    }
+
+    console.log(data);
+
+    alert("Incidente registrado correctamente.");
+
+    setScreen("reporteIncidentes");
 
   }
 
