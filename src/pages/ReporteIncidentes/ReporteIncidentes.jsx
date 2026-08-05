@@ -8,7 +8,12 @@ import "./ReporteIncidentes.css";
 
 import supabase from "../../lib/supabase";
 
-export default function ReporteIncidentes({ setScreen }) {
+export default function ReporteIncidentes({
+
+  setScreen,
+  setIncidenteSeleccionado
+
+}) {
 
   const [incidentes, setIncidentes] = useState([]);
 
@@ -156,7 +161,24 @@ export default function ReporteIncidentes({ setScreen }) {
 
                     <td>
 
-                      {incidente.codigo ?? "-"}
+                      <button
+                        className="btn-link"
+                        onClick={() => {
+
+                          setIncidenteSeleccionado(
+                            incidente.id
+                          );
+
+                          setScreen(
+                            "incidenteDetalle"
+                          );
+
+                        }}
+                      >
+
+                        {incidente.codigo}
+
+                      </button>
 
                     </td>
 
@@ -168,7 +190,7 @@ export default function ReporteIncidentes({ setScreen }) {
 
                     <td>
 
-                      {incidente.hora}
+                      {incidente.hora?.substring(0,5)}
 
                     </td>
 
@@ -198,13 +220,13 @@ export default function ReporteIncidentes({ setScreen }) {
 
                     <td>
 
-                      {incidente.catalogo_tipos_incidente?.nombre}
+                      {incidente.catalogo_tipos_incidente?.nombre ?? "Pendiente"}
 
                     </td>
 
                     <td>
 
-                      {incidente.catalogo_danos?.codigo}
+                      {incidente.catalogo_danos?.codigo ?? "Pendiente"}
 
                     </td>
 
@@ -216,7 +238,7 @@ export default function ReporteIncidentes({ setScreen }) {
                           className="btn-link"
                         >
 
-                          🔵 Ver TF
+                          📋 Ver TF
 
                         </button>
 
@@ -226,7 +248,7 @@ export default function ReporteIncidentes({ setScreen }) {
                           className="btn-link"
                         >
 
-                          🟢 Iniciar TF
+                          📋 Iniciar TF
 
                         </button>
 
