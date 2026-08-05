@@ -222,6 +222,47 @@ export async function guardarPlanAccion(
   return accionesGuardadas;
 
 }
+/**
+ * Guarda el Árbol de Causas
+ */
+export async function guardarArbolCausas(
+  investigacionId,
+  nodos
+) {
+
+  if (!nodos || nodos.length === 0) return;
+
+  for (let i = 0; i < nodos.length; i++) {
+
+    const nodo = nodos[i];
+
+    const { error } = await supabase
+      .from("investigaciones_arbol_causas")
+      .insert({
+
+        id: nodo.id,
+
+        investigacion_id: investigacionId,
+
+        padre_id: nodo.data.parentId,
+
+        descripcion: nodo.data.label,
+
+        categoria: nodo.data.tipo,
+
+        posicion_x: nodo.position.x,
+
+        posicion_y: nodo.position.y,
+
+        orden: i + 1
+
+      });
+
+    if (error) throw error;
+
+  }
+
+}
 
 /**
  * Sube las evidencias de la descripción
