@@ -5,6 +5,7 @@ import Dashboard from "../pages/Dashboard/Dashboard";
 
 import ReporteIncidentes from "../pages/ReporteIncidentes/ReporteIncidentes";
 import NuevoReporteIncidente from "../pages/ReporteIncidentes/NuevoReporteIncidente";
+import IncidenteDetalle from "../pages/ReporteIncidentes/IncidenteDetalle";
 
 import Investigaciones from "../pages/Investigaciones/Investigaciones";
 import NuevaInvestigacion from "../pages/NuevaInvestigacion/NuevaInvestigacion";
@@ -15,6 +16,9 @@ export default function AppNavigator() {
   const [screen, setScreen] = useState("login");
 
   const [investigacionSeleccionada, setInvestigacionSeleccionada] =
+    useState(null);
+
+  const [incidenteSeleccionado, setIncidenteSeleccionado] =
     useState(null);
 
   switch (screen) {
@@ -30,6 +34,7 @@ export default function AppNavigator() {
       return (
         <ReporteIncidentes
           setScreen={setScreen}
+          setIncidenteSeleccionado={setIncidenteSeleccionado}
         />
       );
 
@@ -37,6 +42,14 @@ export default function AppNavigator() {
       return (
         <NuevoReporteIncidente
           setScreen={setScreen}
+        />
+      );
+
+    case "incidenteDetalle":
+      return (
+        <IncidenteDetalle
+          setScreen={setScreen}
+          incidenteId={incidenteSeleccionado}
         />
       );
 
