@@ -55,6 +55,24 @@ export default function ReporteIncidentes({
 
   }
 
+  async function iniciarTF(incidente){
+
+    if(!incidente.tipo_incidente_id){
+
+      alert(
+        "Debe clasificar el incidente antes de iniciar el TF."
+      );
+
+      return;
+
+    }
+
+    alert(
+      "En el siguiente paso crearemos automáticamente la investigación."
+    );
+
+  }
+
   return (
 
     <Layout
@@ -138,13 +156,13 @@ export default function ReporteIncidentes({
 
             <tbody>
 
-              {incidentes.length === 0 ? (
+              {incidentes.length===0 ? (
 
                 <tr>
 
                   <td
                     colSpan="10"
-                    style={{ textAlign: "center" }}
+                    style={{textAlign:"center"}}
                   >
 
                     No hay incidentes registrados.
@@ -155,7 +173,7 @@ export default function ReporteIncidentes({
 
               ) : (
 
-                incidentes.map((incidente) => (
+                incidentes.map((incidente)=>(
 
                   <tr key={incidente.id}>
 
@@ -163,7 +181,7 @@ export default function ReporteIncidentes({
 
                       <button
                         className="btn-link"
-                        onClick={() => {
+                        onClick={()=>{
 
                           setIncidenteSeleccionado(
                             incidente.id
@@ -238,7 +256,7 @@ export default function ReporteIncidentes({
                           className="btn-link"
                         >
 
-                          📋 Ver TF
+                          📂 Abrir TF
 
                         </button>
 
@@ -246,6 +264,9 @@ export default function ReporteIncidentes({
 
                         <button
                           className="btn-link"
+                          onClick={() =>
+                            iniciarTF(incidente)
+                          }
                         >
 
                           📋 Iniciar TF
