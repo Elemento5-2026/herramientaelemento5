@@ -7,7 +7,6 @@ import Sidebar from "../../components/Sidebar";
 import InformacionGeneral from "./Components/InformacionGeneral";
 import Colaborador from "./Components/Colaborador";
 import Incidente from "./Components/Incidente";
-import Evidencias from "./Components/Evidencias";
 
 import "./NuevoReporteIncidente.css";
 
@@ -19,62 +18,97 @@ export default function NuevoReporteIncidente({ setScreen }) {
 
   const [formulario, setFormulario] = useState({
 
-    direccion_id:"",
-    sede_id:"",
+    direccion_id: "",
+    sede_id: "",
 
-    seccion:"",
-    ubicacion:"",
+    seccion: "",
+    ubicacion: "",
 
-    nombre_colaborador:"",
+    nombre_colaborador: "",
 
-    fecha:"",
-    hora:"",
+    fecha: "",
+    hora: "",
 
-    tipo_incidente_id:"",
-    dano_id:"",
+    tipo_incidente_id: "",
+    dano_id: "",
 
-    descripcion:"",
-
-    evidencias:[]
+    descripcion: ""
 
   });
 
-  const [direcciones,setDirecciones]=useState([]);
-  const [sedes,setSedes]=useState([]);
-  const [tiposIncidente,setTiposIncidente]=useState([]);
-  const [danos,setDanos]=useState([]);
+  const [direcciones, setDirecciones] = useState([]);
+  const [sedes, setSedes] = useState([]);
+  const [tiposIncidente, setTiposIncidente] = useState([]);
+  const [danos, setDanos] = useState([]);
 
-  useEffect(()=>{
-
-    async function cargarCatalogos(){
-
-      // aquí cargaremos Supabase
-
-    }
+  useEffect(() => {
 
     cargarCatalogos();
 
-  },[]);
+  }, []);
 
-  const guardarReporte=async()=>{
+  async function cargarCatalogos() {
 
-    // guardar incidente
+    const [
 
-  };
+      direccionesRes,
+      sedesRes,
+      tiposRes,
+      danosRes
 
-  const pasos=[
+    ] = await Promise.all([
+
+      supabase
+        .from("catalogo_direcciones")
+        .select("*")
+        .eq("activo", true)
+        .order("nombre"),
+
+      supabase
+        .from("catalogo_sedes")
+        .select("*")
+        .eq("activo", true)
+        .order("nombre"),
+
+      supabase
+        .from("catalogo_tipos_incidente")
+        .select("*")
+        .eq("activo", true)
+        .order("nombre"),
+
+      supabase
+        .from("catalogo_danos")
+        .select("*")
+        .eq("activo", true)
+        .order("codigo")
+
+    ]);
+
+    setDirecciones(direccionesRes.data || []);
+    setSedes(sedesRes.data || []);
+    setTiposIncidente(tiposRes.data || []);
+    setDanos(danosRes.data || []);
+
+  }
+
+  async function guardarReporte() {
+
+    console.log(formulario);
+
+  }
+
+  const pasos = [
 
     "Información General",
     "Colaborador",
-    "Incidente",
-    "Evidencias"
+    "Incidente"
 
   ];
 
-  return(
+  return (
 
     <Layout
-      header={<Header/>}
+      header={<Header />}
       sidebar={
         <Sidebar
           screen="reporteIncidentes"
@@ -85,63 +119,141 @@ export default function NuevoReporteIncidente({ setScreen }) {
 
       <div className="nuevo-reporte-incidente">
 
-        {/* Header */}
+        <div className="page-header">
 
-        {/* Wizard */}
+          <div>
 
-        {/* Aquí cambiaremos de componente */}
+            <button
+              className="btn-link"
+              onClick={() => setScreen("reporteIncidentes")}
+            >
+              ← Volver a Reporte de Incidentes
+            </button>
 
-        {pasoActual===0 && (
+            <h1>
 
-          <InformacionGeneral
+              Reportar Incidente
 
-            formulario={formulario}
-            setFormulario={setFormulario}
+            </h1>
 
-            direcciones={direcciones}
-            sedes={sedes}
+            <p>
 
-          />
+              Complete la información para registrar un nuevo incidente.
 
-        )}
+            </p>
 
-        {pasoActual===1 && (
+          </div>
 
-          <Colaborador
+        </div>
 
-            formulario={formulario}
-            setFormulario={setFormulario}
+        <div className="wizard-layout">
 
-          />
+          <aside className="wizard-sidebar">
 
-        )}
+            {pasos.map((paso, index) => (
 
-        {pasoActual===2 && (
+              <button
+                key={index}
+                className={
+                  pasoActual === index
+                    ? "wizard-item active"
+                    : "wizard-item"
+                }
+                onClick={() => setPasoActual(index)}
+              >
 
-          <Incidente
+                <span className="wizard-number">
 
-            formulario={formulario}
-            setFormulario={setFormulario}
+                  {index + 1}
 
-            tiposIncidente={tiposIncidente}
-            danos={danos}
+                </span>
 
-          />
+                <span>
 
-        )}
+                  {paso}
 
-        {pasoActual===3 && (
+                </span>
 
-          <Evidencias
+              </button>
 
-            formulario={formulario}
-            setFormulario={setFormulario}
+            ))}
 
-          />
+          </aside>
 
-        )}
+          <section className="wizard-content">
 
-        {/* Footer */}
+            {pasoActual === 0 && (
+
+              <InformacionGeneral
+                formulario={formulario}
+                setFormulario={setFormulario}
+                direcciones={direcciones}
+                sedes={sedes}
+              />
+
+            )}
+
+            {pasoActual === 1 && (
+
+              <Colaborador
+                formulario={formulario}
+                setFormulario={setFormulario}
+              />
+
+            )}
+
+            {pasoActual === 2 && (
+
+              <Incidente
+                formulario={formulario}
+                setFormulario={setFormulario}
+                tiposIncidente={tiposIncidente}
+                danos={danos}
+              />
+
+            )}
+
+          </section>
+
+        </div>
+
+        <div className="wizard-footer">
+
+          <button
+            className="btn-secondary"
+            disabled={pasoActual === 0}
+            onClick={() => setPasoActual(pasoActual - 1)}
+          >
+
+            ← Anterior
+
+          </button>
+
+          {pasoActual < pasos.length - 1 ? (
+
+            <button
+              className="btn-primary"
+              onClick={() => setPasoActual(pasoActual + 1)}
+            >
+
+              Siguiente →
+
+            </button>
+
+          ) : (
+
+            <button
+              className="btn-primary"
+              onClick={guardarReporte}
+            >
+
+              Guardar Reporte
+
+            </button>
+
+          )}
+
+        </div>
 
       </div>
 
