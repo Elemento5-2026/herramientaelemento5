@@ -21,13 +21,29 @@ export default function DescripcionDetalle({ investigacion }) {
   const evidenciasImagenes = investigacion.descripcion?.evidencias?.filter(esImagen) || [];
   const todasEvidencias = investigacion.descripcion?.evidencias || [];
 
-  // ============================================
-  // DEBUG - Ver qué está pasando con las imágenes
-  // ============================================
+  // 🔧 PRIMERO DECLARAR LA FUNCIÓN
+  const obtenerUrlImagen = (archivo) => {
+    if (!archivo || !archivo.ruta_storage) {
+      return "";
+    }
+    
+    let ruta = archivo.ruta_storage;
+    
+    if (ruta.startsWith("investigaciones/")) {
+      ruta = ruta.substring("investigaciones/".length);
+    }
+    
+    if (ruta.startsWith("/")) {
+      ruta = ruta.substring(1);
+    }
+    
+    return `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/investigaciones/${ruta}`;
+  };
+
+  // ✅ LUEGO EL DEBUG (después de declarar la función)
   console.log("=== DEBUG DE EVIDENCIAS ===");
   console.log("Todas las evidencias:", todasEvidencias);
   console.log("Evidencias imágenes:", evidenciasImagenes);
-  console.log("Investigación completa:", investigacion);
 
   if (evidenciasImagenes.length > 0) {
     const primera = evidenciasImagenes[0];
@@ -35,41 +51,7 @@ export default function DescripcionDetalle({ investigacion }) {
     console.log("📁 ruta_storage:", primera.ruta_storage);
     console.log("🏷️ nombre_original:", primera.nombre_original);
     console.log("🔗 URL generada:", obtenerUrlImagen(primera));
-    console.log("🔗 URL esperada:", `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/investigaciones/${primera.ruta_storage}`);
-  } else {
-    console.log("⚠️ No hay evidencias de imágenes");
   }
-
-  // Función para obtener la URL de la imagen
-  const obtenerUrlImagen = (archivo) => {
-    if (!archivo || !archivo.ruta_storage) {
-      console.warn("⚠️ Archivo sin ruta_storage:", archivo);
-      return "";
-    }
-    
-    // Limpia la ruta
-    let ruta = archivo.ruta_storage;
-    
-    // Si la ruta empieza con "investigaciones/", quítalo
-    if (ruta.startsWith("investigaciones/")) {
-      ruta = ruta.substring("investigaciones/".length);
-      console.log("🔄 Quitado 'investigaciones/' de la ruta");
-    }
-    
-    // Si la ruta empieza con "/", quítalo
-    if (ruta.startsWith("/")) {
-      ruta = ruta.substring(1);
-      console.log("🔄 Quitado '/' de la ruta");
-    }
-    
-    const url = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/investigaciones/${ruta}`;
-    
-    console.log("📸 Ruta original:", archivo.ruta_storage);
-    console.log("📸 Ruta limpia:", ruta);
-    console.log("📸 URL final:", url);
-    
-    return url;
-  };
 
   // Función para manejar errores de carga de imágenes
   const handleImageError = (archivoId) => {
