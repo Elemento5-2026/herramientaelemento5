@@ -4,12 +4,15 @@ import ReactFlow, {
   Controls,
   MiniMap,
   applyNodeChanges,
-  MarkerType
+  MarkerType,
+  Handle,
+  Position
 } from "reactflow";
 import "reactflow/dist/style.css";
 
-// Nodo personalizado para el árbol
+// Nodo personalizado para el árbol CON HANDLES
 const NodoCausa = ({ data }) => {
+  // Colores según categoría
   const getColors = (categoria) => {
     const colores = {
       'fisica': { bg: '#FEE2E2', border: '#DC2626', text: '#991B1B', label: 'Condición física' },
@@ -20,6 +23,9 @@ const NodoCausa = ({ data }) => {
   };
 
   const colors = getColors(data.categoria);
+  
+  // Determinar si el nodo tiene hijos (para mostrar el handle de salida)
+  const hasChildren = data.children && data.children.length > 0;
 
   return (
     <div 
@@ -37,6 +43,22 @@ const NodoCausa = ({ data }) => {
         transition: 'all 0.2s ease'
       }}
     >
+      {/* 🔵 HANDLE DE ENTRADA (Target) - Solo si tiene padre */}
+      {data.padre_id && (
+        <Handle
+          type="target"
+          position={Position.Top}
+          id="target"
+          style={{
+            background: '#6B7280',
+            width: '12px',
+            height: '12px',
+            border: '2px solid white',
+            top: '-6px'
+          }}
+        />
+      )}
+
       <div 
         style={{
           fontSize: '9px',
@@ -81,6 +103,22 @@ const NodoCausa = ({ data }) => {
           {data.orden}
         </div>
       )}
+
+      {/* 🟢 HANDLE DE SALIDA (Source) - Solo si tiene hijos */}
+      {hasChildren && (
+        <Handle
+          type="source"
+          position={Position.Bottom}
+          id="source"
+          style={{
+            background: '#6B7280',
+            width: '12px',
+            height: '12px',
+            border: '2px solid white',
+            bottom: '-6px'
+          }}
+        />
+      )}
     </div>
   );
 };
@@ -103,7 +141,21 @@ export default function ArbolCausasDetalle({ investigacion }) {
     console.log("📊 Datos de arbol_causas:", investigacion?.arbol_causas);
     
     if (investigacion?.arbol_causas && investigacion.arbol_causas.length > 0) {
+      // Primero, construir un mapa de hijos para saber qué nodos tienen hijos
+      const hijosMap = {};
+      investigacion.arbol_causas.forEach(nodo => {
+        if (nodo.padre_id) {
+          if (!hijosMap[nodo.padre_id]) {
+            hijosMap[nodo.padre_id] = [];
+          }
+          hijosMap[nodo.padre_id].push(nodo.id);
+        }
+      });
+
       const nodos = investigacion.arbol_causas.map((nodo, index) => {
+        // Verificar si este nodo tiene hijos
+        const tieneHijos = hijosMap[nodo.id] && hijosMap[nodo.id].length > 0;
+        
         return {
           id: nodo.id,
           type: 'causa',
@@ -115,7 +167,8 @@ export default function ArbolCausasDetalle({ investigacion }) {
             descripcion: nodo.descripcion || 'Sin descripción',
             categoria: nodo.categoria || null,
             orden: nodo.orden || index + 1,
-            padre_id: nodo.padre_id || null
+            padre_id: nodo.padre_id || null,
+            children: hijosMap[nodo.id] || [] // Para saber si tiene hijos
           }
         };
       });
