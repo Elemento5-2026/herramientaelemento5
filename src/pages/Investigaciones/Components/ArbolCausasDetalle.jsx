@@ -7,7 +7,6 @@ import ReactFlow, {
   MarkerType
 } from "reactflow";
 import "reactflow/dist/style.css";
-import "./ArbolCausasDetalle.css";
 
 // Nodo personalizado para el árbol
 const NodoCausa = ({ data }) => {
@@ -183,60 +182,155 @@ export default function ArbolCausasDetalle({ investigacion }) {
   // Estado vacío
   if (!investigacion?.arbol_causas || investigacion.arbol_causas.length === 0) {
     return (
-      <div className="arbol-causas-detalle">
-        <div className="arbol-toolbar">
-          <h3>🌳 Análisis de causas</h3>
-        </div>
+      <div className="detalle-card">
+        <h3>🌳 Análisis de causas</h3>
         <div className="empty-state">
-          <div className="empty-icon">🌳</div>
+          <span className="empty-icon">🌳</span>
           <p>No hay causas registradas para esta investigación.</p>
-          <p className="empty-sub">El árbol se construye durante la edición de la investigación.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`arbol-causas-detalle ${fullscreen ? 'fullscreen' : ''}`}>
+    <div className={`detalle-card ${fullscreen ? 'fullscreen' : ''}`}>
       
-      <div className="arbol-toolbar">
-        <div className="arbol-toolbar-left">
-          <h3>🌳 Análisis de causas</h3>
-          <span className="nodos-count">{nodes.length} nodos</span>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        marginBottom: '16px',
+        flexWrap: 'wrap',
+        gap: '12px'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <h3 style={{ margin: 0, color: '#1F2937', fontSize: '18px' }}>🌳 Análisis de causas</h3>
+          <span style={{ 
+            fontSize: '12px', 
+            color: '#6B7280', 
+            background: '#F3F4F6', 
+            padding: '2px 12px', 
+            borderRadius: '12px' 
+          }}>
+            {nodes.length} nodos
+          </span>
         </div>
-        <div className="arbol-toolbar-right">
-          <button className="btn-secondary" onClick={centrarArbol}>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button 
+            className="btn-secondary" 
+            onClick={centrarArbol}
+            style={{
+              background: '#F3F4F6',
+              border: '1px solid #E5E7EB',
+              borderRadius: '6px',
+              padding: '8px 16px',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              color: '#4B5563',
+              fontSize: '14px'
+            }}
+          >
             🧭 Centrar
           </button>
-          <button className="btn-primary" onClick={toggleFullscreen}>
+          <button 
+            className="btn-primary" 
+            onClick={toggleFullscreen}
+            style={{
+              background: '#3B82F6',
+              border: 'none',
+              borderRadius: '6px',
+              padding: '8px 16px',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              color: 'white',
+              fontSize: '14px'
+            }}
+          >
             {fullscreen ? '🗗 Restaurar' : '⛶ Pantalla completa'}
           </button>
         </div>
       </div>
 
       {/* Leyenda */}
-      <div className="leyenda">
-        <div className="leyenda-item fisica">
-          <span className="leyenda-color" style={{ background: '#DC2626' }}></span>
+      <div style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '12px',
+        marginBottom: '16px',
+        padding: '10px 14px',
+        background: '#F9FAFB',
+        borderRadius: '6px',
+        border: '1px solid #E5E7EB'
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          fontSize: '12px',
+          color: '#4B5563',
+          padding: '3px 8px',
+          borderRadius: '4px',
+          background: '#FEE2E2',
+          color: '#991B1B'
+        }}>
+          <span style={{ width: '14px', height: '14px', borderRadius: '50%', display: 'inline-block', background: '#DC2626', border: '1px solid rgba(0,0,0,0.1)' }}></span>
           Condición física
         </div>
-        <div className="leyenda-item comportamiento">
-          <span className="leyenda-color" style={{ background: '#2563EB' }}></span>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          fontSize: '12px',
+          color: '#4B5563',
+          padding: '3px 8px',
+          borderRadius: '4px',
+          background: '#DBEAFE',
+          color: '#1E40AF'
+        }}>
+          <span style={{ width: '14px', height: '14px', borderRadius: '50%', display: 'inline-block', background: '#2563EB', border: '1px solid rgba(0,0,0,0.1)' }}></span>
           Comportamiento
         </div>
-        <div className="leyenda-item procedimiento">
-          <span className="leyenda-color" style={{ background: '#D97706' }}></span>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          fontSize: '12px',
+          color: '#4B5563',
+          padding: '3px 8px',
+          borderRadius: '4px',
+          background: '#FEF3C7',
+          color: '#92400E'
+        }}>
+          <span style={{ width: '14px', height: '14px', borderRadius: '50%', display: 'inline-block', background: '#D97706', border: '1px solid rgba(0,0,0,0.1)' }}></span>
           Procedimiento / Sistema
         </div>
-        <div className="leyenda-item otro">
-          <span className="leyenda-color" style={{ background: '#9CA3AF' }}></span>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          fontSize: '12px',
+          color: '#4B5563',
+          padding: '3px 8px',
+          borderRadius: '4px',
+          background: '#F3F4F6',
+          color: '#4B5563'
+        }}>
+          <span style={{ width: '14px', height: '14px', borderRadius: '50%', display: 'inline-block', background: '#9CA3AF', border: '1px solid rgba(0,0,0,0.1)' }}></span>
           Sin categoría
         </div>
       </div>
 
       <div 
         ref={reactFlowWrapper}
-        className={`canvas-arbol ${fullscreen ? 'fullscreen' : ''}`}
+        style={{
+          width: '100%',
+          height: fullscreen ? 'calc(100vh - 200px)' : '500px',
+          border: fullscreen ? 'none' : '1px solid #E5E7EB',
+          borderRadius: '8px',
+          background: '#FAFBFC',
+          overflow: 'hidden',
+          position: 'relative'
+        }}
       >
         <ReactFlow
           nodes={nodes}
@@ -251,10 +345,6 @@ export default function ArbolCausasDetalle({ investigacion }) {
           nodesDraggable={true}
           nodesConnectable={false}
           elementsSelectable={true}
-          defaultEdgeOptions={{
-            type: 'smoothstep',
-            style: { stroke: '#94A3B8', strokeWidth: 2 }
-          }}
         >
           <Background color="#E5E7EB" gap={20} />
           <MiniMap 
@@ -271,6 +361,24 @@ export default function ArbolCausasDetalle({ investigacion }) {
           <Controls />
         </ReactFlow>
       </div>
+
+      {/* Estilos globales para el fullscreen */}
+      {fullscreen && (
+        <style>{`
+          .detalle-card.fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 9999;
+            border-radius: 0;
+            padding: 20px;
+            background: white;
+            overflow: hidden;
+          }
+        `}</style>
+      )}
     </div>
   );
 }
