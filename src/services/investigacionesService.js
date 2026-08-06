@@ -495,6 +495,24 @@ export async function obtenerInvestigacionPorId(id) {
 
   if (errorDescripcion) throw errorDescripcion;
 
+  // Evidencias de la descripción
+  let evidenciasDescripcion = [];
+
+  if (descripcion) {
+    const {
+      data,
+      error
+    } = await supabase
+      .from("investigaciones_evidencias")
+      .select("*")
+      .eq("modulo_origen", "descripciones")
+      .eq("modulo_id", descripcion.id);
+
+    if (error) throw error;
+
+    evidenciasDescripcion = data;
+  }
+
   // Acciones inmediatas
   const {
     data: accionesInmediatas,
@@ -534,7 +552,13 @@ export async function obtenerInvestigacionPorId(id) {
 
     ...investigacion,
 
-    descripcion,
+    descripcion: {
+
+      ...descripcion,
+
+      evidencias: evidenciasDescripcion
+
+    },
 
     acciones_inmediatas: accionesInmediatas ?? [],
 
