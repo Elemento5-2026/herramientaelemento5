@@ -26,7 +26,7 @@ export default function IdentificacionDetalle({
 
           <span>
 
-            {investigacion.catalogo_macroprocesos?.nombre || "-"}
+            {investigacion.macroproceso?.nombre || "-"}
 
           </span>
 
@@ -42,7 +42,7 @@ export default function IdentificacionDetalle({
 
           <span>
 
-            {investigacion.catalogo_procesos?.nombre || "-"}
+            {investigacion.proceso?.nombre || "-"}
 
           </span>
 
@@ -58,7 +58,7 @@ export default function IdentificacionDetalle({
 
           <span>
 
-            {investigacion.catalogo_tipos_incidente?.nombre || "-"}
+            {investigacion.clasificacion?.nombre || "-"}
 
           </span>
 
@@ -74,7 +74,7 @@ export default function IdentificacionDetalle({
 
           <span>
 
-            {investigacion.catalogo_turnos?.nombre || "-"}
+            {investigacion.turno?.nombre || "-"}
 
           </span>
 
