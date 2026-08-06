@@ -39,7 +39,6 @@ const NodoCausa = ({ data }) => {
       }}
     >
       <div 
-        className="nodo-causa-categoria"
         style={{
           fontSize: '9px',
           color: colors.text,
@@ -52,7 +51,6 @@ const NodoCausa = ({ data }) => {
         {colors.label}
       </div>
       <div 
-        className="nodo-causa-texto"
         style={{
           fontSize: '13px',
           color: '#1F2937',
@@ -65,7 +63,6 @@ const NodoCausa = ({ data }) => {
       </div>
       {data.orden && (
         <div 
-          className="nodo-causa-orden"
           style={{
             position: 'absolute',
             top: '-8px',
@@ -97,60 +94,87 @@ export default function ArbolCausasDetalle({ investigacion }) {
   const [nodes, setNodes] = useState([]);
   const [fitView, setFitView] = useState(false);
 
-  // Node types
   const nodeTypes = useMemo(() => ({
     causa: NodoCausa
   }), []);
 
   // Construir nodos desde los datos de la investigación
   useEffect(() => {
+    console.log("=== 🌳 ARBOL CAUSAS DETALLE ===");
+    console.log("📊 Datos de arbol_causas:", investigacion?.arbol_causas);
+    console.log("📊 Investigacion completa:", investigacion);
+    
     if (investigacion?.arbol_causas && investigacion.arbol_causas.length > 0) {
-      const nodos = construirNodos(investigacion.arbol_causas);
+      const nodos = investigacion.arbol_causas.map((nodo, index) => {
+        console.log(`🔍 Nodo ${index}:`, {
+          id: nodo.id,
+          padre_id: nodo.padre_id,
+          descripcion: nodo.descripcion,
+          categoria: nodo.categoria,
+          posicion_x: nodo.posicion_x,
+          posicion_y: nodo.posicion_y
+        });
+        
+        return {
+          id: nodo.id,
+          type: 'causa',
+          position: {
+            x: parseFloat(nodo.posicion_x) || 0,
+            y: parseFloat(nodo.posicion_y) || 0
+          },
+          data: {
+            descripcion: nodo.descripcion || 'Sin descripción',
+            categoria: nodo.categoria || null,
+            orden: nodo.orden || index + 1,
+            padre_id: nodo.padre_id || null
+          }
+        };
+      });
+      
+      console.log("✅ Nodos construidos:", nodos);
       setNodes(nodos);
       setTimeout(() => setFitView(true), 100);
     } else {
+      console.log("⚠️ No hay datos de arbol_causas");
       setNodes([]);
     }
   }, [investigacion]);
 
-  // Función para construir nodos en el formato de React Flow
-  const construirNodos = (datos) => {
-    return datos.map(nodo => ({
-      id: nodo.id,
-      type: 'causa',
-      position: {
-        x: parseFloat(nodo.posicion_x) || 0,
-        y: parseFloat(nodo.posicion_y) || 0
-      },
-      data: {
-        descripcion: nodo.descripcion,
-        categoria: nodo.categoria,
-        orden: nodo.orden,
-        padre_id: nodo.padre_id
-      }
-    }));
-  };
-
   // Construir edges (conexiones entre nodos)
   const edges = useMemo(() => {
-    if (!nodes || nodes.length === 0) return [];
+    console.log("🔄 Recalculando edges...");
+    console.log("📊 Nodos disponibles para edges:", nodes);
     
-    return nodes
-      .filter(nodo => nodo.data.padre_id)
-      .map(nodo => ({
-        id: `${nodo.data.padre_id}-${nodo.id}`,
-        source: nodo.data.padre_id,
-        target: nodo.id,
-        type: 'smoothstep',
-        animated: false,
-        style: { stroke: '#94A3B8', strokeWidth: 2 },
-        markerEnd: {
-          type: MarkerType.ArrowClosed,
-          color: '#94A3B8',
-          width: 12,
-          height: 12
-        }
-      }));
+    if (!nodes || nodes.length === 0) {
+      console.log("⚠️ No hay nodos para crear edges");
+      return [];
+    }
+    
+    // Filtrar nodos que tienen padre
+    const nodosConPadre = nodes.filter(nodo => nodo.data.padre_id);
+    console.log(`📊 Nodos con padre: ${nodosConPadre.length} de ${nodes.length}`);
+    
+    const edgesGenerados = nodosConPadre
+      .map(nodo => {
+        console.log(`🔗 Creando edge: ${nodo.data.padre_id} -> ${nodo.id} (${nodo.data.descripcion})`);
+        return {
+          id: `${nodo.data.padre_id}-${nodo.id}`,
+          source: nodo.data.padre_id,
+          target: nodo.id,
+          type: 'smoothstep',
+          animated: false,
+          style: { stroke: '#94A3B8', strokeWidth: 2 },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            color: '#94A3B8',
+            width: 12,
+            height: 12
+          }
+        };
+      });
+    
+    console.log("✅ Edges generados:", edgesGenerados);
+    return edgesGenerados;
   }, [nodes]);
 
   // Manejar cambios en nodos (solo para arrastre)
@@ -184,9 +208,19 @@ export default function ArbolCausasDetalle({ investigacion }) {
     return (
       <div className="detalle-card">
         <h3>🌳 Análisis de causas</h3>
-        <div className="empty-state">
-          <span className="empty-icon">🌳</span>
-          <p>No hay causas registradas para esta investigación.</p>
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          padding: '60px 20px',
+          color: '#6B7280',
+          border: '2px dashed #E5E7EB',
+          borderRadius: '8px',
+          minHeight: '300px'
+        }}>
+          <span style={{ fontSize: '64px', marginBottom: '16px', opacity: 0.6 }}>🌳</span>
+          <p style={{ margin: 0, fontSize: '16px', color: '#9CA3AF' }}>No hay causas registradas para esta investigación.</p>
         </div>
       </div>
     );
@@ -267,7 +301,6 @@ export default function ArbolCausasDetalle({ investigacion }) {
           alignItems: 'center',
           gap: '6px',
           fontSize: '12px',
-          color: '#4B5563',
           padding: '3px 8px',
           borderRadius: '4px',
           background: '#FEE2E2',
@@ -281,7 +314,6 @@ export default function ArbolCausasDetalle({ investigacion }) {
           alignItems: 'center',
           gap: '6px',
           fontSize: '12px',
-          color: '#4B5563',
           padding: '3px 8px',
           borderRadius: '4px',
           background: '#DBEAFE',
@@ -295,7 +327,6 @@ export default function ArbolCausasDetalle({ investigacion }) {
           alignItems: 'center',
           gap: '6px',
           fontSize: '12px',
-          color: '#4B5563',
           padding: '3px 8px',
           borderRadius: '4px',
           background: '#FEF3C7',
@@ -309,7 +340,6 @@ export default function ArbolCausasDetalle({ investigacion }) {
           alignItems: 'center',
           gap: '6px',
           fontSize: '12px',
-          color: '#4B5563',
           padding: '3px 8px',
           borderRadius: '4px',
           background: '#F3F4F6',
@@ -345,6 +375,10 @@ export default function ArbolCausasDetalle({ investigacion }) {
           nodesDraggable={true}
           nodesConnectable={false}
           elementsSelectable={true}
+          defaultEdgeOptions={{
+            type: 'smoothstep',
+            style: { stroke: '#94A3B8', strokeWidth: 2 }
+          }}
         >
           <Background color="#E5E7EB" gap={20} />
           <MiniMap 
@@ -362,7 +396,6 @@ export default function ArbolCausasDetalle({ investigacion }) {
         </ReactFlow>
       </div>
 
-      {/* Estilos globales para el fullscreen */}
       {fullscreen && (
         <style>{`
           .detalle-card.fullscreen {
