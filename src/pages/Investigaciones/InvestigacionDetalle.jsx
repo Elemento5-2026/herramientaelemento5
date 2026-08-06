@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
@@ -46,7 +46,7 @@ export default function InvestigacionDetalle({
   }
 
   // ============================================
-  // EXPORTAR A PDF - VERSIÓN CORREGIDA
+  // EXPORTAR A PDF - CON autoTable
   // ============================================
   const exportarPDF = () => {
     if (!investigacion) return;
@@ -93,8 +93,8 @@ export default function InvestigacionDetalle({
         doc.setTextColor(31, 41, 55);
         
         const valorStr = valor || '-';
-        const textLines = doc.splitTextToSize(valorStr, pageWidth - margin - 80);
-        doc.text(textLines, margin + 50, y);
+        const textLines = doc.splitTextToSize(valorStr, pageWidth - margin - 70);
+        doc.text(textLines, margin + 55, y);
         y += (textLines.length * 5) + 4;
       };
 
@@ -102,7 +102,7 @@ export default function InvestigacionDetalle({
       // FUNCIÓN PARA AGREGAR TABLA CON autoTable
       // ============================================
       const agregarTabla = (headers, rows, titulo = '') => {
-        if (rows.length === 0) return;
+        if (!rows || rows.length === 0) return;
         
         if (titulo) {
           if (y > 240) {
@@ -116,6 +116,19 @@ export default function InvestigacionDetalle({
           y += 6;
         }
         
+        // Calcular anchos dinámicos
+        const colCount = headers.length;
+        let columnStyles = {};
+        headers.forEach((header, i) => {
+          if (i === 0) {
+            columnStyles[i] = { cellWidth: 15 }; // Número
+          } else if (i === headers.length - 1 || i === headers.length - 2) {
+            columnStyles[i] = { cellWidth: 30 }; // Fechas
+          } else {
+            columnStyles[i] = { cellWidth: 'auto' };
+          }
+        });
+
         autoTable(doc, {
           startY: y,
           head: [headers],
@@ -125,27 +138,27 @@ export default function InvestigacionDetalle({
             fillColor: [59, 130, 246],
             textColor: [255, 255, 255],
             fontSize: 9,
-            fontStyle: 'bold'
+            fontStyle: 'bold',
+            halign: 'center'
           },
           bodyStyles: {
             fontSize: 8,
             textColor: [31, 41, 55]
           },
-          columnStyles: {
-            0: { cellWidth: 15 },  // Número
-            1: { cellWidth: 'auto' },  // Texto largo
-            2: { cellWidth: 40 },  // Responsable
-            3: { cellWidth: 25 },  // Fecha
-            4: { cellWidth: 25 }   // Fecha
-          },
+          columnStyles: columnStyles,
           margin: { left: margin, right: margin },
-          tableWidth: 'auto',
           styles: {
             overflow: 'linebreak',
-            fontSize: 8
+            fontSize: 8,
+            cellPadding: 2
+          },
+          didDrawPage: function(data) {
+            // Actualizar y para continuar después de la tabla
+            y = data.cursor.y + 6;
           }
         });
         
+        // Actualizar y después de la tabla
         y = doc.lastAutoTable.finalY + 6;
       };
 
@@ -260,7 +273,7 @@ export default function InvestigacionDetalle({
       }
 
       // ============================================
-      // 6. ÁRBOL DE CAUSAS (simplificado)
+      // 6. ÁRBOL DE CAUSAS
       // ============================================
       if (investigacion.arbol_causas && investigacion.arbol_causas.length > 0) {
         agregarTitulo('6. ÁRBOL DE CAUSAS');
@@ -277,8 +290,8 @@ export default function InvestigacionDetalle({
           const nodos = causasPorNivel[nivel];
           for (const nodo of nodos) {
             const indent = '  '.repeat(parseInt(nivel));
-            const categoria = nodo.categoria ? `[${nodo.categoria}]` : '';
-            agregarCampo(`${indent}${categoria}`, nodo.descripcion || '');
+            const categoria = nodo.categoria ? `[${nodo.categoria}] ` : '';
+            agregarCampo(`${indent}Nivel ${nivel}`, `${categoria}${nodo.descripcion || ''}`);
           }
         }
       }
@@ -306,7 +319,7 @@ export default function InvestigacionDetalle({
 
     } catch (error) {
       console.error('Error al exportar PDF:', error);
-      alert('Hubo un error al generar el PDF. Por favor, intenta de nuevo.');
+      alert(`Error al generar el PDF: ${error.message}`);
     } finally {
       setExportando(false);
     }
