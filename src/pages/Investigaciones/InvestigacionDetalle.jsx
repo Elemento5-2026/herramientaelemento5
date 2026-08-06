@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import jsPDF from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 
 import "./InvestigacionDetalle.css";
 
@@ -46,7 +46,7 @@ export default function InvestigacionDetalle({
   }
 
   // ============================================
-  // EXPORTAR A PDF MEJORADO
+  // EXPORTAR A PDF - VERSIÓN CORREGIDA
   // ============================================
   const exportarPDF = () => {
     if (!investigacion) return;
@@ -60,18 +60,13 @@ export default function InvestigacionDetalle({
       let y = margin;
 
       // ============================================
-      // FUNCIÓN PARA AGREGAR UNA NUEVA PÁGINA
-      // ============================================
-      const nuevaPagina = () => {
-        doc.addPage();
-        y = margin;
-      };
-
-      // ============================================
-      // FUNCIÓN PARA AGREGAR TÍTULO DE SECCIÓN
+      // FUNCIÓN PARA AGREGAR TÍTULO
       // ============================================
       const agregarTitulo = (texto) => {
-        if (y > 260) nuevaPagina();
+        if (y > 260) {
+          doc.addPage();
+          y = margin;
+        }
         doc.setFontSize(14);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(31, 41, 55);
@@ -85,39 +80,35 @@ export default function InvestigacionDetalle({
       // ============================================
       // FUNCIÓN PARA AGREGAR CAMPO
       // ============================================
-      const agregarCampo = (label, valor, maxWidth = 0) => {
-        if (y > 270) nuevaPagina();
+      const agregarCampo = (label, valor) => {
+        if (y > 270) {
+          doc.addPage();
+          y = margin;
+        }
         doc.setFontSize(10);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(75, 85, 99);
-        
-        const labelWidth = 60;
-        const valorX = margin + labelWidth;
-        
-        // Si el valor es muy largo, wrap
-        const textLines = doc.splitTextToSize(valor || '-', pageWidth - margin - valorX - margin);
-        
-        // Verificar si cabe en la página
-        if (y + (textLines.length * 5) > 280) {
-          nuevaPagina();
-        }
-        
         doc.text(label + ':', margin, y);
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(31, 41, 55);
-        doc.text(textLines, valorX, y);
+        
+        const valorStr = valor || '-';
+        const textLines = doc.splitTextToSize(valorStr, pageWidth - margin - 80);
+        doc.text(textLines, margin + 50, y);
         y += (textLines.length * 5) + 4;
       };
 
       // ============================================
-      // FUNCIÓN PARA AGREGAR TABLA
+      // FUNCIÓN PARA AGREGAR TABLA CON autoTable
       // ============================================
       const agregarTabla = (headers, rows, titulo = '') => {
         if (rows.length === 0) return;
         
-        if (y > 240) nuevaPagina();
-        
         if (titulo) {
+          if (y > 240) {
+            doc.addPage();
+            y = margin;
+          }
           doc.setFontSize(11);
           doc.setFont('helvetica', 'bold');
           doc.setTextColor(31, 41, 55);
@@ -125,89 +116,61 @@ export default function InvestigacionDetalle({
           y += 6;
         }
         
-        doc.setFontSize(9);
-        const tableWidth = pageWidth - (margin * 2);
-        
-        // Calcular anchos de columnas
-        const colCount = headers.length;
-        const colWidth = tableWidth / colCount;
-        
-        // Encabezados
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(255, 255, 255);
-        headers.forEach((header, i) => {
-          const x = margin + (i * colWidth);
-          doc.setFillColor(59, 130, 246);
-          doc.rect(x, y, colWidth, 8, 'F');
-          doc.text(header, x + 2, y + 5.5);
+        autoTable(doc, {
+          startY: y,
+          head: [headers],
+          body: rows,
+          theme: 'striped',
+          headStyles: {
+            fillColor: [59, 130, 246],
+            textColor: [255, 255, 255],
+            fontSize: 9,
+            fontStyle: 'bold'
+          },
+          bodyStyles: {
+            fontSize: 8,
+            textColor: [31, 41, 55]
+          },
+          columnStyles: {
+            0: { cellWidth: 15 },  // Número
+            1: { cellWidth: 'auto' },  // Texto largo
+            2: { cellWidth: 40 },  // Responsable
+            3: { cellWidth: 25 },  // Fecha
+            4: { cellWidth: 25 }   // Fecha
+          },
+          margin: { left: margin, right: margin },
+          tableWidth: 'auto',
+          styles: {
+            overflow: 'linebreak',
+            fontSize: 8
+          }
         });
-        y += 8;
         
-        // Filas
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(31, 41, 55);
-        let rowIndex = 0;
-        for (const row of rows) {
-          // Verificar si cabe la fila
-          if (y + 8 > 280) {
-            nuevaPagina();
-            // Re-dibujar encabezados en nueva página
-            doc.setFont('helvetica', 'bold');
-            doc.setTextColor(255, 255, 255);
-            headers.forEach((header, i) => {
-              const x = margin + (i * colWidth);
-              doc.setFillColor(59, 130, 246);
-              doc.rect(x, y, colWidth, 8, 'F');
-              doc.text(header, x + 2, y + 5.5);
-            });
-            y += 8;
-            doc.setFont('helvetica', 'normal');
-            doc.setTextColor(31, 41, 55);
-          }
-          
-          // Alternar colores de fila
-          if (rowIndex % 2 === 0) {
-            headers.forEach((_, i) => {
-              const x = margin + (i * colWidth);
-              doc.setFillColor(249, 250, 251);
-              doc.rect(x, y, colWidth, 8, 'F');
-            });
-          }
-          
-          row.forEach((cell, i) => {
-            const x = margin + (i * colWidth);
-            const text = doc.splitTextToSize(String(cell || ''), colWidth - 4);
-            doc.text(text, x + 2, y + 5.5);
-          });
-          
-          y += 8;
-          rowIndex++;
-        }
-        y += 4;
+        y = doc.lastAutoTable.finalY + 6;
       };
 
       // ============================================
       // ENCABEZADO DEL PDF
       // ============================================
-      doc.setFontSize(18);
+      doc.setFontSize(20);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(17, 24, 39);
       doc.text('INVESTIGACIÓN', pageWidth / 2, y, { align: 'center' });
-      y += 8;
+      y += 10;
       
-      doc.setFontSize(14);
+      doc.setFontSize(16);
       doc.setTextColor(59, 130, 246);
       doc.text(investigacion.codigo_controlado || 'Sin código', pageWidth / 2, y, { align: 'center' });
-      y += 6;
+      y += 8;
       
-      doc.setFontSize(10);
+      doc.setFontSize(11);
       doc.setTextColor(107, 114, 128);
       doc.text(`Estado: ${investigacion.estado || 'N/A'}`, pageWidth / 2, y, { align: 'center' });
-      y += 6;
+      y += 10;
       
       doc.setDrawColor(229, 231, 235);
       doc.line(margin, y, pageWidth - margin, y);
-      y += 10;
+      y += 12;
 
       // ============================================
       // 1. ENCABEZADO
@@ -268,7 +231,7 @@ export default function InvestigacionDetalle({
       // ============================================
       if (investigacion.acciones_inmediatas && investigacion.acciones_inmediatas.length > 0) {
         agregarTitulo('4. ACCIONES INMEDIATAS');
-        const headers = ['#', 'Acción', 'Responsable', 'Fecha Inicio', 'Fecha Fin'];
+        const headers = ['#', 'Acción', 'Responsable', 'Inicio', 'Fin'];
         const rows = investigacion.acciones_inmediatas.map(a => [
           a.numero || '',
           a.accion_inmediata || '',
@@ -302,7 +265,6 @@ export default function InvestigacionDetalle({
       if (investigacion.arbol_causas && investigacion.arbol_causas.length > 0) {
         agregarTitulo('6. ÁRBOL DE CAUSAS');
         
-        // Mostrar como lista jerárquica
         const causasPorNivel = {};
         investigacion.arbol_causas.forEach(nodo => {
           const nivel = nodo.nivel || 0;
@@ -456,7 +418,6 @@ export default function InvestigacionDetalle({
 
       </div>
 
-      {/* Estilos */}
       <style>{`
         .page-header {
           display: flex;
