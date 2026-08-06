@@ -1,3 +1,4 @@
+
 import supabase from "../lib/supabase";
 
 /**
@@ -289,48 +290,64 @@ export async function guardarArbolCausas(
   nodos
 ) {
 
-  if (!nodos || nodos.length === 0) return;
-
-  // Eliminar árbol anterior
-  const { error: errorDelete } =
-    await supabase
+  // Si no hay nodos, eliminar todos los registros existentes
+  if (!nodos || nodos.length === 0) {
+    const { error: errorDelete } = await supabase
       .from("investigaciones_arbol_causas")
       .delete()
       .eq("investigacion_id", investigacionId);
 
+    if (errorDelete) throw errorDelete;
+    return;
+  }
+
+  // Eliminar árbol anterior
+  const { error: errorDelete } = await supabase
+    .from("investigaciones_arbol_causas")
+    .delete()
+    .eq("investigacion_id", investigacionId);
+
   if (errorDelete) throw errorDelete;
 
-  // Insertar nuevamente
-  for (let i = 0; i < nodos.length; i++) {
+  // Preparar los nodos para insertar
+  const nodosParaInsertar = nodos.map((nodo, index) => {
+    // Determinar el padre_id (puede ser null para la raíz)
+    let padreId = null;
+    if (nodo.data && nodo.data.parentId) {
+      padreId = nodo.data.parentId;
+    } else if (nodo.data && nodo.data.padre_id) {
+      padreId = nodo.data.padre_id;
+    }
 
-    const nodo = nodos[i];
+    // Determinar la categoría (tipo)
+    let categoria = null;
+    if (nodo.data && nodo.data.tipo) {
+      categoria = nodo.data.tipo;
+    } else if (nodo.data && nodo.data.categoria) {
+      categoria = nodo.data.categoria;
+    }
 
-    const { error } =
-      await supabase
-        .from("investigaciones_arbol_causas")
-        .insert({
+    // Determinar la descripción (label)
+    let descripcion = nodo.data?.label || nodo.data?.descripcion || "Sin descripción";
 
-          id: nodo.id,
+    return {
+      id: nodo.id,
+      investigacion_id: investigacionId,
+      padre_id: padreId,
+      descripcion: descripcion,
+      categoria: categoria,
+      posicion_x: nodo.position?.x || 0,
+      posicion_y: nodo.position?.y || 0,
+      orden: nodo.data?.orden || index + 1
+    };
+  });
 
-          investigacion_id: investigacionId,
+  // Insertar todos los nodos
+  const { error } = await supabase
+    .from("investigaciones_arbol_causas")
+    .insert(nodosParaInsertar);
 
-          padre_id: nodo.data.parentId,
-
-          descripcion: nodo.data.label,
-
-          categoria: nodo.data.tipo,
-
-          posicion_x: nodo.position.x,
-
-          posicion_y: nodo.position.y,
-
-          orden: i + 1
-
-        });
-
-    if (error) throw error;
-
-  }
+  if (error) throw error;
 
 }
 
