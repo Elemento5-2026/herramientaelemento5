@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Layout from "../../components/Layout";
 import Header from "../../components/Header";
 import Sidebar from "../../components/Sidebar";
+import DataTable from "../../components/DataTable/DataTable";
 
 import supabase from "../../lib/supabase";
 
@@ -16,30 +17,141 @@ export default function Investigaciones({
 }) {
 
   const [investigaciones, setInvestigaciones] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
 
     async function cargarInvestigaciones() {
 
+      setLoading(true);
+
+      // 🔥 JOIN con incidentes usando incidente_id
       const { data, error } = await supabase
         .from("investigaciones")
-        .select("*")
+        .select(`
+          *,
+          incidentes!investigaciones_incidente_id_fkey (
+            id,
+            codigo,
+            fecha,
+            catalogo_tipos_incidente (
+              nombre
+            ),
+            catalogo_direcciones (
+              nombre
+            ),
+            catalogo_sedes (
+              nombre
+            ),
+            seccion,
+            nombre_colaborador
+          )
+        `)
         .order("created_at", { ascending: false });
 
       if (error) {
 
-        console.error(error);
+        console.error("Error al cargar investigaciones:", error);
+        setLoading(false);
         return;
 
       }
 
+      console.log("📊 Datos cargados:", data);
+
       setInvestigaciones(data);
+      setLoading(false);
 
     }
 
     cargarInvestigaciones();
 
   }, []);
+
+  // Configuración de columnas para el DataTable
+  const columns = [
+    {
+      key: "codigo_controlado",
+      title: "Código",
+      sortable: true,
+      searchable: true,
+      filterable: true,
+      width: "160px",
+      render: (row) => (
+        <button
+          className="btn-link"
+          onClick={(e) => {
+            e.stopPropagation();
+            setInvestigacionSeleccionada(row.id);
+            setScreen("investigacionDetalle");
+          }}
+        >
+          {row.codigo_controlado}
+        </button>
+      )
+    },
+    {
+      key: "created_at",
+      title: "Fecha",
+      type: "date",
+      sortable: true,
+      searchable: true,
+      filterable: true,
+      width: "120px"
+    },
+    {
+      key: "tipo",
+      title: "Tipo",
+      sortable: true,
+      searchable: true,
+      filterable: true,
+      render: (row) => {
+        return row.incidentes?.catalogo_tipos_incidente?.nombre || "-";
+      }
+    },
+    {
+      key: "direccion",
+      title: "Dirección",
+      sortable: true,
+      searchable: true,
+      filterable: true,
+      render: (row) => {
+        return row.incidentes?.catalogo_direcciones?.nombre || "-";
+      }
+    },
+    {
+      key: "area",
+      title: "Área",
+      sortable: true,
+      searchable: true,
+      filterable: true,
+      render: (row) => {
+        return row.incidentes?.seccion || row.incidentes?.catalogo_sedes?.nombre || "-";
+      }
+    },
+    {
+      key: "estado",
+      title: "Estado",
+      sortable: true,
+      searchable: true,
+      filterable: true,
+      render: (row) => {
+        const estado = row.estado || "Borrador";
+        const estadoClass = estado.toLowerCase().replace(/\s+/g, '-');
+        return <span className={`estado ${estadoClass}`}>{estado}</span>;
+      }
+    },
+    {
+      key: "elaboro",
+      title: "Elaboró",
+      sortable: true,
+      searchable: true,
+      filterable: true,
+      render: (row) => {
+        return row.elaborado_nombre || "-";
+      }
+    }
+  ];
 
   return (
 
@@ -80,128 +192,21 @@ export default function Investigaciones({
 
         </div>
 
-        <div className="filters">
-
-          <input
-            type="text"
-            placeholder="🔍 Buscar investigación..."
-          />
-
-        </div>
-
-        <div className="table-container">
-
-          <table>
-
-            <thead>
-
-              <tr>
-
-                <th>Código</th>
-                <th>Fecha</th>
-                <th>Tipo</th>
-                <th>Dirección</th>
-                <th>Área</th>
-                <th>Estado</th>
-                <th>Elaboró</th>
-
-              </tr>
-
-            </thead>
-
-            <tbody>
-
-              {investigaciones.length === 0 ? (
-
-                <tr>
-
-                  <td
-                    colSpan="7"
-                    style={{ textAlign: "center" }}
-                  >
-
-                    No hay investigaciones registradas.
-
-                  </td>
-
-                </tr>
-
-              ) : (
-
-                investigaciones.map((investigacion) => (
-
-                  <tr
-                    key={investigacion.id}
-                    style={{ cursor: "pointer" }}
-                    onClick={() => {
-
-                      setInvestigacionSeleccionada(
-                        investigacion.id
-                      );
-
-                      setScreen("investigacionDetalle");
-
-                    }}
-                  >
-
-                    <td>
-
-                      {investigacion.codigo_controlado}
-
-                    </td>
-
-                    <td>
-
-                      {investigacion.created_at
-                        ?.substring(0, 10)}
-
-                    </td>
-
-                    <td>
-
-                      -
-
-                    </td>
-
-                    <td>
-
-                      -
-
-                    </td>
-
-                    <td>
-
-                      -
-
-                    </td>
-
-                    <td>
-
-                      <span className="estado borrador">
-
-                        {investigacion.estado}
-
-                      </span>
-
-                    </td>
-
-                    <td>
-
-                      {investigacion.elaborado_nombre}
-
-                    </td>
-
-                  </tr>
-
-                ))
-
-              )}
-
-            </tbody>
-
-          </table>
-
-        </div>
+        <DataTable
+          columns={columns}
+          data={investigaciones}
+          loading={loading}
+          emptyMessage="No hay investigaciones registradas."
+          pageSize={10}
+          showGlobalSearch={true}
+          showPagination={true}
+          stickyHeader={true}
+          maxHeight="550px"
+          onRowClick={(row) => {
+            setInvestigacionSeleccionada(row.id);
+            setScreen("investigacionDetalle");
+          }}
+        />
 
       </div>
 
