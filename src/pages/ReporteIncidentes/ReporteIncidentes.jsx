@@ -82,7 +82,7 @@ export default function ReporteIncidentes({
         investigacion.id
       );
 
-      setScreen("InvestigacionDetalle");
+      setScreen("nuevaInvestigacion");
 
     } catch (error) {
 
@@ -284,7 +284,7 @@ export default function ReporteIncidentes({
                               incidente.investigacion_id
                             );
 
-                            setScreen("InvestigacionDetalle");
+                            setScreen("investigacionDetalle");
 
                           }}
                         >
