@@ -1,12 +1,14 @@
-// DataTable.jsx
+// DataTable.jsx - Componente principal
 import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import FilterMenu from './FilterMenu';
+import ExportMenu from './ExportMenu';
+import ColumnSelector from './ColumnSelector';
+import Pagination from './Pagination';
+import SearchBar from './SearchBar';
+import ActiveFilters from './ActiveFilters';
+import { formatDate, getValue, getSortValue, getSearchValue, getFilterValue } from './utils';
 import './DataTable.css';
 
-/**
- * DataTable - Componente de tabla empresarial profesional
- * Diseñado específicamente para sistemas ERP internos
- * Enfocado en simplicidad, rendimiento y facilidad de mantenimiento
- */
 const DataTable = ({ 
     columns = [], 
     data = [],
@@ -20,7 +22,9 @@ const DataTable = ({
     onRowClick = null,
     defaultSort = null,
     stickyHeader = false,
-    maxHeight = null
+    maxHeight = null,
+    tableTitle = '',
+    tableSubtitle = ''
 }) => {
     // Estados internos
     const [currentPage, setCurrentPage] = useState(1);
@@ -33,18 +37,34 @@ const DataTable = ({
     });
     const [columnFilters, setColumnFilters] = useState({});
     const [itemsPerPage, setItemsPerPage] = useState(pageSize);
+    const [visibleColumns, setVisibleColumns] = useState(() => {
+        const saved = localStorage.getItem('dataTableVisibleColumns');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    return parsed;
+                }
+            } catch (e) {}
+        }
+        return columns.map(col => col.key);
+    });
+    const [filteredColumns, setFilteredColumns] = useState({});
+    const [showFilterMenu, setShowFilterMenu] = useState(null);
+    const [showExportMenu, setShowExportMenu] = useState(false);
+    const [showColumnSelector, setShowColumnSelector] = useState(false);
 
-    // Refs para manejo de scroll
+    // Refs
     const tableWrapperRef = useRef(null);
+    const filterMenuRef = useRef(null);
+    const exportMenuRef = useRef(null);
+    const columnSelectorRef = useRef(null);
 
     // Opciones de página
-    const pageSizeOptions = [10, 25, 50, 100];
+    const pageSizeOptions = [10, 25, 50, 100, 200];
 
     // ==================== EFECTOS ====================
     
-    /**
-     * Sincronizar defaultSort cuando cambie la prop
-     */
     useEffect(() => {
         if (defaultSort && defaultSort.key) {
             setSortConfig({ 
@@ -55,63 +75,59 @@ const DataTable = ({
         }
     }, [defaultSort]);
 
-    /**
-     * Reiniciar a página 1 cuando cambie el ordenamiento
-     */
     useEffect(() => {
         setCurrentPage(1);
-    }, [sortConfig]);
+    }, [sortConfig, searchTerm, columnFilters]);
 
-    // ==================== FUNCIONES DE VALOR ====================
-    
-    /**
-     * Obtiene el valor de una celda para ordenamiento
-     * Prioriza sortValue si existe, sino usa row[column.key]
-     */
-    const getSortValue = useCallback((row, column) => {
-        if (column.sortValue && typeof column.sortValue === 'function') {
-            return column.sortValue(row);
-        }
-        return row[column.key];
-    }, []);
+    useEffect(() => {
+        localStorage.setItem('dataTableVisibleColumns', JSON.stringify(visibleColumns));
+    }, [visibleColumns]);
 
-    /**
-     * Obtiene el valor de una celda para búsqueda
-     * Prioriza searchValue si existe, sino usa row[column.key]
-     */
-    const getSearchValue = useCallback((row, column) => {
-        if (column.searchValue && typeof column.searchValue === 'function') {
-            return column.searchValue(row);
-        }
-        return row[column.key];
-    }, []);
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (filterMenuRef.current && !filterMenuRef.current.contains(event.target)) {
+                setShowFilterMenu(null);
+            }
+            if (exportMenuRef.current && !exportMenuRef.current.contains(event.target)) {
+                setShowExportMenu(false);
+            }
+            if (columnSelectorRef.current && !columnSelectorRef.current.contains(event.target)) {
+                setShowColumnSelector(false);
+            }
+        };
 
-    /**
-     * Obtiene el valor de una celda para filtrado
-     * Prioriza filterValue si existe, sino usa row[column.key]
-     */
-    const getFilterValue = useCallback((row, column) => {
-        if (column.filterValue && typeof column.filterValue === 'function') {
-            return column.filterValue(row);
-        }
-        return row[column.key];
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
     // ==================== FILTRADO Y BÚSQUEDA ====================
     
-    /**
-     * Filtra los datos aplicando búsqueda global y filtros por columna
-     * Solo las columnas marcadas como searchable participan en la búsqueda
-     */
     const filteredData = useMemo(() => {
         let result = data;
+
+        // Aplicar filtros por columna
+        Object.keys(columnFilters).forEach(key => {
+            const filterValues = columnFilters[key];
+            if (filterValues && filterValues.length > 0) {
+                const column = columns.find(col => col.key === key);
+                if (column) {
+                    result = result.filter(row => {
+                        const value = getFilterValue(row, column);
+                        if (value === null || value === undefined) return false;
+                        const strValue = String(value);
+                        return filterValues.some(filterVal => 
+                            strValue.toLowerCase().includes(filterVal.toLowerCase())
+                        );
+                    });
+                }
+            }
+        });
 
         // Aplicar búsqueda global
         if (searchTerm.trim()) {
             const searchLower = searchTerm.toLowerCase().trim();
             result = result.filter(row => {
                 return columns.some(col => {
-                    // Solo buscar en columnas marcadas como searchable
                     if (!col.searchable) return false;
                     
                     const value = getSearchValue(row, col);
@@ -119,12 +135,10 @@ const DataTable = ({
                     
                     let stringValue = String(value).toLowerCase();
                     
-                    // Manejar fechas
                     if (col.type === 'date' && value instanceof Date) {
                         stringValue = formatDate(value).toLowerCase();
                     }
                     
-                    // Manejar objetos con render
                     if (col.render) {
                         const rendered = col.render(row);
                         if (typeof rendered === 'string') {
@@ -139,31 +153,11 @@ const DataTable = ({
             });
         }
 
-        // Aplicar filtros por columna (preparado para futura implementación)
-        Object.keys(columnFilters).forEach(key => {
-            const filterValue = columnFilters[key];
-            if (filterValue && filterValue !== '') {
-                const column = columns.find(col => col.key === key);
-                if (column) {
-                    result = result.filter(row => {
-                        const value = getFilterValue(row, column);
-                        if (value === null || value === undefined) return false;
-                        return String(value).toLowerCase().includes(filterValue.toLowerCase());
-                    });
-                }
-            }
-        });
-
         return result;
-    }, [data, searchTerm, columns, columnFilters, getSearchValue, getFilterValue]);
+    }, [data, searchTerm, columns, columnFilters]);
 
     // ==================== ORDENAMIENTO ====================
     
-    /**
-     * Ordena los datos según la configuración actual
-     * Soporta múltiples tipos de datos: string, number, date, boolean
-     * Utiliza sortValue para obtener el valor a ordenar
-     */
     const sortedData = useMemo(() => {
         if (!sortConfig.key) return filteredData;
 
@@ -199,7 +193,7 @@ const DataTable = ({
             
             return sortConfig.direction === 'asc' ? comparison : -comparison;
         });
-    }, [filteredData, sortConfig, columns, getSortValue]);
+    }, [filteredData, sortConfig, columns]);
 
     // ==================== PAGINACIÓN ====================
     
@@ -222,31 +216,94 @@ const DataTable = ({
         return sortedData.slice(startIndex, endIndex);
     }, [sortedData, currentPage, itemsPerPage, showPagination, totalItems]);
 
-    // Calcular índices para mostrar
     const startItem = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
     const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
-    // ==================== UTILIDADES ====================
+    // ==================== MANEJADORES ====================
     
-    /**
-     * Formatea fechas en formato dd/MM/yyyy (Guatemala)
-     */
-    const formatDate = useCallback((date) => {
-        if (!date) return '';
-        const d = date instanceof Date ? date : new Date(date);
-        if (isNaN(d.getTime())) return '';
-        
-        const day = String(d.getDate()).padStart(2, '0');
-        const month = String(d.getMonth() + 1).padStart(2, '0');
-        const year = d.getFullYear();
-        
-        return `${day}/${month}/${year}`;
+    const handleSort = useCallback((key) => {
+        setSortConfig(prev => {
+            if (prev.key === key) {
+                if (prev.direction === 'asc') {
+                    return { key, direction: 'desc' };
+                } else if (prev.direction === 'desc') {
+                    return { key: null, direction: 'asc' };
+                }
+            }
+            return { key, direction: 'asc' };
+        });
     }, []);
 
-    /**
-     * Renderiza el contenido de una celda
-     * Soporta render personalizado y formateo automático
-     */
+    const handlePageChange = useCallback((page) => {
+        if (page >= 1 && page <= totalPages) {
+            setCurrentPage(page);
+            if (tableWrapperRef.current) {
+                tableWrapperRef.current.scrollTop = 0;
+            }
+        }
+    }, [totalPages]);
+
+    const handleSearch = useCallback((term) => {
+        setSearchTerm(term);
+        setCurrentPage(1);
+    }, []);
+
+    const clearSearch = useCallback(() => {
+        setSearchTerm('');
+        setCurrentPage(1);
+    }, []);
+
+    const handlePageSizeChange = useCallback((newSize) => {
+        setItemsPerPage(newSize);
+        setCurrentPage(1);
+    }, []);
+
+    const handleFilterApply = useCallback((columnKey, values) => {
+        setColumnFilters(prev => {
+            const newFilters = { ...prev };
+            if (values && values.length > 0) {
+                newFilters[columnKey] = values;
+            } else {
+                delete newFilters[columnKey];
+            }
+            return newFilters;
+        });
+        setShowFilterMenu(null);
+        setCurrentPage(1);
+    }, []);
+
+    const handleFilterClear = useCallback((columnKey) => {
+        setColumnFilters(prev => {
+            const newFilters = { ...prev };
+            delete newFilters[columnKey];
+            return newFilters;
+        });
+        setCurrentPage(1);
+    }, []);
+
+    const handleClearAllFilters = useCallback(() => {
+        setColumnFilters({});
+        setCurrentPage(1);
+    }, []);
+
+    const handleColumnToggle = useCallback((columnKey) => {
+        setVisibleColumns(prev => {
+            if (prev.includes(columnKey)) {
+                return prev.filter(key => key !== columnKey);
+            } else {
+                return [...prev, columnKey];
+            }
+        });
+    }, []);
+
+    const handleColumnReset = useCallback(() => {
+        setVisibleColumns(columns.map(col => col.key));
+    }, [columns]);
+
+    const handleExport = useCallback(() => {
+        setShowExportMenu(false);
+    }, []);
+
     const renderCell = useCallback((row, column) => {
         if (column.render) {
             return column.render(row);
@@ -275,108 +332,60 @@ const DataTable = ({
             default:
                 return value;
         }
-    }, [formatDate]);
+    }, []);
 
-    // ==================== MANEJADORES DE EVENTOS ====================
+    // ==================== RENDER ====================
     
-    /**
-     * Maneja el ordenamiento de columnas
-     * Alterna entre asc, desc, y null
-     */
-    const handleSort = useCallback((key) => {
-        setSortConfig(prev => {
-            if (prev.key === key) {
-                if (prev.direction === 'asc') {
-                    return { key, direction: 'desc' };
-                } else if (prev.direction === 'desc') {
-                    return { key: null, direction: 'asc' };
-                }
-            }
-            return { key, direction: 'asc' };
-        });
-    }, []);
+    const visibleColumnsList = columns.filter(col => visibleColumns.includes(col.key));
+    const activeFilters = Object.keys(columnFilters).filter(key => columnFilters[key]?.length > 0);
 
-    /**
-     * Maneja el cambio de página
-     */
-    const handlePageChange = useCallback((page) => {
-        if (page >= 1 && page <= totalPages) {
-            setCurrentPage(page);
-            // Scroll al inicio de la tabla
-            if (tableWrapperRef.current) {
-                tableWrapperRef.current.scrollTop = 0;
-            }
-        }
-    }, [totalPages]);
-
-    /**
-     * Maneja la búsqueda global
-     */
-    const handleSearch = useCallback((e) => {
-        setSearchTerm(e.target.value);
-        setCurrentPage(1);
-    }, []);
-
-    /**
-     * Limpia la búsqueda
-     */
-    const clearSearch = useCallback(() => {
-        setSearchTerm('');
-        setCurrentPage(1);
-    }, []);
-
-    /**
-     * Maneja el cambio de tamaño de página
-     */
-    const handlePageSizeChange = useCallback((e) => {
-        const newSize = parseInt(e.target.value, 10);
-        setItemsPerPage(newSize);
-        setCurrentPage(1);
-    }, []);
-
-    // ==================== RENDERIZADO ====================
-    
-    // Estilos para el wrapper
     const wrapperStyle = {};
     if (maxHeight) {
         wrapperStyle.maxHeight = maxHeight;
         wrapperStyle.overflow = 'auto';
     }
-    
+
     return (
         <div className={`data-table-container ${className}`}>
             {/* Barra de herramientas */}
             <div className="data-table-toolbar">
-                {showGlobalSearch && (
-                    <div className="data-table-search">
-                        <input
-                            type="text"
-                            className="data-table-search-input"
-                            placeholder="Buscar en toda la tabla..."
+                <div className="data-table-toolbar-left">
+                    {showGlobalSearch && (
+                        <SearchBar 
                             value={searchTerm}
                             onChange={handleSearch}
-                            aria-label="Búsqueda global"
+                            onClear={clearSearch}
                         />
-                        {searchTerm && (
-                            <button 
-                                className="data-table-search-clear"
-                                onClick={clearSearch}
-                                aria-label="Limpiar búsqueda"
-                            >
-                                ✕
-                            </button>
-                        )}
-                    </div>
-                )}
-                
-                <div className="data-table-info">
-                    {totalItems > 0 && (
-                        <span className="data-table-counter">
-                            Mostrando {startItem}-{endItem} de {totalItems} registros
-                        </span>
                     )}
                 </div>
+                
+                <div className="data-table-toolbar-right">
+                    <div className="data-table-toolbar-buttons">
+                        <button 
+                            className="data-table-toolbar-btn"
+                            onClick={() => setShowExportMenu(!showExportMenu)}
+                        >
+                            Exportar ▼
+                        </button>
+                        <button 
+                            className="data-table-toolbar-btn"
+                            onClick={() => setShowColumnSelector(!showColumnSelector)}
+                        >
+                            Columnas ▼
+                        </button>
+                    </div>
+                </div>
             </div>
+
+            {/* Filtros activos */}
+            {activeFilters.length > 0 && (
+                <ActiveFilters 
+                    filters={columnFilters}
+                    columns={columns}
+                    onClearFilter={handleFilterClear}
+                    onClearAll={handleClearAllFilters}
+                />
+            )}
 
             {/* Tabla */}
             <div 
@@ -387,47 +396,63 @@ const DataTable = ({
                 <table className="data-table">
                     <thead>
                         <tr>
-                            {columns.map((column) => (
-                                <th
-                                    key={column.key}
-                                    className={`data-table-header 
-                                        ${column.sortable ? 'sortable' : ''}
-                                        ${sortConfig.key === column.key ? `sorted-${sortConfig.direction}` : ''}
-                                    `}
-                                    onClick={() => column.sortable && handleSort(column.key)}
-                                    style={{ 
-                                        width: column.width || 'auto',
-                                        minWidth: column.minWidth || '50px',
-                                        maxWidth: column.maxWidth || 'none'
-                                    }}
-                                >
-                                    <div className="data-table-header-content">
-                                        <span className="data-table-header-title">
-                                            {column.title}
-                                        </span>
-                                        {column.sortable && (
-                                            <span className="data-table-sort-icon">
-                                                {sortConfig.key === column.key ? (
-                                                    sortConfig.direction === 'asc' ? '▲' : '▼'
-                                                ) : (
-                                                    '⇅'
-                                                )}
+                            {visibleColumnsList.map((column) => {
+                                const hasFilter = columnFilters[column.key]?.length > 0;
+                                return (
+                                    <th
+                                        key={column.key}
+                                        className={`data-table-header 
+                                            ${column.sortable ? 'sortable' : ''}
+                                            ${sortConfig.key === column.key ? `sorted-${sortConfig.direction}` : ''}
+                                            ${hasFilter ? 'has-filter' : ''}
+                                        `}
+                                        style={{ 
+                                            width: column.width || 'auto',
+                                            minWidth: column.minWidth || '50px',
+                                            maxWidth: column.maxWidth || 'none'
+                                        }}
+                                    >
+                                        <div className="data-table-header-content">
+                                            <span className="data-table-header-title">
+                                                {column.title}
                                             </span>
-                                        )}
-                                        {/* Preparado para futuros filtros */}
-                                        {column.filterable && (
-                                            <span className="data-table-filter-indicator" />
-                                        )}
-                                    </div>
-                                </th>
-                            ))}
+                                            {column.sortable && (
+                                                <span 
+                                                    className="data-table-sort-icon"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleSort(column.key);
+                                                    }}
+                                                >
+                                                    {sortConfig.key === column.key ? (
+                                                        sortConfig.direction === 'asc' ? '▲' : '▼'
+                                                    ) : (
+                                                        '⇅'
+                                                    )}
+                                                </span>
+                                            )}
+                                            {column.filterable && (
+                                                <button 
+                                                    className="data-table-filter-btn"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setShowFilterMenu(showFilterMenu === column.key ? null : column.key);
+                                                    }}
+                                                >
+                                                    {hasFilter ? '●' : '▼'}
+                                                </button>
+                                            )}
+                                        </div>
+                                    </th>
+                                );
+                            })}
                         </tr>
                     </thead>
                     <tbody>
                         {loading ? (
                             <tr>
                                 <td 
-                                    colSpan={columns.length}
+                                    colSpan={visibleColumnsList.length}
                                     className="data-table-loading"
                                 >
                                     <div className="data-table-spinner"></div>
@@ -437,7 +462,7 @@ const DataTable = ({
                         ) : paginatedData.length === 0 ? (
                             <tr>
                                 <td 
-                                    colSpan={columns.length}
+                                    colSpan={visibleColumnsList.length}
                                     className="data-table-empty"
                                 >
                                     {searchTerm ? 'No se encontraron resultados para la búsqueda' : emptyMessage}
@@ -454,7 +479,7 @@ const DataTable = ({
                                         onClick={() => onRowClick && onRowClick(row)}
                                         style={{ cursor: onRowClick ? 'pointer' : 'default' }}
                                     >
-                                        {columns.map((column) => (
+                                        {visibleColumnsList.map((column) => (
                                             <td
                                                 key={`${rowId}-${column.key}`}
                                                 className={`data-table-cell 
@@ -475,77 +500,57 @@ const DataTable = ({
 
             {/* Paginación */}
             {showPagination && totalPages > 0 && (
-                <div className="data-table-pagination">
-                    <div className="data-table-pagination-left">
-                        <div className="data-table-pagination-info">
-                            Página {currentPage} de {totalPages}
-                        </div>
-                        {showPageSizeSelector && (
-                            <div className="data-table-page-size-selector">
-                                <label htmlFor="pageSizeSelect">Registros por página:</label>
-                                <select
-                                    id="pageSizeSelect"
-                                    value={itemsPerPage}
-                                    onChange={handlePageSizeChange}
-                                    className="data-table-page-size-select"
-                                >
-                                    {pageSizeOptions.map(size => (
-                                        <option key={size} value={size}>
-                                            {size}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        )}
-                    </div>
-                    <div className="data-table-pagination-controls">
-                        <button
-                            className="data-table-pagination-btn"
-                            onClick={() => handlePageChange(currentPage - 1)}
-                            disabled={currentPage === 1}
-                            aria-label="Página anterior"
-                        >
-                            ‹
-                        </button>
-                        
-                        {[...Array(Math.min(5, totalPages))].map((_, i) => {
-                            let pageNum;
-                            if (totalPages <= 5) {
-                                pageNum = i + 1;
-                            } else if (currentPage <= 3) {
-                                pageNum = i + 1;
-                            } else if (currentPage >= totalPages - 2) {
-                                pageNum = totalPages - 4 + i;
-                            } else {
-                                pageNum = currentPage - 2 + i;
-                            }
-                            
-                            if (pageNum < 1 || pageNum > totalPages) return null;
-                            
-                            return (
-                                <button
-                                    key={pageNum}
-                                    className={`data-table-pagination-btn 
-                                        ${currentPage === pageNum ? 'active' : ''}
-                                    `}
-                                    onClick={() => handlePageChange(pageNum)}
-                                    aria-label={`Ir a página ${pageNum}`}
-                                    aria-current={currentPage === pageNum ? 'page' : undefined}
-                                >
-                                    {pageNum}
-                                </button>
-                            );
-                        })}
-                        
-                        <button
-                            className="data-table-pagination-btn"
-                            onClick={() => handlePageChange(currentPage + 1)}
-                            disabled={currentPage === totalPages}
-                            aria-label="Página siguiente"
-                        >
-                            ›
-                        </button>
-                    </div>
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    totalItems={totalItems}
+                    startItem={startItem}
+                    endItem={endItem}
+                    itemsPerPage={itemsPerPage}
+                    pageSizeOptions={pageSizeOptions}
+                    showPageSizeSelector={showPageSizeSelector}
+                    onPageChange={handlePageChange}
+                    onPageSizeChange={handlePageSizeChange}
+                />
+            )}
+
+            {/* Menús flotantes */}
+            {showFilterMenu && (
+                <div ref={filterMenuRef} className="data-table-filter-menu-container">
+                    <FilterMenu
+                        column={columns.find(col => col.key === showFilterMenu)}
+                        data={data}
+                        currentFilters={columnFilters[showFilterMenu] || []}
+                        onApply={(values) => handleFilterApply(showFilterMenu, values)}
+                        onClear={() => handleFilterClear(showFilterMenu)}
+                        onClose={() => setShowFilterMenu(null)}
+                    />
+                </div>
+            )}
+
+            {showExportMenu && (
+                <div ref={exportMenuRef} className="data-table-export-menu-container">
+                    <ExportMenu
+                        data={sortedData}
+                        columns={visibleColumnsList}
+                        tableTitle={tableTitle}
+                        tableSubtitle={tableSubtitle}
+                        filters={columnFilters}
+                        searchTerm={searchTerm}
+                        onClose={() => setShowExportMenu(false)}
+                    />
+                </div>
+            )}
+
+            {showColumnSelector && (
+                <div ref={columnSelectorRef} className="data-table-column-selector-container">
+                    <ColumnSelector
+                        columns={columns}
+                        visibleColumns={visibleColumns}
+                        onToggle={handleColumnToggle}
+                        onReset={handleColumnReset}
+                        onClose={() => setShowColumnSelector(false)}
+                    />
                 </div>
             )}
         </div>
