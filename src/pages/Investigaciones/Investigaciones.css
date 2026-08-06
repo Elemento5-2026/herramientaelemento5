@@ -1,249 +1,140 @@
 /* ============================================================
-   InvestigacionDetalle.css
-   Tema: Corporativo Grupo AG (azul)
+   EncabezadoFormato.css
+   Encabezado tipo "formato controlado" — estilo Grupo AG
    ============================================================ */
 
-:root{
-    --ag-azul-oscuro:   #0b2e4f;
-    --ag-azul-primario: #0f4c81;
-    --ag-azul-medio:    #1a6fb0;
-    --ag-azul-claro:    #eaf2fa;
-    --ag-azul-borde:    #d3e3f2;
-    --ag-gris-texto:    #4a5568;
-    --ag-gris-suave:    #6b7684;
-    --ag-blanco:        #ffffff;
-    --ag-sombra:        0 2px 12px rgba(11, 46, 79, .08);
-    --ag-sombra-hover:  0 4px 16px rgba(11, 46, 79, .14);
-    --ag-radio:         10px;
-}
-
-.investigacion-detalle{
-    padding: 32px 40px;
-    background: #f6f9fc;
-    min-height: 100vh;
+.formato-header{
+    display: grid;
+    grid-template-columns: 220px 1fr 220px;
+    align-items: stretch;
+    border: 1.5px solid #0b2e4f;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #ffffff;
     font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
-    color: var(--ag-gris-texto);
-}
-
-/* ---------- Encabezado de página ---------- */
-.investigacion-detalle .page-header{
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
     margin-bottom: 28px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid var(--ag-azul-borde);
 }
 
-.investigacion-detalle .btn-link{
-    background: none;
-    border: none;
-    padding: 0;
-    margin-bottom: 10px;
-    color: var(--ag-azul-medio);
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    transition: color .2s ease, transform .2s ease;
-}
-
-.investigacion-detalle .btn-link:hover{
-    color: var(--ag-azul-oscuro);
-    transform: translateX(-2px);
-}
-
-.investigacion-detalle .page-header h1{
-    margin: 0;
-    font-size: 26px;
-    font-weight: 700;
-    color: var(--ag-azul-oscuro);
-    letter-spacing: -0.3px;
-}
-
-.investigacion-detalle .page-header p{
-    margin: 0;
-    font-size: 14px;
-    color: var(--ag-gris-suave);
+/* ---------- Bloque logo (izquierda) ---------- */
+.formato-header__logo{
     display: flex;
     align-items: center;
-    gap: 8px;
+    justify-content: center;
+    padding: 10px 16px;
+    border-right: 1.5px solid #0b2e4f;
 }
 
-/* ---------- Estado de carga ---------- */
-.investigacion-detalle h2{
-    color: var(--ag-azul-primario);
-    font-size: 16px;
-    font-weight: 600;
-    text-align: center;
-    padding: 60px 0;
+.formato-header__logo img{
+    max-height: 48px;
+    max-width: 100%;
+    object-fit: contain;
 }
 
-/* ---------- Contenedores de sección (para los componentes hijos) ---------- */
-.investigacion-detalle section,
-.investigacion-detalle .card,
-.investigacion-detalle .seccion{
-    background: var(--ag-blanco);
-    border: 1px solid var(--ag-azul-borde);
-    border-radius: var(--ag-radio);
-    box-shadow: var(--ag-sombra);
-    padding: 24px 28px;
-    margin-bottom: 20px;
-    transition: box-shadow .2s ease;
-}
-
-.investigacion-detalle section:hover,
-.investigacion-detalle .card:hover,
-.investigacion-detalle .seccion:hover{
-    box-shadow: var(--ag-sombra-hover);
-}
-
-.investigacion-detalle section h2,
-.investigacion-detalle .card h2,
-.investigacion-detalle .seccion h2,
-.investigacion-detalle section h3,
-.investigacion-detalle .card h3{
-    margin: 0 0 16px 0;
-    padding: 0 0 12px 0;
-    border-bottom: 2px solid var(--ag-azul-claro);
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--ag-azul-oscuro);
-    text-align: left;
-    text-transform: uppercase;
-    letter-spacing: .4px;
-}
-
-/* ---------- Estados (badges) ---------- */
-.estado{
-    display: inline-flex;
+.formato-header__logo-placeholder{
+    display: flex;
     align-items: center;
-    padding: 5px 14px;
-    border-radius: 20px;
-    font-size: 12px;
+    gap: 10px;
+}
+
+.formato-header__logo-star{
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #0f2d5c;
+    color: #f5b301;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.formato-header__logo-text{
+    font-size: 17px;
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .3px;
+    color: #0f2d5c;
+    letter-spacing: .5px;
+    white-space: nowrap;
 }
 
-.borrador{
-    background: #eef1f5;
-    color: #5a6472;
+.formato-header__logo-text strong{
+    color: #1a6fb0;
 }
 
-.en-proceso,
-.en-revision{
-    background: var(--ag-azul-claro);
-    color: var(--ag-azul-primario);
+/* ---------- Bloque título (centro) ---------- */
+.formato-header__titulo{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 16px;
+    border-right: 1.5px solid #0b2e4f;
 }
 
-.aprobada,
-.cerrada,
-.completada{
-    background: #e3f5ea;
-    color: #1e8a4c;
-}
-
-.rechazada,
-.vencida{
-    background: #fbe6e6;
-    color: #c23636;
-}
-
-/* ---------- Botones ---------- */
-.btn-primary{
-    background: var(--ag-azul-primario);
-    color: var(--ag-blanco);
-    border: none;
-    padding: 12px 22px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    box-shadow: 0 2px 8px rgba(15, 76, 129, .25);
-    transition: background .2s ease, transform .15s ease;
-}
-
-.btn-primary:hover{
-    background: var(--ag-azul-oscuro);
-    transform: translateY(-1px);
-}
-
-.btn-secondary{
-    background: var(--ag-blanco);
-    color: var(--ag-azul-primario);
-    border: 1.5px solid var(--ag-azul-primario);
-    padding: 11px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    transition: background .2s ease, color .2s ease;
-}
-
-.btn-secondary:hover{
-    background: var(--ag-azul-claro);
-}
-
-/* ---------- Tablas (dentro de secciones, ej. plan de acción) ---------- */
-.investigacion-detalle table{
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.investigacion-detalle thead{
-    background: var(--ag-azul-claro);
-}
-
-.investigacion-detalle th{
-    text-align: left;
-    padding: 12px 14px;
-    font-size: 13px;
+.formato-header__titulo h1{
+    margin: 0;
+    font-size: 20px;
     font-weight: 700;
-    color: var(--ag-azul-oscuro);
-    text-transform: uppercase;
-    letter-spacing: .3px;
+    color: #0f4c81;
+    text-align: center;
 }
 
-.investigacion-detalle td{
-    padding: 12px 14px;
-    border-top: 1px solid var(--ag-azul-borde);
-    font-size: 14px;
-}
-
-/* ---------- Campos tipo etiqueta / valor ---------- */
-.campo{
+/* ---------- Bloque control de documento (derecha) ---------- */
+.formato-header__control{
     display: flex;
     flex-direction: column;
-    gap: 4px;
 }
 
-.campo label{
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--ag-gris-suave);
-    text-transform: uppercase;
-    letter-spacing: .3px;
-}
-
-.campo span,
-.campo p{
+.formato-header__codigo{
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 10px;
     font-size: 14px;
-    color: var(--ag-gris-texto);
-    margin: 0;
+    font-weight: 700;
+    color: #0b2e4f;
+    border-bottom: 1.5px solid #0b2e4f;
+}
+
+.formato-header__fila{
+    flex: 1;
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+}
+
+.formato-header__fila:not(:last-child){
+    border-bottom: 1px solid #b9cfe3;
+}
+
+.formato-header__label{
+    flex: 0 0 auto;
+    padding: 4px 10px;
+    color: #4a5568;
+    background: #eaf2fa;
+    border-right: 1px solid #b9cfe3;
+    white-space: nowrap;
+}
+
+.formato-header__valor{
+    flex: 1;
+    padding: 4px 10px;
+    text-align: center;
+    color: #0b2e4f;
+    font-weight: 600;
 }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 768px){
-    .investigacion-detalle{
-        padding: 20px;
+    .formato-header{
+        grid-template-columns: 1fr;
     }
-    .investigacion-detalle section,
-    .investigacion-detalle .card,
-    .investigacion-detalle .seccion{
-        padding: 18px 20px;
+    .formato-header__logo,
+    .formato-header__titulo{
+        border-right: none;
+        border-bottom: 1.5px solid #0b2e4f;
+    }
+    .formato-header__titulo h1{
+        font-size: 17px;
     }
 }
