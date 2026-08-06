@@ -9,6 +9,7 @@ export default function DescripcionDetalle({ investigacion }) {
   const [isDragging, setIsDragging] = useState(false);
   const [startDrag, setStartDrag] = useState({ x: 0, y: 0 });
   const [erroresImagen, setErroresImagen] = useState({});
+  const [cargandoImagenes, setCargandoImagenes] = useState({});
 
   // Filtrar solo imágenes
   const esImagen = (archivo) => {
@@ -20,10 +21,53 @@ export default function DescripcionDetalle({ investigacion }) {
   const evidenciasImagenes = investigacion.descripcion?.evidencias?.filter(esImagen) || [];
   const todasEvidencias = investigacion.descripcion?.evidencias || [];
 
+  // ============================================
+  // DEBUG - Ver qué está pasando con las imágenes
+  // ============================================
+  console.log("=== DEBUG DE EVIDENCIAS ===");
+  console.log("Todas las evidencias:", todasEvidencias);
+  console.log("Evidencias imágenes:", evidenciasImagenes);
+  console.log("Investigación completa:", investigacion);
+
+  if (evidenciasImagenes.length > 0) {
+    const primera = evidenciasImagenes[0];
+    console.log("📸 Primera evidencia:", primera);
+    console.log("📁 ruta_storage:", primera.ruta_storage);
+    console.log("🏷️ nombre_original:", primera.nombre_original);
+    console.log("🔗 URL generada:", obtenerUrlImagen(primera));
+    console.log("🔗 URL esperada:", `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/investigaciones/${primera.ruta_storage}`);
+  } else {
+    console.log("⚠️ No hay evidencias de imágenes");
+  }
+
   // Función para obtener la URL de la imagen
   const obtenerUrlImagen = (archivo) => {
-    const url = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/investigaciones/${archivo.ruta_storage}`;
-    console.log("URL de imagen:", url); // Para debug
+    if (!archivo || !archivo.ruta_storage) {
+      console.warn("⚠️ Archivo sin ruta_storage:", archivo);
+      return "";
+    }
+    
+    // Limpia la ruta
+    let ruta = archivo.ruta_storage;
+    
+    // Si la ruta empieza con "investigaciones/", quítalo
+    if (ruta.startsWith("investigaciones/")) {
+      ruta = ruta.substring("investigaciones/".length);
+      console.log("🔄 Quitado 'investigaciones/' de la ruta");
+    }
+    
+    // Si la ruta empieza con "/", quítalo
+    if (ruta.startsWith("/")) {
+      ruta = ruta.substring(1);
+      console.log("🔄 Quitado '/' de la ruta");
+    }
+    
+    const url = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/investigaciones/${ruta}`;
+    
+    console.log("📸 Ruta original:", archivo.ruta_storage);
+    console.log("📸 Ruta limpia:", ruta);
+    console.log("📸 URL final:", url);
+    
     return url;
   };
 
@@ -33,7 +77,19 @@ export default function DescripcionDetalle({ investigacion }) {
       ...prev,
       [archivoId]: true
     }));
-    console.error(`Error al cargar la imagen con ID: ${archivoId}`);
+    setCargandoImagenes(prev => ({
+      ...prev,
+      [archivoId]: false
+    }));
+    console.error(`❌ Error al cargar la imagen con ID: ${archivoId}`);
+  };
+
+  const handleImageLoad = (archivoId) => {
+    setCargandoImagenes(prev => ({
+      ...prev,
+      [archivoId]: false
+    }));
+    console.log(`✅ Imagen cargada correctamente ID: ${archivoId}`);
   };
 
   useEffect(() => {
@@ -175,7 +231,7 @@ export default function DescripcionDetalle({ investigacion }) {
       <div className="detalle-card">
         <h2>Descripción del incidente</h2>
         
-        {/* DESCRIPCIÓN - Ahora ocupa todo el ancho */}
+        {/* DESCRIPCIÓN - Ocupa todo el ancho */}
         <div className="detalle-item descripcion-full">
           <label>Descripción del incidente</label>
           <div className="descripcion-texto">
@@ -201,31 +257,39 @@ export default function DescripcionDetalle({ investigacion }) {
             <>
               {evidenciasImagenes.length > 0 && (
                 <div className="evidencias-thumbnails">
-                  {evidenciasImagenes.map((archivo, index) => (
-                    <div 
-                      key={archivo.id} 
-                      className="thumbnail-container"
-                      onClick={() => abrirImagen(archivo, index)}
-                    >
-                      {!erroresImagen[archivo.id] ? (
-                        <img 
-                          src={obtenerUrlImagen(archivo)}
-                          alt={archivo.nombre_original}
-                          className="thumbnail-image"
-                          loading="lazy"
-                          onError={() => handleImageError(archivo.id)}
-                        />
-                      ) : (
-                        <div className="thumbnail-error">
-                          <span>🖼️</span>
-                          <span className="thumbnail-error-text">Error al cargar</span>
-                        </div>
-                      )}
-                      <span className="thumbnail-nombre">
-                        {archivo.nombre_original}
-                      </span>
-                    </div>
-                  ))}
+                  {evidenciasImagenes.map((archivo, index) => {
+                    const url = obtenerUrlImagen(archivo);
+                    const tieneError = erroresImagen[archivo.id];
+                    
+                    return (
+                      <div 
+                        key={archivo.id} 
+                        className="thumbnail-container"
+                        onClick={() => !tieneError && abrirImagen(archivo, index)}
+                        style={{ cursor: tieneError ? 'default' : 'pointer' }}
+                      >
+                        {tieneError ? (
+                          <div className="thumbnail-error">
+                            <span>🖼️</span>
+                            <span className="thumbnail-error-text">Imagen no disponible</span>
+                            <span className="thumbnail-error-subtext">{archivo.nombre_original}</span>
+                          </div>
+                        ) : (
+                          <img 
+                            src={url}
+                            alt={archivo.nombre_original}
+                            className="thumbnail-image"
+                            loading="lazy"
+                            onError={() => handleImageError(archivo.id)}
+                            onLoad={() => handleImageLoad(archivo.id)}
+                          />
+                        )}
+                        <span className="thumbnail-nombre">
+                          {archivo.nombre_original}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
 
@@ -255,7 +319,7 @@ export default function DescripcionDetalle({ investigacion }) {
       </div>
 
       {/* Modal con zoom */}
-      {imagenSeleccionada && (
+      {imagenSeleccionada && !erroresImagen[imagenSeleccionada.id] && (
         <div 
           className="modal-overlay" 
           onClick={cerrarModal}
@@ -355,8 +419,9 @@ export default function DescripcionDetalle({ investigacion }) {
                 }}
                 draggable={false}
                 onError={() => {
-                  console.error("Error al cargar la imagen en el modal");
-                  alert("No se pudo cargar la imagen. Verifica la URL y los permisos de Storage.");
+                  console.error("❌ Error al cargar la imagen en el modal");
+                  handleImageError(imagenSeleccionada.id);
+                  cerrarModal();
                 }}
               />
             </div>
@@ -402,7 +467,6 @@ export default function DescripcionDetalle({ investigacion }) {
           min-height: 38px;
         }
 
-        /* DESCRIPCIÓN - Ocupa todo el ancho */
         .descripcion-full {
           grid-column: 1 / -1;
         }
@@ -426,7 +490,6 @@ export default function DescripcionDetalle({ investigacion }) {
         }
 
         .thumbnail-container {
-          cursor: pointer;
           border: 2px solid #E5E7EB;
           border-radius: 8px;
           overflow: hidden;
@@ -434,7 +497,7 @@ export default function DescripcionDetalle({ investigacion }) {
           background: #F9FAFB;
         }
 
-        .thumbnail-container:hover {
+        .thumbnail-container:not(.thumbnail-error):hover {
           transform: scale(1.02);
           border-color: #3B82F6;
           box-shadow: 0 4px 8px rgba(0,0,0,0.1);
@@ -456,6 +519,7 @@ export default function DescripcionDetalle({ investigacion }) {
           justify-content: center;
           background: #F3F4F6;
           color: #9CA3AF;
+          padding: 16px;
         }
 
         .thumbnail-error span:first-child {
@@ -463,8 +527,20 @@ export default function DescripcionDetalle({ investigacion }) {
         }
 
         .thumbnail-error-text {
-          font-size: 12px;
+          font-size: 13px;
           margin-top: 8px;
+          color: #6B7280;
+          font-weight: 500;
+        }
+
+        .thumbnail-error-subtext {
+          font-size: 11px;
+          margin-top: 4px;
+          color: #9CA3AF;
+          max-width: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
         .thumbnail-nombre {
@@ -506,7 +582,6 @@ export default function DescripcionDetalle({ investigacion }) {
           background: #EFF6FF;
         }
 
-        /* Modal */
         .modal-overlay {
           position: fixed;
           top: 0;
