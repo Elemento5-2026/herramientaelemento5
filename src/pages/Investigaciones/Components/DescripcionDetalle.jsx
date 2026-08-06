@@ -40,8 +40,10 @@ export default function DescripcionDetalle({ investigacion }) {
     return `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/investigaciones/${ruta}`;
   };
 
-  // ✅ LUEGO EL DEBUG (después de declarar la función)
+  // ✅ DEBUG COMPLETO
   console.log("=== DEBUG DE EVIDENCIAS ===");
+  console.log("SUPABASE URL:", import.meta.env.VITE_SUPABASE_URL);
+  console.log("URL BASE STORAGE:", `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/investigaciones/`);
   console.log("Todas las evidencias:", todasEvidencias);
   console.log("Evidencias imágenes:", evidenciasImagenes);
 
@@ -51,6 +53,9 @@ export default function DescripcionDetalle({ investigacion }) {
     console.log("📁 ruta_storage:", primera.ruta_storage);
     console.log("🏷️ nombre_original:", primera.nombre_original);
     console.log("🔗 URL generada:", obtenerUrlImagen(primera));
+    console.log("🪣 Bucket esperado: investigaciones");
+    console.log("📂 Ruta almacenada:", primera.ruta_storage);
+    console.log("🌐 URL final:", `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/investigaciones/${primera.ruta_storage}`);
   }
 
   // Función para manejar errores de carga de imágenes
