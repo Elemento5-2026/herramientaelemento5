@@ -11,6 +11,8 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.56.0",
     "browser-image-compression": "^2.0.2",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.2.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "reactflow": "^11.11.4"
