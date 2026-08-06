@@ -52,7 +52,7 @@ export default function InvestigacionDetalle({
       console.error(error);
 
       alert(
-        "No fue posible cargar la investigación."
+        error.message || JSON.stringify(error)
       );
 
     } finally {
