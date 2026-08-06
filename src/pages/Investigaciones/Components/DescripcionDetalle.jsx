@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from "lucide-react";
 
 export default function DescripcionDetalle({ investigacion }) {
 
@@ -20,13 +19,11 @@ export default function DescripcionDetalle({ investigacion }) {
   const evidenciasImagenes = investigacion.descripcion?.evidencias?.filter(esImagen) || [];
   const todasEvidencias = investigacion.descripcion?.evidencias || [];
 
-  // Resetear zoom al cambiar de imagen
   useEffect(() => {
     setZoomLevel(1);
     setPosicion({ x: 0, y: 0 });
   }, [imagenSeleccionada]);
 
-  // Manejar teclas
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (!imagenSeleccionada) return;
@@ -74,7 +71,6 @@ export default function DescripcionDetalle({ investigacion }) {
     setPosicion({ x: 0, y: 0 });
   };
 
-  // Funciones de zoom
   const zoomIn = () => {
     setZoomLevel(prev => Math.min(prev + 0.25, 5));
   };
@@ -92,7 +88,6 @@ export default function DescripcionDetalle({ investigacion }) {
     }
   };
 
-  // Funciones de arrastre
   const handleMouseDown = (e) => {
     if (zoomLevel > 1) {
       setIsDragging(true);
@@ -116,7 +111,6 @@ export default function DescripcionDetalle({ investigacion }) {
     setIsDragging(false);
   };
 
-  // Resetear zoom y posición
   const resetZoom = () => {
     setZoomLevel(1);
     setPosicion({ x: 0, y: 0 });
@@ -125,6 +119,43 @@ export default function DescripcionDetalle({ investigacion }) {
   const obtenerUrlImagen = (archivo) => {
     return `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/investigaciones/${archivo.ruta_storage}`;
   };
+
+  // Iconos SVG en línea
+  const IconCerrar = () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"></line>
+      <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+  );
+
+  const IconChevronLeft = () => (
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="15 18 9 12 15 6"></polyline>
+    </svg>
+  );
+
+  const IconChevronRight = () => (
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  );
+
+  const IconZoomIn = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="8"></circle>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      <line x1="11" y1="8" x2="11" y2="14"></line>
+      <line x1="8" y1="11" x2="14" y2="11"></line>
+    </svg>
+  );
+
+  const IconZoomOut = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="8"></circle>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      <line x1="8" y1="11" x2="14" y2="11"></line>
+    </svg>
+  );
 
   return (
     <>
@@ -219,7 +250,7 @@ export default function DescripcionDetalle({ investigacion }) {
                 onClick={cerrarModal}
                 aria-label="Cerrar imagen"
               >
-                <X size={24} />
+                <IconCerrar />
               </button>
 
               <div className="modal-zoom-controls">
@@ -229,7 +260,7 @@ export default function DescripcionDetalle({ investigacion }) {
                   aria-label="Alejar"
                   disabled={zoomLevel <= 0.5}
                 >
-                  <ZoomOut size={20} />
+                  <IconZoomOut />
                 </button>
                 
                 <span className="zoom-level">
@@ -242,7 +273,7 @@ export default function DescripcionDetalle({ investigacion }) {
                   aria-label="Acercar"
                   disabled={zoomLevel >= 5}
                 >
-                  <ZoomIn size={20} />
+                  <IconZoomIn />
                 </button>
 
                 {zoomLevel > 1 && (
@@ -265,14 +296,14 @@ export default function DescripcionDetalle({ investigacion }) {
                   onClick={imagenAnterior}
                   aria-label="Imagen anterior"
                 >
-                  <ChevronLeft size={32} />
+                  <IconChevronLeft />
                 </button>
                 <button 
                   className="modal-nav modal-nav-right" 
                   onClick={imagenSiguiente}
                   aria-label="Imagen siguiente"
                 >
-                  <ChevronRight size={32} />
+                  <IconChevronRight />
                 </button>
 
                 <div className="modal-counter">
@@ -420,7 +451,6 @@ export default function DescripcionDetalle({ investigacion }) {
           background: #EFF6FF;
         }
 
-        /* Estilos del Modal */
         .modal-overlay {
           position: fixed;
           top: 0;
@@ -445,7 +475,6 @@ export default function DescripcionDetalle({ investigacion }) {
           align-items: center;
         }
 
-        /* Controles superiores */
         .modal-controls-top {
           position: absolute;
           top: -60px;
@@ -551,7 +580,6 @@ export default function DescripcionDetalle({ investigacion }) {
           pointer-events: none;
         }
 
-        /* Navegación lateral */
         .modal-nav {
           position: absolute;
           top: 50%;
