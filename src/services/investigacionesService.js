@@ -467,74 +467,80 @@ export async function crearInvestigacionDesdeIncidente(
  */
 export async function obtenerInvestigacionPorId(id) {
 
-  const { data, error } = await supabase
+  // Investigación
+  const {
+    data: investigacion,
+    error: errorInvestigacion
+  } = await supabase
     .from("investigaciones")
-    .select(`
-      *,
-
-      catalogo_macroprocesos(
-        nombre
-      ),
-
-      catalogo_procesos(
-        nombre
-      ),
-
-      catalogo_tipos_incidente(
-        nombre
-      ),
-
-      catalogo_turnos(
-        nombre
-      ),
-
-      investigaciones_descripcion(
-        *,
-        catalogo_partes_cuerpo(
-          nombre
-        )
-      ),
-
-      investigaciones_acciones_inmediatas(
-        *
-      ),
-
-      investigaciones_plan_accion(
-        *
-      ),
-
-      investigaciones_arbol_causas(
-        *
-      )
-    `)
+    .select("*")
     .eq("id", id)
     .maybeSingle();
 
-  if (error) throw error;
+  if (errorInvestigacion) throw errorInvestigacion;
 
-  if (!data) {
-
-    throw new Error(
-      "Investigación no encontrada"
-    );
-
+  if (!investigacion) {
+    throw new Error("Investigación no encontrada");
   }
+
+  // Descripción
+  const {
+    data: descripcion,
+    error: errorDescripcion
+  } = await supabase
+    .from("investigaciones_descripcion")
+    .select("*")
+    .eq("investigacion_id", id)
+    .maybeSingle();
+
+  if (errorDescripcion) throw errorDescripcion;
+
+  // Acciones inmediatas
+  const {
+    data: accionesInmediatas,
+    error: errorAcciones
+  } = await supabase
+    .from("investigaciones_acciones_inmediatas")
+    .select("*")
+    .eq("investigacion_id", id)
+    .order("numero");
+
+  if (errorAcciones) throw errorAcciones;
+
+  // Plan de acción
+  const {
+    data: planAccion,
+    error: errorPlan
+  } = await supabase
+    .from("investigaciones_plan_accion")
+    .select("*")
+    .eq("investigacion_id", id);
+
+  if (errorPlan) throw errorPlan;
+
+  // Árbol de causas
+  const {
+    data: arbolCausas,
+    error: errorArbol
+  } = await supabase
+    .from("investigaciones_arbol_causas")
+    .select("*")
+    .eq("investigacion_id", id)
+    .order("orden");
+
+  if (errorArbol) throw errorArbol;
 
   return {
 
-    ...data,
+    ...investigacion,
 
-    investigaciones_descripcion:
-      data.investigaciones_descripcion ?? null,
+    descripcion,
 
-    investigaciones_acciones_inmediatas:
-      data.investigaciones_acciones_inmediatas ?? [],
+    acciones_inmediatas: accionesInmediatas ?? [],
 
-    investigaciones_plan_accion:
-      data.investigaciones_plan_accion ?? [],
+    plan_accion: planAccion ?? [],
 
-    investigaciones_arbol_causas:
-      data.investigaciones_arbol_causas ?? []
+    arbol_causas: arbolCausas ?? []
 
   };
 
