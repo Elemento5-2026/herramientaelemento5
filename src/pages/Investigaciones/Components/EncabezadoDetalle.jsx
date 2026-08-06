@@ -1,4 +1,3 @@
-import "./EncabezadoDetalle.css";
 
 export default function EncabezadoDetalle({
 
