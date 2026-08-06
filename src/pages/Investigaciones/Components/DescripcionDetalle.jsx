@@ -8,6 +8,7 @@ export default function DescripcionDetalle({ investigacion }) {
   const [posicion, setPosicion] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [startDrag, setStartDrag] = useState({ x: 0, y: 0 });
+  const [erroresImagen, setErroresImagen] = useState({});
 
   // Filtrar solo imágenes
   const esImagen = (archivo) => {
@@ -18,6 +19,22 @@ export default function DescripcionDetalle({ investigacion }) {
 
   const evidenciasImagenes = investigacion.descripcion?.evidencias?.filter(esImagen) || [];
   const todasEvidencias = investigacion.descripcion?.evidencias || [];
+
+  // Función para obtener la URL de la imagen
+  const obtenerUrlImagen = (archivo) => {
+    const url = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/investigaciones/${archivo.ruta_storage}`;
+    console.log("URL de imagen:", url); // Para debug
+    return url;
+  };
+
+  // Función para manejar errores de carga de imágenes
+  const handleImageError = (archivoId) => {
+    setErroresImagen(prev => ({
+      ...prev,
+      [archivoId]: true
+    }));
+    console.error(`Error al cargar la imagen con ID: ${archivoId}`);
+  };
 
   useEffect(() => {
     setZoomLevel(1);
@@ -116,10 +133,6 @@ export default function DescripcionDetalle({ investigacion }) {
     setPosicion({ x: 0, y: 0 });
   };
 
-  const obtenerUrlImagen = (archivo) => {
-    return `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/investigaciones/${archivo.ruta_storage}`;
-  };
-
   // Iconos SVG en línea
   const IconCerrar = () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -162,24 +175,25 @@ export default function DescripcionDetalle({ investigacion }) {
       <div className="detalle-card">
         <h2>Descripción del incidente</h2>
         
-        <div className="detalle-grid">
-          <div className="detalle-item">
-            <label>Descripción del incidente</label>
-            <span>
-              {investigacion.descripcion?.descripcion_incidente || "-"}
-            </span>
-          </div>
-
-          <div className="detalle-item">
-            <label>Parte del cuerpo lesionada</label>
-            <span>
-              {investigacion.descripcion?.parte_cuerpo?.nombre || 
-               investigacion.descripcion?.parte_cuerpo_lesionada_id || 
-               "-"}
-            </span>
+        {/* DESCRIPCIÓN - Ahora ocupa todo el ancho */}
+        <div className="detalle-item descripcion-full">
+          <label>Descripción del incidente</label>
+          <div className="descripcion-texto">
+            {investigacion.descripcion?.descripcion_incidente || "-"}
           </div>
         </div>
 
+        {/* PARTE DEL CUERPO - Abajo de la descripción */}
+        <div className="detalle-item" style={{ marginTop: "16px" }}>
+          <label>Parte del cuerpo lesionada</label>
+          <span>
+            {investigacion.descripcion?.parte_cuerpo?.nombre || 
+             investigacion.descripcion?.parte_cuerpo_lesionada_id || 
+             "-"}
+          </span>
+        </div>
+
+        {/* EVIDENCIAS */}
         <div className="detalle-item" style={{ marginTop: "20px" }}>
           <label>Evidencias</label>
           
@@ -193,12 +207,20 @@ export default function DescripcionDetalle({ investigacion }) {
                       className="thumbnail-container"
                       onClick={() => abrirImagen(archivo, index)}
                     >
-                      <img 
-                        src={obtenerUrlImagen(archivo)}
-                        alt={archivo.nombre_original}
-                        className="thumbnail-image"
-                        loading="lazy"
-                      />
+                      {!erroresImagen[archivo.id] ? (
+                        <img 
+                          src={obtenerUrlImagen(archivo)}
+                          alt={archivo.nombre_original}
+                          className="thumbnail-image"
+                          loading="lazy"
+                          onError={() => handleImageError(archivo.id)}
+                        />
+                      ) : (
+                        <div className="thumbnail-error">
+                          <span>🖼️</span>
+                          <span className="thumbnail-error-text">Error al cargar</span>
+                        </div>
+                      )}
                       <span className="thumbnail-nombre">
                         {archivo.nombre_original}
                       </span>
@@ -332,6 +354,10 @@ export default function DescripcionDetalle({ investigacion }) {
                   transition: isDragging ? 'none' : 'transform 0.1s ease'
                 }}
                 draggable={false}
+                onError={() => {
+                  console.error("Error al cargar la imagen en el modal");
+                  alert("No se pudo cargar la imagen. Verifica la URL y los permisos de Storage.");
+                }}
               />
             </div>
 
@@ -356,13 +382,6 @@ export default function DescripcionDetalle({ investigacion }) {
           box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        .detalle-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 20px;
-          margin-top: 16px;
-        }
-
         .detalle-item {
           display: flex;
           flex-direction: column;
@@ -381,6 +400,22 @@ export default function DescripcionDetalle({ investigacion }) {
           background: #F9FAFB;
           border-radius: 4px;
           min-height: 38px;
+        }
+
+        /* DESCRIPCIÓN - Ocupa todo el ancho */
+        .descripcion-full {
+          grid-column: 1 / -1;
+        }
+
+        .descripcion-texto {
+          color: #1F2937;
+          padding: 12px 16px;
+          background: #F9FAFB;
+          border-radius: 4px;
+          min-height: 60px;
+          line-height: 1.6;
+          white-space: pre-wrap;
+          word-wrap: break-word;
         }
 
         .evidencias-thumbnails {
@@ -410,6 +445,26 @@ export default function DescripcionDetalle({ investigacion }) {
           height: 150px;
           object-fit: cover;
           display: block;
+        }
+
+        .thumbnail-error {
+          width: 100%;
+          height: 150px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          background: #F3F4F6;
+          color: #9CA3AF;
+        }
+
+        .thumbnail-error span:first-child {
+          font-size: 40px;
+        }
+
+        .thumbnail-error-text {
+          font-size: 12px;
+          margin-top: 8px;
         }
 
         .thumbnail-nombre {
@@ -451,6 +506,7 @@ export default function DescripcionDetalle({ investigacion }) {
           background: #EFF6FF;
         }
 
+        /* Modal */
         .modal-overlay {
           position: fixed;
           top: 0;
@@ -654,10 +710,6 @@ export default function DescripcionDetalle({ investigacion }) {
         }
 
         @media (max-width: 768px) {
-          .detalle-grid {
-            grid-template-columns: 1fr;
-          }
-
           .evidencias-thumbnails {
             grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
           }
