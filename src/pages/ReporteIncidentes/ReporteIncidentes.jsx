@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Layout from "../../components/Layout";
 import Header from "../../components/Header";
 import Sidebar from "../../components/Sidebar";
+import DataTable from "../../components/DataTable/DataTable";
 
 import "./ReporteIncidentes.css";
 
@@ -20,6 +21,7 @@ export default function ReporteIncidentes({
 }) {
 
   const [incidentes, setIncidentes] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
 
@@ -28,6 +30,8 @@ export default function ReporteIncidentes({
   }, []);
 
   async function cargarIncidentes() {
+
+    setLoading(true);
 
     const { data, error } = await supabase
 
@@ -50,12 +54,13 @@ export default function ReporteIncidentes({
     if (error) {
 
       console.error(error);
-
+      setLoading(false);
       return;
 
     }
 
     setIncidentes(data);
+    setLoading(false);
 
   }
 
@@ -96,6 +101,129 @@ export default function ReporteIncidentes({
     }
 
   }
+
+  // Configuración de columnas para el DataTable
+  const columns = [
+    {
+      key: "codigo",
+      title: "Código",
+      sortable: true,
+      searchable: true,
+      filterable: true,
+      width: "120px",
+      render: (row) => (
+        <button
+          className="btn-link"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIncidenteSeleccionado(row.id);
+            setScreen("incidenteDetalle");
+          }}
+        >
+          {row.codigo}
+        </button>
+      )
+    },
+    {
+      key: "fecha",
+      title: "Fecha",
+      type: "date",
+      sortable: true,
+      searchable: true,
+      filterable: true,
+      width: "110px"
+    },
+    {
+      key: "hora",
+      title: "Hora",
+      sortable: true,
+      searchable: false,
+      filterable: true,
+      width: "80px",
+      render: (row) => row.hora?.substring(0, 5) || ""
+    },
+    {
+      key: "direccion",
+      title: "Dirección",
+      sortable: true,
+      searchable: true,
+      filterable: true,
+      render: (row) => row.catalogo_direcciones?.nombre || ""
+    },
+    {
+      key: "sede",
+      title: "Sede",
+      sortable: true,
+      searchable: true,
+      filterable: true,
+      render: (row) => row.catalogo_sedes?.nombre || ""
+    },
+    {
+      key: "seccion",
+      title: "Sección",
+      sortable: true,
+      searchable: true,
+      filterable: true,
+      width: "120px"
+    },
+    {
+      key: "colaborador",
+      title: "Colaborador",
+      sortable: true,
+      searchable: true,
+      filterable: true,
+      render: (row) => row.nombre_colaborador || ""
+    },
+    {
+      key: "clasificacion",
+      title: "Clasificación",
+      sortable: true,
+      searchable: true,
+      filterable: true,
+      render: (row) => row.catalogo_tipos_incidente?.nombre || "Pendiente"
+    },
+    {
+      key: "dano",
+      title: "Daño",
+      sortable: true,
+      searchable: true,
+      filterable: true,
+      width: "100px",
+      render: (row) => row.catalogo_danos?.codigo || "Pendiente"
+    },
+    {
+      key: "investigacion",
+      title: "Investigación",
+      sortable: false,
+      searchable: false,
+      filterable: true,
+      width: "130px",
+      render: (row) => (
+        row.investigacion_id ? (
+          <button
+            className="btn-link"
+            onClick={(e) => {
+              e.stopPropagation();
+              setInvestigacionSeleccionada(row.investigacion_id);
+              setScreen("investigacionDetalle");
+            }}
+          >
+            📂 Abrir TF
+          </button>
+        ) : (
+          <button
+            className="btn-link"
+            onClick={(e) => {
+              e.stopPropagation();
+              iniciarTF(row);
+            }}
+          >
+            📋 Iniciar TF
+          </button>
+        )
+      )
+    }
+  ];
 
   return (
 
@@ -146,180 +274,16 @@ export default function ReporteIncidentes({
 
         </div>
 
-        <div className="filters">
-
-          <input
-            type="text"
-            placeholder="🔍 Buscar incidente..."
+        <div className="data-table-section">
+          <DataTable
+            columns={columns}
+            data={incidentes}
+            loading={loading}
+            emptyMessage="No hay incidentes registrados."
+            pageSize={10}
+            showGlobalSearch={true}
+            showPagination={true}
           />
-
-        </div>
-
-        <div className="table-container">
-
-          <table>
-
-            <thead>
-
-              <tr>
-
-                <th>Código</th>
-                <th>Fecha</th>
-                <th>Hora</th>
-                <th>Dirección</th>
-                <th>Sede</th>
-                <th>Sección</th>
-                <th>Colaborador</th>
-                <th>Clasificación</th>
-                <th>Daño</th>
-                <th>Investigación</th>
-
-              </tr>
-
-            </thead>
-
-            <tbody>
-
-              {incidentes.length===0 ? (
-
-                <tr>
-
-                  <td
-                    colSpan="10"
-                    style={{textAlign:"center"}}
-                  >
-
-                    No hay incidentes registrados.
-
-                  </td>
-
-                </tr>
-
-              ) : (
-
-                incidentes.map((incidente)=>(
-
-                  <tr key={incidente.id}>
-
-                    <td>
-
-                      <button
-                        className="btn-link"
-                        onClick={()=>{
-
-                          setIncidenteSeleccionado(
-                            incidente.id
-                          );
-
-                          setScreen(
-                            "incidenteDetalle"
-                          );
-
-                        }}
-                      >
-
-                        {incidente.codigo}
-
-                      </button>
-
-                    </td>
-
-                    <td>
-
-                      {incidente.fecha}
-
-                    </td>
-
-                    <td>
-
-                      {incidente.hora?.substring(0,5)}
-
-                    </td>
-
-                    <td>
-
-                      {incidente.catalogo_direcciones?.nombre}
-
-                    </td>
-
-                    <td>
-
-                      {incidente.catalogo_sedes?.nombre}
-
-                    </td>
-
-                    <td>
-
-                      {incidente.seccion}
-
-                    </td>
-
-                    <td>
-
-                      {incidente.nombre_colaborador}
-
-                    </td>
-
-                    <td>
-
-                      {incidente.catalogo_tipos_incidente?.nombre ?? "Pendiente"}
-
-                    </td>
-
-                    <td>
-
-                      {incidente.catalogo_danos?.codigo ?? "Pendiente"}
-
-                    </td>
-
-                    <td>
-
-                      {incidente.investigacion_id ? (
-
-                        <button
-                          className="btn-link"
-                          onClick={() => {
-
-                            setInvestigacionSeleccionada(
-                              incidente.investigacion_id
-                            );
-
-                            setScreen("investigacionDetalle");
-
-                          }}
-                        >
-
-                          📂 Abrir TF
-
-                        </button>
-
-                      ) : (
-
-                        <button
-                          className="btn-link"
-                          onClick={() =>
-                            iniciarTF(incidente)
-                          }
-                        >
-
-                          📋 Iniciar TF
-
-                        </button>
-
-                      )}
-
-                    </td>
-
-                  </tr>
-
-                ))
-
-              )}
-
-            </tbody>
-
-          </table>
-
         </div>
 
       </div>
