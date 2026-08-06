@@ -10,7 +10,6 @@ import "reactflow/dist/style.css";
 
 // Nodo personalizado para el árbol
 const NodoCausa = ({ data }) => {
-  // Colores según categoría
   const getColors = (categoria) => {
     const colores = {
       'fisica': { bg: '#FEE2E2', border: '#DC2626', text: '#991B1B', label: 'Condición física' },
@@ -102,19 +101,9 @@ export default function ArbolCausasDetalle({ investigacion }) {
   useEffect(() => {
     console.log("=== 🌳 ARBOL CAUSAS DETALLE ===");
     console.log("📊 Datos de arbol_causas:", investigacion?.arbol_causas);
-    console.log("📊 Investigacion completa:", investigacion);
     
     if (investigacion?.arbol_causas && investigacion.arbol_causas.length > 0) {
       const nodos = investigacion.arbol_causas.map((nodo, index) => {
-        console.log(`🔍 Nodo ${index}:`, {
-          id: nodo.id,
-          padre_id: nodo.padre_id,
-          descripcion: nodo.descripcion,
-          categoria: nodo.categoria,
-          posicion_x: nodo.posicion_x,
-          posicion_y: nodo.posicion_y
-        });
-        
         return {
           id: nodo.id,
           type: 'causa',
@@ -143,20 +132,18 @@ export default function ArbolCausasDetalle({ investigacion }) {
   // Construir edges (conexiones entre nodos)
   const edges = useMemo(() => {
     console.log("🔄 Recalculando edges...");
-    console.log("📊 Nodos disponibles para edges:", nodes);
     
     if (!nodes || nodes.length === 0) {
       console.log("⚠️ No hay nodos para crear edges");
       return [];
     }
     
-    // Filtrar nodos que tienen padre
     const nodosConPadre = nodes.filter(nodo => nodo.data.padre_id);
     console.log(`📊 Nodos con padre: ${nodosConPadre.length} de ${nodes.length}`);
     
     const edgesGenerados = nodosConPadre
       .map(nodo => {
-        console.log(`🔗 Creando edge: ${nodo.data.padre_id} -> ${nodo.id} (${nodo.data.descripcion})`);
+        console.log(`🔗 Creando edge: ${nodo.data.padre_id} -> ${nodo.id}`);
         return {
           id: `${nodo.data.padre_id}-${nodo.id}`,
           source: nodo.data.padre_id,
@@ -377,6 +364,7 @@ export default function ArbolCausasDetalle({ investigacion }) {
           elementsSelectable={true}
           defaultEdgeOptions={{
             type: 'smoothstep',
+            animated: false,
             style: { stroke: '#94A3B8', strokeWidth: 2 }
           }}
         >
