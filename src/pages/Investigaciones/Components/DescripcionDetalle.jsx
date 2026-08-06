@@ -26,7 +26,7 @@ export default function DescripcionDetalle({
 
           <span>
 
-            {investigacion.descripcion_incidente || "-"}
+            {investigacion.descripcion?.descripcion_incidente || "-"}
 
           </span>
 
@@ -42,7 +42,7 @@ export default function DescripcionDetalle({
 
           <span>
 
-            {investigacion.catalogo_partes_cuerpo?.nombre || "-"}
+            {investigacion.descripcion?.parte_cuerpo_lesionada_id || "-"}
 
           </span>
 
@@ -61,11 +61,34 @@ export default function DescripcionDetalle({
 
         </label>
 
-        <span>
+        {investigacion.descripcion?.evidencias?.length > 0 ? (
 
-          (Aquí mostraremos posteriormente las fotografías y archivos adjuntos.)
+          <div className="evidencias-grid">
 
-        </span>
+            {investigacion.descripcion.evidencias.map((archivo) => (
+
+              <a
+                key={archivo.id}
+                href={`${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/investigaciones/${archivo.ruta_storage}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {archivo.nombre_original}
+              </a>
+
+            ))}
+
+          </div>
+
+        ) : (
+
+          <span>
+
+            No hay evidencias.
+
+          </span>
+
+        )}
 
       </div>
 
