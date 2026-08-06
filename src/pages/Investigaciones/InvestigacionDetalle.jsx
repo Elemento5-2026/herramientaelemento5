@@ -93,7 +93,7 @@ export default function InvestigacionDetalle({
         doc.setTextColor(31, 41, 55);
         
         const valorStr = valor || '-';
-        const textLines = doc.splitTextToSize(valorStr, pageWidth - margin - 70);
+        const textLines = doc.splitTextToSize(String(valorStr), pageWidth - margin - 70);
         doc.text(textLines, margin + 55, y);
         y += (textLines.length * 5) + 4;
       };
@@ -153,12 +153,10 @@ export default function InvestigacionDetalle({
             cellPadding: 2
           },
           didDrawPage: function(data) {
-            // Actualizar y para continuar después de la tabla
             y = data.cursor.y + 6;
           }
         });
         
-        // Actualizar y después de la tabla
         y = doc.lastAutoTable.finalY + 6;
       };
 
@@ -190,11 +188,18 @@ export default function InvestigacionDetalle({
       // ============================================
       agregarTitulo('1. ENCABEZADO');
       
-      // Participantes
-      if (investigacion.participantes && investigacion.participantes.length > 0) {
-        const participantesText = investigacion.participantes.map(p => 
-          `${p.nombre || ''} (${p.puesto || ''})`
-        ).join(', ');
+      // Participantes - CORREGIDO: verificar si es array
+      if (investigacion.participantes) {
+        let participantesText = '';
+        if (Array.isArray(investigacion.participantes)) {
+          participantesText = investigacion.participantes.map(p => 
+            `${p.nombre || ''} (${p.puesto || ''})`
+          ).join(', ');
+        } else if (typeof investigacion.participantes === 'string') {
+          participantesText = investigacion.participantes;
+        } else {
+          participantesText = JSON.stringify(investigacion.participantes);
+        }
         agregarCampo('Participantes', participantesText);
       }
       
