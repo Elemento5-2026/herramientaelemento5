@@ -170,6 +170,7 @@ export async function guardarDescripcion(
   return data;
 
 }
+
 /**
  * Guarda las Acciones Inmediatas
  */
@@ -223,6 +224,7 @@ export async function guardarAccionesInmediatas(
   return accionesGuardadas;
 
 }
+
 /**
  * Guarda el Plan de Acción
  */
@@ -278,6 +280,7 @@ export async function guardarPlanAccion(
   return accionesGuardadas;
 
 }
+
 /**
  * Guarda el Árbol de Causas
  */
@@ -468,10 +471,41 @@ export async function obtenerInvestigacionPorId(id) {
     .from("investigaciones")
     .select(`
       *,
-      investigaciones_descripcion(*),
-      investigaciones_acciones_inmediatas(*),
-      investigaciones_plan_accion(*),
-      investigaciones_arbol_causas(*)
+
+      catalogo_macroprocesos(
+        nombre
+      ),
+
+      catalogo_procesos(
+        nombre
+      ),
+
+      catalogo_tipos_incidente(
+        nombre
+      ),
+
+      catalogo_turnos(
+        nombre
+      ),
+
+      investigaciones_descripcion(
+        *,
+        catalogo_partes_cuerpo(
+          nombre
+        )
+      ),
+
+      investigaciones_acciones_inmediatas(
+        *
+      ),
+
+      investigaciones_plan_accion(
+        *
+      ),
+
+      investigaciones_arbol_causas(
+        *
+      )
     `)
     .eq("id", id)
     .maybeSingle();
@@ -479,16 +513,29 @@ export async function obtenerInvestigacionPorId(id) {
   if (error) throw error;
 
   if (!data) {
-    throw new Error("Investigación no encontrada");
+
+    throw new Error(
+      "Investigación no encontrada"
+    );
+
   }
 
-  // Asegurar que las relaciones existan aunque estén vacías
   return {
+
     ...data,
-    investigaciones_descripcion: data.investigaciones_descripcion || null,
-    investigaciones_acciones_inmediatas: data.investigaciones_acciones_inmediatas || [],
-    investigaciones_plan_accion: data.investigaciones_plan_accion || [],
-    investigaciones_arbol_causas: data.investigaciones_arbol_causas || []
+
+    investigaciones_descripcion:
+      data.investigaciones_descripcion ?? null,
+
+    investigaciones_acciones_inmediatas:
+      data.investigaciones_acciones_inmediatas ?? [],
+
+    investigaciones_plan_accion:
+      data.investigaciones_plan_accion ?? [],
+
+    investigaciones_arbol_causas:
+      data.investigaciones_arbol_causas ?? []
+
   };
 
 }
