@@ -1,5 +1,5 @@
 // DataTable.jsx
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import './DataTable.css';
 
 /**
@@ -13,16 +13,89 @@ const DataTable = ({
     pageSize = 10,
     showGlobalSearch = true,
     showPagination = true,
+    showPageSizeSelector = false,
     className = '',
     emptyMessage = 'No hay registros disponibles',
     loading = false,
-    onRowClick = null
+    onRowClick = null,
+    defaultSort = null,
+    stickyHeader = false,
+    maxHeight = null
 }) => {
     // Estados internos
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState('');
-    const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+    const [sortConfig, setSortConfig] = useState(() => {
+        if (defaultSort && defaultSort.key) {
+            return { key: defaultSort.key, direction: defaultSort.direction || 'asc' };
+        }
+        return { key: null, direction: 'asc' };
+    });
     const [columnFilters, setColumnFilters] = useState({});
+    const [itemsPerPage, setItemsPerPage] = useState(pageSize);
+
+    // Refs para manejo de scroll
+    const tableWrapperRef = useRef(null);
+
+    // Opciones de página
+    const pageSizeOptions = [10, 25, 50, 100];
+
+    // ==================== EFECTOS ====================
+    
+    /**
+     * Sincronizar defaultSort cuando cambie la prop
+     */
+    useEffect(() => {
+        if (defaultSort && defaultSort.key) {
+            setSortConfig({ 
+                key: defaultSort.key, 
+                direction: defaultSort.direction || 'asc' 
+            });
+            setCurrentPage(1);
+        }
+    }, [defaultSort]);
+
+    /**
+     * Reiniciar a página 1 cuando cambie el ordenamiento
+     */
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [sortConfig]);
+
+    // ==================== FUNCIONES DE VALOR ====================
+    
+    /**
+     * Obtiene el valor de una celda para ordenamiento
+     * Prioriza sortValue si existe, sino usa row[column.key]
+     */
+    const getSortValue = useCallback((row, column) => {
+        if (column.sortValue && typeof column.sortValue === 'function') {
+            return column.sortValue(row);
+        }
+        return row[column.key];
+    }, []);
+
+    /**
+     * Obtiene el valor de una celda para búsqueda
+     * Prioriza searchValue si existe, sino usa row[column.key]
+     */
+    const getSearchValue = useCallback((row, column) => {
+        if (column.searchValue && typeof column.searchValue === 'function') {
+            return column.searchValue(row);
+        }
+        return row[column.key];
+    }, []);
+
+    /**
+     * Obtiene el valor de una celda para filtrado
+     * Prioriza filterValue si existe, sino usa row[column.key]
+     */
+    const getFilterValue = useCallback((row, column) => {
+        if (column.filterValue && typeof column.filterValue === 'function') {
+            return column.filterValue(row);
+        }
+        return row[column.key];
+    }, []);
 
     // ==================== FILTRADO Y BÚSQUEDA ====================
     
@@ -41,7 +114,7 @@ const DataTable = ({
                     // Solo buscar en columnas marcadas como searchable
                     if (!col.searchable) return false;
                     
-                    const value = row[col.key];
+                    const value = getSearchValue(row, col);
                     if (value === null || value === undefined) return false;
                     
                     let stringValue = String(value).toLowerCase();
@@ -67,35 +140,40 @@ const DataTable = ({
         }
 
         // Aplicar filtros por columna (preparado para futura implementación)
-        // Los filtros se aplicarán cuando se implemente la UI de filtros
         Object.keys(columnFilters).forEach(key => {
             const filterValue = columnFilters[key];
             if (filterValue && filterValue !== '') {
-                result = result.filter(row => {
-                    const value = row[key];
-                    if (value === null || value === undefined) return false;
-                    return String(value).toLowerCase().includes(filterValue.toLowerCase());
-                });
+                const column = columns.find(col => col.key === key);
+                if (column) {
+                    result = result.filter(row => {
+                        const value = getFilterValue(row, column);
+                        if (value === null || value === undefined) return false;
+                        return String(value).toLowerCase().includes(filterValue.toLowerCase());
+                    });
+                }
             }
         });
 
         return result;
-    }, [data, searchTerm, columns, columnFilters]);
+    }, [data, searchTerm, columns, columnFilters, getSearchValue, getFilterValue]);
 
     // ==================== ORDENAMIENTO ====================
     
     /**
      * Ordena los datos según la configuración actual
      * Soporta múltiples tipos de datos: string, number, date, boolean
+     * Utiliza sortValue para obtener el valor a ordenar
      */
     const sortedData = useMemo(() => {
         if (!sortConfig.key) return filteredData;
 
+        const column = columns.find(col => col.key === sortConfig.key);
+        if (!column) return filteredData;
+
         return [...filteredData].sort((a, b) => {
-            const aValue = a[sortConfig.key];
-            const bValue = b[sortConfig.key];
+            const aValue = getSortValue(a, column);
+            const bValue = getSortValue(b, column);
             
-            const column = columns.find(col => col.key === sortConfig.key);
             const type = column?.type || 'string';
             
             let comparison = 0;
@@ -121,12 +199,12 @@ const DataTable = ({
             
             return sortConfig.direction === 'asc' ? comparison : -comparison;
         });
-    }, [filteredData, sortConfig, columns]);
+    }, [filteredData, sortConfig, columns, getSortValue]);
 
     // ==================== PAGINACIÓN ====================
     
     const totalItems = sortedData.length;
-    const totalPages = Math.ceil(totalItems / pageSize);
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
     
     useEffect(() => {
         if (currentPage > totalPages && totalPages > 0) {
@@ -139,14 +217,14 @@ const DataTable = ({
     const paginatedData = useMemo(() => {
         if (!showPagination) return sortedData;
         
-        const startIndex = (currentPage - 1) * pageSize;
-        const endIndex = Math.min(startIndex + pageSize, totalItems);
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
         return sortedData.slice(startIndex, endIndex);
-    }, [sortedData, currentPage, pageSize, showPagination, totalItems]);
+    }, [sortedData, currentPage, itemsPerPage, showPagination, totalItems]);
 
     // Calcular índices para mostrar
-    const startItem = totalItems === 0 ? 0 : (currentPage - 1) * pageSize + 1;
-    const endItem = Math.min(currentPage * pageSize, totalItems);
+    const startItem = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+    const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
     // ==================== UTILIDADES ====================
     
@@ -224,6 +302,10 @@ const DataTable = ({
     const handlePageChange = useCallback((page) => {
         if (page >= 1 && page <= totalPages) {
             setCurrentPage(page);
+            // Scroll al inicio de la tabla
+            if (tableWrapperRef.current) {
+                tableWrapperRef.current.scrollTop = 0;
+            }
         }
     }, [totalPages]);
 
@@ -243,7 +325,23 @@ const DataTable = ({
         setCurrentPage(1);
     }, []);
 
+    /**
+     * Maneja el cambio de tamaño de página
+     */
+    const handlePageSizeChange = useCallback((e) => {
+        const newSize = parseInt(e.target.value, 10);
+        setItemsPerPage(newSize);
+        setCurrentPage(1);
+    }, []);
+
     // ==================== RENDERIZADO ====================
+    
+    // Estilos para el wrapper
+    const wrapperStyle = {};
+    if (maxHeight) {
+        wrapperStyle.maxHeight = maxHeight;
+        wrapperStyle.overflow = 'auto';
+    }
     
     return (
         <div className={`data-table-container ${className}`}>
@@ -281,7 +379,11 @@ const DataTable = ({
             </div>
 
             {/* Tabla */}
-            <div className="data-table-wrapper">
+            <div 
+                className={`data-table-wrapper ${stickyHeader ? 'sticky-header' : ''}`}
+                ref={tableWrapperRef}
+                style={wrapperStyle}
+            >
                 <table className="data-table">
                     <thead>
                         <tr>
@@ -372,10 +474,29 @@ const DataTable = ({
             </div>
 
             {/* Paginación */}
-            {showPagination && totalPages > 1 && (
+            {showPagination && totalPages > 0 && (
                 <div className="data-table-pagination">
-                    <div className="data-table-pagination-info">
-                        Página {currentPage} de {totalPages}
+                    <div className="data-table-pagination-left">
+                        <div className="data-table-pagination-info">
+                            Página {currentPage} de {totalPages}
+                        </div>
+                        {showPageSizeSelector && (
+                            <div className="data-table-page-size-selector">
+                                <label htmlFor="pageSizeSelect">Registros por página:</label>
+                                <select
+                                    id="pageSizeSelect"
+                                    value={itemsPerPage}
+                                    onChange={handlePageSizeChange}
+                                    className="data-table-page-size-select"
+                                >
+                                    {pageSizeOptions.map(size => (
+                                        <option key={size} value={size}>
+                                            {size}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
                     </div>
                     <div className="data-table-pagination-controls">
                         <button
