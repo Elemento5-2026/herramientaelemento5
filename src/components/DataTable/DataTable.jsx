@@ -95,6 +95,75 @@ const DataTable = ({
         return row[column.key];
     }, []);
 
+    /**
+     * Obtiene el valor mostrado en una celda para filtros
+     * Esto maneja correctamente render() y objetos anidados
+     */
+    const getDisplayValue = useCallback((row, column) => {
+        // Si tiene render, usarlo para obtener el valor mostrado
+        if (column.render) {
+            const rendered = column.render(row);
+            // Si es un string, usarlo directamente
+            if (typeof rendered === 'string') {
+                return rendered;
+            }
+            // Si es un elemento React con children
+            if (typeof rendered === 'object' && rendered !== null) {
+                // Intentar extraer el texto del children
+                if (rendered.props?.children) {
+                    if (typeof rendered.props.children === 'string') {
+                        return rendered.props.children;
+                    }
+                    // Si es un array de children, unirlos
+                    if (Array.isArray(rendered.props.children)) {
+                        return rendered.props.children
+                            .filter(child => typeof child === 'string')
+                            .join('');
+                    }
+                }
+                // Si no se puede extraer, intentar convertir a string
+                try {
+                    return String(rendered);
+                } catch {
+                    return '';
+                }
+            }
+            return String(rendered || '');
+        }
+
+        // Si no tiene render, obtener el valor directamente
+        const value = row[column.key];
+        if (value === null || value === undefined) {
+            return '';
+        }
+
+        // Si es un objeto, intentar obtener el nombre o valor más común
+        if (typeof value === 'object') {
+            // Si tiene propiedad nombre
+            if (value.nombre) return String(value.nombre);
+            // Si tiene propiedad name
+            if (value.name) return String(value.name);
+            // Si tiene propiedad codigo
+            if (value.codigo) return String(value.codigo);
+            // Si tiene propiedad label
+            if (value.label) return String(value.label);
+            // Si tiene propiedad value
+            if (value.value) return String(value.value);
+            // Si tiene propiedad text
+            if (value.text) return String(value.text);
+            // Si tiene propiedad id, intentar obtener algo significativo
+            if (value.id) return String(value.id);
+            // Si no se puede extraer, intentar convertir a string
+            try {
+                return String(value);
+            } catch {
+                return '';
+            }
+        }
+
+        return String(value);
+    }, []);
+
     // ==================== FILTRADO Y BÚSQUEDA ====================
     
     const filteredData = useMemo(() => {
@@ -107,11 +176,10 @@ const DataTable = ({
                 const column = columns.find(col => col.key === key);
                 if (column) {
                     result = result.filter(row => {
-                        const value = getFilterValue(row, column);
-                        if (value === null || value === undefined) return false;
-                        const strValue = String(value).toLowerCase();
+                        const displayValue = getDisplayValue(row, column);
+                        if (!displayValue) return false;
                         return filterValues.some(filterVal => 
-                            strValue === filterVal.toLowerCase()
+                            displayValue.toLowerCase() === filterVal.toLowerCase()
                         );
                     });
                 }
@@ -149,7 +217,7 @@ const DataTable = ({
         }
 
         return result;
-    }, [data, searchTerm, columns, columnFilters, getSearchValue, getFilterValue]);
+    }, [data, searchTerm, columns, columnFilters, getSearchValue, getDisplayValue]);
 
     // ==================== ORDENAMIENTO ====================
     
@@ -266,14 +334,16 @@ const DataTable = ({
 
         const uniqueValues = new Set();
         data.forEach(row => {
-            const value = getFilterValue(row, column);
-            if (value !== null && value !== undefined && value !== '') {
-                uniqueValues.add(String(value));
+            const displayValue = getDisplayValue(row, column);
+            if (displayValue && displayValue.trim() !== '') {
+                uniqueValues.add(displayValue.trim());
             }
         });
 
-        return Array.from(uniqueValues).sort();
-    }, [data, columns, getFilterValue]);
+        return Array.from(uniqueValues).sort((a, b) => 
+            a.localeCompare(b, 'es', { sensitivity: 'base' })
+        );
+    }, [data, columns, getDisplayValue]);
 
     const handleFilterToggle = useCallback((columnKey, value) => {
         setColumnFilters(prev => {
