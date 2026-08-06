@@ -1,4 +1,4 @@
-// DataTable.jsx - Componente principal
+// DataTable.jsx
 import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import './DataTable.css';
 
@@ -33,18 +33,18 @@ const DataTable = ({
     });
     const [columnFilters, setColumnFilters] = useState({});
     const [itemsPerPage, setItemsPerPage] = useState(pageSize);
+    const [activeFilterMenu, setActiveFilterMenu] = useState(null);
+    const [filterSearchTerm, setFilterSearchTerm] = useState('');
 
-    // Refs para manejo de scroll
+    // Refs
     const tableWrapperRef = useRef(null);
+    const filterMenuRef = useRef(null);
 
     // Opciones de página
     const pageSizeOptions = [10, 25, 50, 100];
 
     // ==================== EFECTOS ====================
     
-    /**
-     * Sincronizar defaultSort cuando cambie la prop
-     */
     useEffect(() => {
         if (defaultSort && defaultSort.key) {
             setSortConfig({ 
@@ -55,19 +55,25 @@ const DataTable = ({
         }
     }, [defaultSort]);
 
-    /**
-     * Reiniciar a página 1 cuando cambie el ordenamiento
-     */
     useEffect(() => {
         setCurrentPage(1);
-    }, [sortConfig]);
+    }, [sortConfig, searchTerm, columnFilters]);
+
+    // Cerrar menú de filtros al hacer clic fuera
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (filterMenuRef.current && !filterMenuRef.current.contains(event.target)) {
+                setActiveFilterMenu(null);
+                setFilterSearchTerm('');
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     // ==================== FUNCIONES DE VALOR ====================
     
-    /**
-     * Obtiene el valor de una celda para ordenamiento
-     * Prioriza sortValue si existe, sino usa row[column.key]
-     */
     const getSortValue = useCallback((row, column) => {
         if (column.sortValue && typeof column.sortValue === 'function') {
             return column.sortValue(row);
@@ -75,10 +81,6 @@ const DataTable = ({
         return row[column.key];
     }, []);
 
-    /**
-     * Obtiene el valor de una celda para búsqueda
-     * Prioriza searchValue si existe, sino usa row[column.key]
-     */
     const getSearchValue = useCallback((row, column) => {
         if (column.searchValue && typeof column.searchValue === 'function') {
             return column.searchValue(row);
@@ -86,10 +88,6 @@ const DataTable = ({
         return row[column.key];
     }, []);
 
-    /**
-     * Obtiene el valor de una celda para filtrado
-     * Prioriza filterValue si existe, sino usa row[column.key]
-     */
     const getFilterValue = useCallback((row, column) => {
         if (column.filterValue && typeof column.filterValue === 'function') {
             return column.filterValue(row);
@@ -99,19 +97,32 @@ const DataTable = ({
 
     // ==================== FILTRADO Y BÚSQUEDA ====================
     
-    /**
-     * Filtra los datos aplicando búsqueda global y filtros por columna
-     * Solo las columnas marcadas como searchable participan en la búsqueda
-     */
     const filteredData = useMemo(() => {
         let result = data;
+
+        // Aplicar filtros por columna (múltiples valores)
+        Object.keys(columnFilters).forEach(key => {
+            const filterValues = columnFilters[key];
+            if (filterValues && filterValues.length > 0) {
+                const column = columns.find(col => col.key === key);
+                if (column) {
+                    result = result.filter(row => {
+                        const value = getFilterValue(row, column);
+                        if (value === null || value === undefined) return false;
+                        const strValue = String(value).toLowerCase();
+                        return filterValues.some(filterVal => 
+                            strValue === filterVal.toLowerCase()
+                        );
+                    });
+                }
+            }
+        });
 
         // Aplicar búsqueda global
         if (searchTerm.trim()) {
             const searchLower = searchTerm.toLowerCase().trim();
             result = result.filter(row => {
                 return columns.some(col => {
-                    // Solo buscar en columnas marcadas como searchable
                     if (!col.searchable) return false;
                     
                     const value = getSearchValue(row, col);
@@ -119,12 +130,10 @@ const DataTable = ({
                     
                     let stringValue = String(value).toLowerCase();
                     
-                    // Manejar fechas
                     if (col.type === 'date' && value instanceof Date) {
                         stringValue = formatDate(value).toLowerCase();
                     }
                     
-                    // Manejar objetos con render
                     if (col.render) {
                         const rendered = col.render(row);
                         if (typeof rendered === 'string') {
@@ -139,31 +148,11 @@ const DataTable = ({
             });
         }
 
-        // Aplicar filtros por columna (preparado para futura implementación)
-        Object.keys(columnFilters).forEach(key => {
-            const filterValue = columnFilters[key];
-            if (filterValue && filterValue !== '') {
-                const column = columns.find(col => col.key === key);
-                if (column) {
-                    result = result.filter(row => {
-                        const value = getFilterValue(row, column);
-                        if (value === null || value === undefined) return false;
-                        return String(value).toLowerCase().includes(filterValue.toLowerCase());
-                    });
-                }
-            }
-        });
-
         return result;
     }, [data, searchTerm, columns, columnFilters, getSearchValue, getFilterValue]);
 
     // ==================== ORDENAMIENTO ====================
     
-    /**
-     * Ordena los datos según la configuración actual
-     * Soporta múltiples tipos de datos: string, number, date, boolean
-     * Utiliza sortValue para obtener el valor a ordenar
-     */
     const sortedData = useMemo(() => {
         if (!sortConfig.key) return filteredData;
 
@@ -222,15 +211,11 @@ const DataTable = ({
         return sortedData.slice(startIndex, endIndex);
     }, [sortedData, currentPage, itemsPerPage, showPagination, totalItems]);
 
-    // Calcular índices para mostrar
     const startItem = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
     const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
     // ==================== UTILIDADES ====================
     
-    /**
-     * Formatea fechas en formato dd/MM/yyyy (Guatemala)
-     */
     const formatDate = useCallback((date) => {
         if (!date) return '';
         const d = date instanceof Date ? date : new Date(date);
@@ -243,10 +228,6 @@ const DataTable = ({
         return `${day}/${month}/${year}`;
     }, []);
 
-    /**
-     * Renderiza el contenido de una celda
-     * Soporta render personalizado y formateo automático
-     */
     const renderCell = useCallback((row, column) => {
         if (column.render) {
             return column.render(row);
@@ -277,12 +258,75 @@ const DataTable = ({
         }
     }, [formatDate]);
 
+    // ==================== MANEJADORES DE FILTROS ====================
+    
+    const getUniqueValues = useCallback((columnKey) => {
+        const column = columns.find(col => col.key === columnKey);
+        if (!column) return [];
+
+        const uniqueValues = new Set();
+        data.forEach(row => {
+            const value = getFilterValue(row, column);
+            if (value !== null && value !== undefined && value !== '') {
+                uniqueValues.add(String(value));
+            }
+        });
+
+        return Array.from(uniqueValues).sort();
+    }, [data, columns, getFilterValue]);
+
+    const handleFilterToggle = useCallback((columnKey, value) => {
+        setColumnFilters(prev => {
+            const currentFilters = prev[columnKey] || [];
+            let newFilters;
+            
+            if (currentFilters.includes(value)) {
+                newFilters = currentFilters.filter(v => v !== value);
+            } else {
+                newFilters = [...currentFilters, value];
+            }
+            
+            if (newFilters.length === 0) {
+                const { [columnKey]: _, ...rest } = prev;
+                return rest;
+            }
+            
+            return { ...prev, [columnKey]: newFilters };
+        });
+        setCurrentPage(1);
+    }, []);
+
+    const handleSelectAllFilters = useCallback((columnKey) => {
+        const uniqueValues = getUniqueValues(columnKey);
+        setColumnFilters(prev => {
+            if (uniqueValues.length === 0) return prev;
+            return { ...prev, [columnKey]: uniqueValues };
+        });
+        setCurrentPage(1);
+    }, [getUniqueValues]);
+
+    const handleClearFilters = useCallback((columnKey) => {
+        setColumnFilters(prev => {
+            const { [columnKey]: _, ...rest } = prev;
+            return rest;
+        });
+        setActiveFilterMenu(null);
+        setFilterSearchTerm('');
+        setCurrentPage(1);
+    }, []);
+
+    const handleClearAllFilters = useCallback(() => {
+        setColumnFilters({});
+        setCurrentPage(1);
+    }, []);
+
+    const toggleFilterMenu = useCallback((columnKey) => {
+        setActiveFilterMenu(prev => prev === columnKey ? null : columnKey);
+        setFilterSearchTerm('');
+    }, []);
+
     // ==================== MANEJADORES DE EVENTOS ====================
     
-    /**
-     * Maneja el ordenamiento de columnas
-     * Alterna entre asc, desc, y null
-     */
     const handleSort = useCallback((key) => {
         setSortConfig(prev => {
             if (prev.key === key) {
@@ -296,85 +340,87 @@ const DataTable = ({
         });
     }, []);
 
-    /**
-     * Maneja el cambio de página
-     */
     const handlePageChange = useCallback((page) => {
         if (page >= 1 && page <= totalPages) {
             setCurrentPage(page);
-            // Scroll al inicio de la tabla
             if (tableWrapperRef.current) {
                 tableWrapperRef.current.scrollTop = 0;
             }
         }
     }, [totalPages]);
 
-    /**
-     * Maneja la búsqueda global
-     */
     const handleSearch = useCallback((e) => {
         setSearchTerm(e.target.value);
         setCurrentPage(1);
     }, []);
 
-    /**
-     * Limpia la búsqueda
-     */
     const clearSearch = useCallback(() => {
         setSearchTerm('');
         setCurrentPage(1);
     }, []);
 
-    /**
-     * Maneja el cambio de tamaño de página
-     */
     const handlePageSizeChange = useCallback((e) => {
         const newSize = parseInt(e.target.value, 10);
         setItemsPerPage(newSize);
         setCurrentPage(1);
     }, []);
 
-    // ==================== RENDERIZADO ====================
+    // ==================== RENDER ====================
     
-    // Estilos para el wrapper
     const wrapperStyle = {};
     if (maxHeight) {
         wrapperStyle.maxHeight = maxHeight;
         wrapperStyle.overflow = 'auto';
     }
-    
+
+    const activeFiltersCount = Object.keys(columnFilters).reduce((acc, key) => 
+        acc + (columnFilters[key]?.length || 0), 0
+    );
+
     return (
         <div className={`data-table-container ${className}`}>
             {/* Barra de herramientas */}
             <div className="data-table-toolbar">
-                {showGlobalSearch && (
-                    <div className="data-table-search">
-                        <input
-                            type="text"
-                            className="data-table-search-input"
-                            placeholder="Buscar en toda la tabla..."
-                            value={searchTerm}
-                            onChange={handleSearch}
-                            aria-label="Búsqueda global"
-                        />
-                        {searchTerm && (
+                <div className="data-table-toolbar-left">
+                    {showGlobalSearch && (
+                        <div className="data-table-search">
+                            <input
+                                type="text"
+                                className="data-table-search-input"
+                                placeholder="Buscar en toda la tabla..."
+                                value={searchTerm}
+                                onChange={handleSearch}
+                                aria-label="Búsqueda global"
+                            />
+                            {searchTerm && (
+                                <button 
+                                    className="data-table-search-clear"
+                                    onClick={clearSearch}
+                                    aria-label="Limpiar búsqueda"
+                                >
+                                    ✕
+                                </button>
+                            )}
+                        </div>
+                    )}
+                </div>
+                
+                <div className="data-table-toolbar-right">
+                    <div className="data-table-info">
+                        {totalItems > 0 && (
+                            <span className="data-table-counter">
+                                Mostrando {startItem}-{endItem} de {totalItems} registros
+                            </span>
+                        )}
+                        {activeFiltersCount > 0 && (
                             <button 
-                                className="data-table-search-clear"
-                                onClick={clearSearch}
-                                aria-label="Limpiar búsqueda"
+                                className="data-table-clear-filters-btn"
+                                onClick={handleClearAllFilters}
                             >
-                                ✕
+                                Limpiar filtros ({activeFiltersCount})
                             </button>
                         )}
                     </div>
-                )}
-                
-                <div className="data-table-info">
-                    {totalItems > 0 && (
-                        <span className="data-table-counter">
-                            Mostrando {startItem}-{endItem} de {totalItems} registros
-                        </span>
-                    )}
                 </div>
             </div>
 
@@ -387,40 +433,143 @@ const DataTable = ({
                 <table className="data-table">
                     <thead>
                         <tr>
-                            {columns.map((column) => (
-                                <th
-                                    key={column.key}
-                                    className={`data-table-header 
-                                        ${column.sortable ? 'sortable' : ''}
-                                        ${sortConfig.key === column.key ? `sorted-${sortConfig.direction}` : ''}
-                                    `}
-                                    onClick={() => column.sortable && handleSort(column.key)}
-                                    style={{ 
-                                        width: column.width || 'auto',
-                                        minWidth: column.minWidth || '50px',
-                                        maxWidth: column.maxWidth || 'none'
-                                    }}
-                                >
-                                    <div className="data-table-header-content">
-                                        <span className="data-table-header-title">
-                                            {column.title}
-                                        </span>
-                                        {column.sortable && (
-                                            <span className="data-table-sort-icon">
-                                                {sortConfig.key === column.key ? (
-                                                    sortConfig.direction === 'asc' ? '▲' : '▼'
-                                                ) : (
-                                                    '⇅'
-                                                )}
+                            {columns.map((column) => {
+                                const hasFilter = columnFilters[column.key]?.length > 0;
+                                const isFilterActive = activeFilterMenu === column.key;
+                                
+                                return (
+                                    <th
+                                        key={column.key}
+                                        className={`data-table-header 
+                                            ${column.sortable ? 'sortable' : ''}
+                                            ${sortConfig.key === column.key ? `sorted-${sortConfig.direction}` : ''}
+                                            ${hasFilter ? 'has-filter' : ''}
+                                            ${isFilterActive ? 'filter-active' : ''}
+                                        `}
+                                        style={{ 
+                                            width: column.width || 'auto',
+                                            minWidth: column.minWidth || '50px',
+                                            maxWidth: column.maxWidth || 'none'
+                                        }}
+                                    >
+                                        <div className="data-table-header-content">
+                                            <span className="data-table-header-title">
+                                                {column.title}
                                             </span>
+                                            {column.sortable && (
+                                                <span 
+                                                    className="data-table-sort-icon"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleSort(column.key);
+                                                    }}
+                                                >
+                                                    {sortConfig.key === column.key ? (
+                                                        sortConfig.direction === 'asc' ? '▲' : '▼'
+                                                    ) : (
+                                                        '⇅'
+                                                    )}
+                                                </span>
+                                            )}
+                                            {column.filterable && (
+                                                <button 
+                                                    className={`data-table-filter-btn ${hasFilter ? 'active' : ''}`}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        toggleFilterMenu(column.key);
+                                                    }}
+                                                >
+                                                    {hasFilter ? '●' : '▼'}
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        {/* Menú de filtros */}
+                                        {isFilterActive && column.filterable && (
+                                            <div 
+                                                className="data-table-filter-menu"
+                                                ref={filterMenuRef}
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
+                                                <div className="data-table-filter-menu-header">
+                                                    <input
+                                                        type="text"
+                                                        className="data-table-filter-search"
+                                                        placeholder="Buscar en filtros..."
+                                                        value={filterSearchTerm}
+                                                        onChange={(e) => setFilterSearchTerm(e.target.value)}
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    />
+                                                </div>
+                                                <div className="data-table-filter-menu-actions">
+                                                    <button 
+                                                        className="data-table-filter-action-btn"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleSelectAllFilters(column.key);
+                                                        }}
+                                                    >
+                                                        Seleccionar todo
+                                                    </button>
+                                                    <button 
+                                                        className="data-table-filter-action-btn"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleClearFilters(column.key);
+                                                        }}
+                                                    >
+                                                        Limpiar
+                                                    </button>
+                                                </div>
+                                                <div className="data-table-filter-menu-list">
+                                                    {getUniqueValues(column.key)
+                                                        .filter(value => 
+                                                            value.toLowerCase().includes(filterSearchTerm.toLowerCase())
+                                                        )
+                                                        .map(value => {
+                                                            const isChecked = (columnFilters[column.key] || []).includes(value);
+                                                            return (
+                                                                <label 
+                                                                    key={value} 
+                                                                    className="data-table-filter-item"
+                                                                    onClick={(e) => e.stopPropagation()}
+                                                                >
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        checked={isChecked}
+                                                                        onChange={() => handleFilterToggle(column.key, value)}
+                                                                        onClick={(e) => e.stopPropagation()}
+                                                                    />
+                                                                    <span>{value}</span>
+                                                                </label>
+                                                            );
+                                                        })
+                                                    }
+                                                    {getUniqueValues(column.key).filter(value => 
+                                                        value.toLowerCase().includes(filterSearchTerm.toLowerCase())
+                                                    ).length === 0 && (
+                                                        <div className="data-table-filter-empty">
+                                                            No hay valores para mostrar
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="data-table-filter-menu-footer">
+                                                    <button 
+                                                        className="data-table-filter-apply-btn"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setActiveFilterMenu(null);
+                                                            setFilterSearchTerm('');
+                                                        }}
+                                                    >
+                                                        Aplicar
+                                                    </button>
+                                                </div>
+                                            </div>
                                         )}
-                                        {/* Preparado para futuros filtros */}
-                                        {column.filterable && (
-                                            <span className="data-table-filter-indicator" />
-                                        )}
-                                    </div>
-                                </th>
-                            ))}
+                                    </th>
+                                );
+                            })}
                         </tr>
                     </thead>
                     <tbody>
