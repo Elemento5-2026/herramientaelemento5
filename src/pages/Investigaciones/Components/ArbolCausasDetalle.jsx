@@ -130,16 +130,34 @@ export default function ArbolCausasDetalle({ investigacion }) {
   const [fullscreen, setFullscreen] = useState(false);
   const [nodes, setNodes] = useState([]);
   const [fitView, setFitView] = useState(false);
+  const [dimensiones, setDimensiones] = useState({ width: 0, height: 0 });
 
   const nodeTypes = useMemo(() => ({
     causa: NodoCausa
   }), []);
 
+  // Medir el contenedor para ajustar el fit
+  useEffect(() => {
+    const medirContenedor = () => {
+      if (reactFlowWrapper.current) {
+        const rect = reactFlowWrapper.current.getBoundingClientRect();
+        setDimensiones({
+          width: rect.width,
+          height: rect.height
+        });
+      }
+    };
+
+    medirContenedor();
+    window.addEventListener('resize', medirContenedor);
+    
+    return () => {
+      window.removeEventListener('resize', medirContenedor);
+    };
+  }, [fullscreen]);
+
   // Construir nodos desde los datos de la investigación
   useEffect(() => {
-    console.log("=== 🌳 ARBOL CAUSAS DETALLE ===");
-    console.log("📊 Datos de arbol_causas:", investigacion?.arbol_causas);
-    
     if (investigacion?.arbol_causas && investigacion.arbol_causas.length > 0) {
       // Primero, construir un mapa de hijos para saber qué nodos tienen hijos
       const hijosMap = {};
@@ -173,47 +191,66 @@ export default function ArbolCausasDetalle({ investigacion }) {
         };
       });
       
-      console.log("✅ Nodos construidos:", nodos);
       setNodes(nodos);
-      setTimeout(() => setFitView(true), 100);
+      
+      // Esperar un momento para que React Flow se inicialice y luego hacer fit
+      setTimeout(() => {
+        setFitView(true);
+        // Forzar fit view después de que los nodos estén renderizados
+        setTimeout(() => {
+          if (reactFlowInstance) {
+            reactFlowInstance.fitView({ 
+              padding: 0.25, 
+              duration: 500,
+              minZoom: 0.1,
+              maxZoom: 1.5
+            });
+          }
+        }, 200);
+      }, 300);
     } else {
-      console.log("⚠️ No hay datos de arbol_causas");
       setNodes([]);
     }
-  }, [investigacion]);
+  }, [investigacion, reactFlowInstance]);
+
+  // Forzar fit view cuando cambia el tamaño o el fullscreen
+  useEffect(() => {
+    if (reactFlowInstance && nodes.length > 0) {
+      setTimeout(() => {
+        reactFlowInstance.fitView({ 
+          padding: 0.25, 
+          duration: 400,
+          minZoom: 0.1,
+          maxZoom: 1.5
+        });
+      }, 200);
+    }
+  }, [dimensiones, fullscreen, reactFlowInstance, nodes.length]);
 
   // Construir edges (conexiones entre nodos)
   const edges = useMemo(() => {
-    console.log("🔄 Recalculando edges...");
-    
     if (!nodes || nodes.length === 0) {
-      console.log("⚠️ No hay nodos para crear edges");
       return [];
     }
     
     const nodosConPadre = nodes.filter(nodo => nodo.data.padre_id);
-    console.log(`📊 Nodos con padre: ${nodosConPadre.length} de ${nodes.length}`);
     
     const edgesGenerados = nodosConPadre
-      .map(nodo => {
-        console.log(`🔗 Creando edge: ${nodo.data.padre_id} -> ${nodo.id}`);
-        return {
-          id: `${nodo.data.padre_id}-${nodo.id}`,
-          source: nodo.data.padre_id,
-          target: nodo.id,
-          type: 'smoothstep',
-          animated: false,
-          style: { stroke: '#94A3B8', strokeWidth: 2 },
-          markerEnd: {
-            type: MarkerType.ArrowClosed,
-            color: '#94A3B8',
-            width: 12,
-            height: 12
-          }
-        };
-      });
+      .map(nodo => ({
+        id: `${nodo.data.padre_id}-${nodo.id}`,
+        source: nodo.data.padre_id,
+        target: nodo.id,
+        type: 'smoothstep',
+        animated: false,
+        style: { stroke: '#94A3B8', strokeWidth: 2 },
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          color: '#94A3B8',
+          width: 12,
+          height: 12
+        }
+      }));
     
-    console.log("✅ Edges generados:", edgesGenerados);
     return edgesGenerados;
   }, [nodes]);
 
@@ -235,12 +272,24 @@ export default function ArbolCausasDetalle({ investigacion }) {
   const toggleFullscreen = () => {
     setFullscreen(!fullscreen);
     setTimeout(() => {
-      reactFlowInstance?.fitView({ padding: 0.25, duration: 500 });
-    }, 250);
+      reactFlowInstance?.fitView({ 
+        padding: 0.25, 
+        duration: 500,
+        minZoom: 0.1,
+        maxZoom: 1.5
+      });
+    }, 300);
   };
 
   const centrarArbol = () => {
-    reactFlowInstance?.fitView({ padding: 0.25, duration: 600 });
+    if (reactFlowInstance) {
+      reactFlowInstance.fitView({ 
+        padding: 0.3, 
+        duration: 600,
+        minZoom: 0.1,
+        maxZoom: 1.5
+      });
+    }
   };
 
   // Estado vacío
@@ -409,8 +458,13 @@ export default function ArbolCausasDetalle({ investigacion }) {
           onNodesChange={onNodesChange}
           onInit={setReactFlowInstance}
           fitView={fitView}
-          fitViewOptions={{ padding: 0.25 }}
-          minZoom={0.2}
+          fitViewOptions={{ 
+            padding: 0.25,
+            minZoom: 0.1,
+            maxZoom: 1.5,
+            duration: 500
+          }}
+          minZoom={0.05}
           maxZoom={2}
           nodesDraggable={true}
           nodesConnectable={false}
