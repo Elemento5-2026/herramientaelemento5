@@ -18,7 +18,8 @@ export default function ReporteIncidentes({
   setIncidenteSeleccionado,
   setInvestigacionSeleccionada,
   setInvestigacionModo,
-  navegarAInvestigacion
+  navegarAInvestigacion,
+  navegarADetalleInvestigacion
 
 }) {
 
@@ -88,7 +89,6 @@ export default function ReporteIncidentes({
           incidente
         );
 
-      // Usar la nueva función de navegación con mode="edit"
       navegarAInvestigacion(investigacion.id, 'edit');
 
     } catch (error) {
@@ -108,10 +108,9 @@ export default function ReporteIncidentes({
   // Manejador para Abrir TF (CORREGIDO)
   // ============================================
   const handleAbrirTF = (investigacionId, estado) => {
-    // Si está Aprobado o Cerrado, abrir en modo vista (InvestigacionDetalle)
+    // Si está Aprobado o Cerrado, abrir detalle (solo lectura con PDF)
     if (estado === 'Aprobado' || estado === 'Cerrado') {
-      setInvestigacionSeleccionada(investigacionId);
-      setScreen("investigacionDetalle");
+      navegarADetalleInvestigacion(investigacionId);
     } else {
       // Si está Borrador o En revisión, abrir en modo edición
       navegarAInvestigacion(investigacionId, 'edit');
@@ -220,7 +219,6 @@ export default function ReporteIncidentes({
             className="btn-link"
             onClick={(e) => {
               e.stopPropagation();
-              // Usar el nuevo manejador con el estado de la investigación
               handleAbrirTF(row.investigacion_id, row.estado || 'edit');
             }}
           >
