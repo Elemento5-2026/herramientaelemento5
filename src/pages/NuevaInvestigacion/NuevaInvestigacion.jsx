@@ -38,57 +38,44 @@ export default function NuevaInvestigacion({
   const [investigacionCargada, setInvestigacionCargada] = useState(null);
   const [estadoLocal, setEstadoLocal] = useState('Borrador');
 
+  // ============================================
+  // ESTADO DEL FORMULARIO
+  // ============================================
   const [formulario, setFormulario] = useState({
-
     // Encabezado
-
     codigo_controlado: "",
-
     participantes: "",
-
     elaborado_nombre: "",
     elaborado_puesto: "",
     elaborado_gerencia: "",
     elaborado_area: "",
     elaborado_fecha: "",
-
     revisado_nombre: "",
     revisado_puesto: "",
     revisado_gerencia: "",
     revisado_area: "",
     revisado_fecha: "",
-
     aprobado_nombre: "",
     aprobado_puesto: "",
     aprobado_gerencia: "",
     aprobado_area: "",
     aprobado_fecha: "",
-
     // Identificación
-
     macroproceso_id: "",
     proceso_id: "",
     clasificacion_incidente_id: "",
     turno_id: "",
-
     indicador_impactado: "Incidentes",
-
     // Descripción
-
     descripcion_incidente: "",
     parte_cuerpo_lesionada_id: "",
-
     evidencias_descripcion: [],
-
     // Acciones inmediatas
-
     acciones_inmediatas: [],
-
     // Plan de acción
     plan_accion: [],
     evidencias_plan_accion: [],
     arbol_causas: []
-
   });
 
   // ============================================
@@ -96,11 +83,9 @@ export default function NuevaInvestigacion({
   // ============================================
   useEffect(() => {
     if (mode === 'create') {
-      // Formulario vacío para nueva investigación
       setEstadoLocal('Borrador');
       return;
     }
-
     if (investigacionId) {
       cargarInvestigacion();
     }
@@ -109,13 +94,10 @@ export default function NuevaInvestigacion({
   async function cargarInvestigacion() {
     try {
       const investigacion = await obtenerInvestigacionPorId(investigacionId);
-
       setInvestigacionCargada(investigacion);
       setEstadoLocal(investigacion.estado || 'Borrador');
 
-      // Setear formulario con los datos
       setFormulario({
-        // Encabezado
         codigo_controlado: investigacion.codigo_controlado || "",
         participantes: investigacion.participantes || "",
         elaborado_nombre: investigacion.elaborado_nombre || "",
@@ -133,19 +115,15 @@ export default function NuevaInvestigacion({
         aprobado_gerencia: investigacion.aprobado_gerencia || "",
         aprobado_area: investigacion.aprobado_area || "",
         aprobado_fecha: investigacion.aprobado_fecha || "",
-        // Identificación
         macroproceso_id: investigacion.macroproceso_id || "",
         proceso_id: investigacion.proceso_id || "",
         clasificacion_incidente_id: investigacion.clasificacion_incidente_id || "",
         turno_id: investigacion.turno_id || "",
         indicador_impactado: investigacion.indicador_impactado || "Incidentes",
-        // Descripción
         descripcion_incidente: investigacion.descripcion?.descripcion_incidente || "",
         parte_cuerpo_lesionada_id: investigacion.descripcion?.parte_cuerpo_lesionada_id || "",
         evidencias_descripcion: [],
-        // Acciones inmediatas
         acciones_inmediatas: investigacion.acciones_inmediatas || [],
-        // Plan de acción
         plan_accion: investigacion.plan_accion || [],
         arbol_causas: investigacion.arbol_causas || []
       });
@@ -161,23 +139,19 @@ export default function NuevaInvestigacion({
   // ============================================
   const handleCambioEstado = async (nuevoEstado) => {
     try {
-      // Si es modo create, solo actualizar estado local
       if (mode === 'create') {
         setEstadoLocal(nuevoEstado);
         return;
       }
 
-      // Validar que tengamos un ID de investigación
       if (!investigacionId) {
         alert('Primero debe guardar la investigación para cambiar el estado');
         return;
       }
 
-      // Actualizar en la base de datos
       await actualizarEstado(investigacionId, nuevoEstado);
       setEstadoLocal(nuevoEstado);
 
-      // Actualizar el objeto cargado también
       if (investigacionCargada) {
         setInvestigacionCargada({
           ...investigacionCargada,
@@ -205,22 +179,14 @@ export default function NuevaInvestigacion({
           id: investigacionId,
           ...formulario
         });
-        investigacion = {
-          id: investigacionId
-        };
+        investigacion = { id: investigacionId };
       } else {
         investigacion = await guardarEncabezado(formulario);
       }
 
-      await guardarIdentificacion(
-        investigacion.id,
-        formulario
-      );
+      await guardarIdentificacion(investigacion.id, formulario);
 
-      const descripcion = await guardarDescripcion(
-        investigacion.id,
-        formulario
-      );
+      const descripcion = await guardarDescripcion(investigacion.id, formulario);
 
       await subirEvidencias(
         "descripciones",
@@ -260,24 +226,17 @@ export default function NuevaInvestigacion({
         }
       }
 
-      await guardarArbolCausas(
-        investigacion.id,
-        formulario.arbol_causas
-      );
+      await guardarArbolCausas(investigacion.id, formulario.arbol_causas);
 
       alert("Se guardó correctamente.");
 
-      // Si era modo create, redirigir al listado
       if (mode === 'create') {
         setScreen("investigaciones");
       }
 
     } catch (error) {
       console.error("ERROR COMPLETO:", error);
-      alert(
-        error.message ||
-        JSON.stringify(error)
-      );
+      alert(error.message || JSON.stringify(error));
     }
   };
 
@@ -308,7 +267,6 @@ export default function NuevaInvestigacion({
     >
       <div className="nueva-investigacion">
 
-        {/* HEADER CON SELECTOR DE ESTADO */}
         <div className="page-header">
           <div className="page-header-left">
             <button
@@ -343,26 +301,17 @@ export default function NuevaInvestigacion({
           </div>
         </div>
 
-        {/* WIZARD */}
         <div className="wizard-layout">
           <aside className="wizard-sidebar">
             {pasos.map((paso, index) => (
               <button
                 key={index}
-                className={
-                  index === pasoActual
-                    ? "wizard-item active"
-                    : "wizard-item"
-                }
+                className={index === pasoActual ? "wizard-item active" : "wizard-item"}
                 onClick={() => setPasoActual(index)}
                 disabled={esVista}
               >
-                <span className="wizard-number">
-                  {index + 1}
-                </span>
-                <span>
-                  {paso}
-                </span>
+                <span className="wizard-number">{index + 1}</span>
+                <span>{paso}</span>
               </button>
             ))}
           </aside>
@@ -421,7 +370,6 @@ export default function NuevaInvestigacion({
           </section>
         </div>
 
-        {/* FOOTER */}
         <div className="wizard-footer">
           <button
             className="btn-secondary"
@@ -452,7 +400,6 @@ export default function NuevaInvestigacion({
 
       </div>
 
-      {/* ESTILOS ADICIONALES PARA EL HEADER */}
       <style>{`
         .page-header {
           display: flex;
