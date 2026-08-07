@@ -1,5 +1,5 @@
 import React from 'react';
-import './PlanAccionDetalle.css';
+
 
 export default function PlanAccionDetalle({ investigacion }) {
 
