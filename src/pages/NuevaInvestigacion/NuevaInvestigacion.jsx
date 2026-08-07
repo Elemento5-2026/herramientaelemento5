@@ -12,6 +12,9 @@ import Descripcion from "./Components/Descripcion";
 import AccionesInmediatas from "./Components/AccionesInmediatas";
 import ArbolCausas from "./Components/ArbolCausas";
 import PlanAccion from "./Components/PlanAccion";
+
+import EstadoSelector from "../../components/EstadoSelector/EstadoSelector";
+
 import {
   guardarEncabezado,
   actualizarEncabezado,
@@ -21,15 +24,19 @@ import {
   guardarPlanAccion,
   guardarArbolCausas,
   subirEvidencias,
-  obtenerInvestigacionPorId
+  obtenerInvestigacionPorId,
+  actualizarEstado
 } from "../../services/investigacionesService";
 
 export default function NuevaInvestigacion({
   setScreen,
-  investigacionId
+  investigacionId,
+  mode = 'create' // 'create' | 'edit' | 'view'
 }) {
 
   const [pasoActual, setPasoActual] = useState(0);
+  const [investigacionCargada, setInvestigacionCargada] = useState(null);
+  const [estadoLocal, setEstadoLocal] = useState('Borrador');
 
   const [formulario, setFormulario] = useState({
 
@@ -84,27 +91,111 @@ export default function NuevaInvestigacion({
 
   });
 
+  // ============================================
+  // EFECTO PARA CARGAR INVESTIGACIÓN EXISTENTE
+  // ============================================
   useEffect(() => {
-    if (!investigacionId) return;
-    cargarInvestigacion();
-  }, [investigacionId]);
+    if (mode === 'create') {
+      // Formulario vacío para nueva investigación
+      setEstadoLocal('Borrador');
+      return;
+    }
+
+    if (investigacionId) {
+      cargarInvestigacion();
+    }
+  }, [investigacionId, mode]);
 
   async function cargarInvestigacion() {
     try {
       const investigacion = await obtenerInvestigacionPorId(investigacionId);
-      console.log(investigacion);
-      // Aquí puedes setear el formulario con los datos de la investigación
-      // setFormulario({
-      //   ...formulario,
-      //   participantes: investigacion.participantes,
-      //   elaborado_nombre: investigacion.elaborado_nombre,
-      //   ...etc
-      // });
+
+      setInvestigacionCargada(investigacion);
+      setEstadoLocal(investigacion.estado || 'Borrador');
+
+      // Setear formulario con los datos
+      setFormulario({
+        // Encabezado
+        codigo_controlado: investigacion.codigo_controlado || "",
+        participantes: investigacion.participantes || "",
+        elaborado_nombre: investigacion.elaborado_nombre || "",
+        elaborado_puesto: investigacion.elaborado_puesto || "",
+        elaborado_gerencia: investigacion.elaborado_gerencia || "",
+        elaborado_area: investigacion.elaborado_area || "",
+        elaborado_fecha: investigacion.elaborado_fecha || "",
+        revisado_nombre: investigacion.revisado_nombre || "",
+        revisado_puesto: investigacion.revisado_puesto || "",
+        revisado_gerencia: investigacion.revisado_gerencia || "",
+        revisado_area: investigacion.revisado_area || "",
+        revisado_fecha: investigacion.revisado_fecha || "",
+        aprobado_nombre: investigacion.aprobado_nombre || "",
+        aprobado_puesto: investigacion.aprobado_puesto || "",
+        aprobado_gerencia: investigacion.aprobado_gerencia || "",
+        aprobado_area: investigacion.aprobado_area || "",
+        aprobado_fecha: investigacion.aprobado_fecha || "",
+        // Identificación
+        macroproceso_id: investigacion.macroproceso_id || "",
+        proceso_id: investigacion.proceso_id || "",
+        clasificacion_incidente_id: investigacion.clasificacion_incidente_id || "",
+        turno_id: investigacion.turno_id || "",
+        indicador_impactado: investigacion.indicador_impactado || "Incidentes",
+        // Descripción
+        descripcion_incidente: investigacion.descripcion?.descripcion_incidente || "",
+        parte_cuerpo_lesionada_id: investigacion.descripcion?.parte_cuerpo_lesionada_id || "",
+        evidencias_descripcion: [],
+        // Acciones inmediatas
+        acciones_inmediatas: investigacion.acciones_inmediatas || [],
+        // Plan de acción
+        plan_accion: investigacion.plan_accion || [],
+        arbol_causas: investigacion.arbol_causas || []
+      });
+
     } catch (error) {
-      console.error(error);
+      console.error("Error al cargar investigación:", error);
+      alert("Error al cargar la investigación");
     }
   }
 
+  // ============================================
+  // MANEJADOR DE CAMBIO DE ESTADO
+  // ============================================
+  const handleCambioEstado = async (nuevoEstado) => {
+    try {
+      // Si es modo create, solo actualizar estado local
+      if (mode === 'create') {
+        setEstadoLocal(nuevoEstado);
+        return;
+      }
+
+      // Validar que tengamos un ID de investigación
+      if (!investigacionId) {
+        alert('Primero debe guardar la investigación para cambiar el estado');
+        return;
+      }
+
+      // Actualizar en la base de datos
+      await actualizarEstado(investigacionId, nuevoEstado);
+      setEstadoLocal(nuevoEstado);
+
+      // Actualizar el objeto cargado también
+      if (investigacionCargada) {
+        setInvestigacionCargada({
+          ...investigacionCargada,
+          estado: nuevoEstado
+        });
+      }
+
+      alert(`Estado actualizado a: ${nuevoEstado}`);
+
+    } catch (error) {
+      console.error('Error al actualizar estado:', error);
+      alert('Error al actualizar el estado: ' + (error.message || ''));
+    }
+  };
+
+  // ============================================
+  // GUARDAR INVESTIGACIÓN
+  // ============================================
   const guardarTF = async () => {
     try {
       let investigacion;
@@ -176,6 +267,11 @@ export default function NuevaInvestigacion({
 
       alert("Se guardó correctamente.");
 
+      // Si era modo create, redirigir al listado
+      if (mode === 'create') {
+        setScreen("investigaciones");
+      }
+
     } catch (error) {
       console.error("ERROR COMPLETO:", error);
       alert(
@@ -185,6 +281,9 @@ export default function NuevaInvestigacion({
     }
   };
 
+  // ============================================
+  // RENDER
+  // ============================================
   const pasos = [
     "Encabezado",
     "Identificación",
@@ -193,6 +292,9 @@ export default function NuevaInvestigacion({
     "Análisis de causa",
     "Plan de acción"
   ];
+
+  const esVista = mode === 'view';
+  const esEdicion = mode === 'edit' || mode === 'create';
 
   return (
     <Layout
@@ -205,21 +307,43 @@ export default function NuevaInvestigacion({
       }
     >
       <div className="nueva-investigacion">
+
+        {/* HEADER CON SELECTOR DE ESTADO */}
         <div className="page-header">
-          <div>
+          <div className="page-header-left">
             <button
               className="btn-link"
               onClick={() => setScreen("investigaciones")}
             >
               ← Volver a investigaciones
             </button>
-            <h1>{investigacionId ? "Editar investigación" : "Nueva investigación"}</h1>
+          </div>
+
+          <div className="page-header-center">
+            <h1>
+              {mode === 'create' ? 'Nueva investigación' :
+               mode === 'view' ? `Ver investigación ${investigacionCargada?.codigo_controlado || ''}` :
+               `Editar investigación ${investigacionCargada?.codigo_controlado || ''}`}
+            </h1>
             <p>
-              Complete la información para {investigacionId ? "editar" : "registrar"} la investigación.
+              {mode === 'create' ? 'Complete la información para registrar la investigación.' :
+               mode === 'view' ? 'Visualización de la investigación en modo solo lectura.' :
+               'Complete la información para editar la investigación.'}
             </p>
+          </div>
+
+          <div className="page-header-right">
+            {mode !== 'create' && (
+              <EstadoSelector
+                estadoActual={estadoLocal || investigacionCargada?.estado || 'Borrador'}
+                onChangeEstado={handleCambioEstado}
+                readOnly={mode === 'view'}
+              />
+            )}
           </div>
         </div>
 
+        {/* WIZARD */}
         <div className="wizard-layout">
           <aside className="wizard-sidebar">
             {pasos.map((paso, index) => (
@@ -231,6 +355,7 @@ export default function NuevaInvestigacion({
                     : "wizard-item"
                 }
                 onClick={() => setPasoActual(index)}
+                disabled={esVista}
               >
                 <span className="wizard-number">
                   {index + 1}
@@ -250,6 +375,7 @@ export default function NuevaInvestigacion({
               <Encabezado
                 formulario={formulario}
                 setFormulario={setFormulario}
+                readOnly={esVista}
               />
             </div>
 
@@ -257,6 +383,7 @@ export default function NuevaInvestigacion({
               <Identificacion
                 formulario={formulario}
                 setFormulario={setFormulario}
+                readOnly={esVista}
               />
             </div>
 
@@ -264,6 +391,7 @@ export default function NuevaInvestigacion({
               <Descripcion
                 formulario={formulario}
                 setFormulario={setFormulario}
+                readOnly={esVista}
               />
             </div>
 
@@ -271,6 +399,7 @@ export default function NuevaInvestigacion({
               <AccionesInmediatas
                 formulario={formulario}
                 setFormulario={setFormulario}
+                readOnly={esVista}
               />
             </div>
 
@@ -278,6 +407,7 @@ export default function NuevaInvestigacion({
               <ArbolCausas
                 formulario={formulario}
                 setFormulario={setFormulario}
+                readOnly={esVista}
               />
             </div>
 
@@ -285,15 +415,17 @@ export default function NuevaInvestigacion({
               <PlanAccion
                 formulario={formulario}
                 setFormulario={setFormulario}
+                readOnly={esVista}
               />
             </div>
           </section>
         </div>
 
+        {/* FOOTER */}
         <div className="wizard-footer">
           <button
             className="btn-secondary"
-            disabled={pasoActual === 0}
+            disabled={pasoActual === 0 || esVista}
             onClick={() => setPasoActual(pasoActual - 1)}
           >
             ← Anterior
@@ -303,6 +435,7 @@ export default function NuevaInvestigacion({
             <button
               className="btn-primary"
               onClick={() => setPasoActual(pasoActual + 1)}
+              disabled={esVista}
             >
               Siguiente →
             </button>
@@ -310,12 +443,77 @@ export default function NuevaInvestigacion({
             <button
               className="btn-primary"
               onClick={guardarTF}
+              disabled={esVista}
             >
-              {investigacionId ? "Actualizar TF" : "Guardar TF"}
+              {mode === 'create' ? 'Guardar TF' : 'Actualizar TF'}
             </button>
           )}
         </div>
+
       </div>
+
+      {/* ESTILOS ADICIONALES PARA EL HEADER */}
+      <style>{`
+        .page-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 24px;
+          padding-bottom: 16px;
+          border-bottom: 2px solid #E5E7EB;
+          flex-wrap: wrap;
+          gap: 12px;
+        }
+
+        .page-header-left {
+          flex: 1;
+        }
+
+        .page-header-center {
+          flex: 2;
+          text-align: center;
+        }
+
+        .page-header-center h1 {
+          margin: 0;
+          color: #1F2937;
+          font-size: 24px;
+        }
+
+        .page-header-center p {
+          margin: 4px 0 0 0;
+          color: #6B7280;
+          font-size: 14px;
+        }
+
+        .page-header-right {
+          flex: 1;
+          display: flex;
+          justify-content: flex-end;
+          align-items: center;
+        }
+
+        @media (max-width: 768px) {
+          .page-header {
+            flex-direction: column;
+            align-items: stretch;
+            text-align: center;
+          }
+
+          .page-header-left {
+            text-align: left;
+          }
+
+          .page-header-right {
+            justify-content: center;
+          }
+
+          .page-header-center h1 {
+            font-size: 20px;
+          }
+        }
+      `}</style>
+
     </Layout>
   );
 }
