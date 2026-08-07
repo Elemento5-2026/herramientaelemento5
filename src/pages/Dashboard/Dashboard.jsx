@@ -61,7 +61,6 @@ export default function Dashboard({ setScreen }) {
   // 1. KPIs - Incidentes por tipo
   // ============================================
   async function cargarKPIs() {
-    // Obtener incidentes del mes actual
     const hoy = new Date();
     const primerDia = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
     const primerDiaStr = primerDia.toISOString().split('T')[0];
@@ -81,7 +80,6 @@ export default function Dashboard({ setScreen }) {
       return;
     }
 
-    // Contar por tipo
     const conteo = {
       SPT: 0,
       CPT: 0,
@@ -113,18 +111,15 @@ export default function Dashboard({ setScreen }) {
     const hoy = new Date();
     const meses = [];
     
-    // Obtener últimos 6 meses
     for (let i = 5; i >= 0; i--) {
       const fecha = new Date(hoy.getFullYear(), hoy.getMonth() - i, 1);
       const mes = fecha.toLocaleString('es', { month: 'short' });
       const año = fecha.getFullYear();
       const key = `${año}-${String(fecha.getMonth() + 1).padStart(2, '0')}`;
       
-      // Primer día del mes
       const primerDia = new Date(fecha.getFullYear(), fecha.getMonth(), 1);
       const primerDiaStr = primerDia.toISOString().split('T')[0];
       
-      // Último día del mes
       const ultimoDia = new Date(fecha.getFullYear(), fecha.getMonth() + 1, 0);
       const ultimoDiaStr = ultimoDia.toISOString().split('T')[0];
       
@@ -180,17 +175,26 @@ export default function Dashboard({ setScreen }) {
   }
 
   // ============================================
-  // 4. Acciones del plan de acción
+  // 4. Acciones Vencidas
   // ============================================
   async function cargarAcciones() {
-    // Obtener todas las acciones del plan de acción
     const { data, error } = await supabase
       .from("investigaciones_plan_accion")
       .select(`
         *,
         investigaciones (
           id,
-          codigo_controlado
+          codigo_controlado,
+          incidentes (
+            id,
+            catalogo_direcciones (
+              nombre
+            ),
+            catalogo_sedes (
+              nombre
+            ),
+            seccion
+          )
         )
       `);
 
@@ -206,64 +210,47 @@ export default function Dashboard({ setScreen }) {
     let vencidas = 0;
     let finalizadas = 0;
 
-    // Procesar acciones
-    const accionesPorResponsable = {};
+    const accionesVencidas = [];
 
     data?.forEach(accion => {
-      const responsable = accion.responsable || 'Sin asignar';
       const fechaInicio = accion.fecha_inicio ? new Date(accion.fecha_inicio) : null;
       const fechaPropuesta = accion.fecha_propuesta ? new Date(accion.fecha_propuesta) : null;
       const fechaFin = accion.fecha_fin ? new Date(accion.fecha_fin) : null;
 
-      // Inicializar contador del responsable
-      if (!accionesPorResponsable[responsable]) {
-        accionesPorResponsable[responsable] = {
-          abiertas: 0,
-          vencidas: 0,
-          finalizadas: 0
-        };
+      const incidente = accion.investigaciones?.incidentes;
+      let area = '-';
+      if (incidente) {
+        area = incidente.seccion || incidente.catalogo_sedes?.nombre || incidente.catalogo_direcciones?.nombre || '-';
       }
 
-      // Clasificar acción
       if (fechaFin) {
-        // Finalizada
         finalizadas++;
-        accionesPorResponsable[responsable].finalizadas++;
       } else if (fechaInicio && fechaPropuesta) {
-        // En proceso - verificar si está vencida
         if (hoy > fechaPropuesta) {
           vencidas++;
-          accionesPorResponsable[responsable].vencidas++;
+          accionesVencidas.push({
+            id: accion.id,
+            accion: accion.que_hacer || 'Sin descripción',
+            area: area,
+            responsable: accion.responsable || 'Sin asignar',
+            fechaPropuesta: fechaPropuesta,
+            diasVencidos: Math.floor((hoy - fechaPropuesta) / (1000 * 60 * 60 * 24)),
+            investigacion: accion.investigaciones?.codigo_controlado || '-'
+          });
         } else {
           abiertas++;
-          accionesPorResponsable[responsable].abiertas++;
         }
       } else if (fechaInicio && !fechaPropuesta) {
-        // En proceso sin fecha propuesta
         abiertas++;
-        accionesPorResponsable[responsable].abiertas++;
       } else {
-        // Pendiente (sin fecha inicio)
         abiertas++;
-        accionesPorResponsable[responsable].abiertas++;
       }
     });
 
-    // Convertir a array y ordenar por acciones abiertas (mayor a menor)
-    const accionesArray = Object.keys(accionesPorResponsable).map(responsable => ({
-      responsable,
-      abiertas: accionesPorResponsable[responsable].abiertas || 0,
-      vencidas: accionesPorResponsable[responsable].vencidas || 0,
-      finalizadas: accionesPorResponsable[responsable].finalizadas || 0,
-      total: (accionesPorResponsable[responsable].abiertas || 0) + 
-             (accionesPorResponsable[responsable].vencidas || 0) + 
-             (accionesPorResponsable[responsable].finalizadas || 0)
-    }));
-
-    accionesArray.sort((a, b) => b.abiertas - a.abiertas);
+    accionesVencidas.sort((a, b) => b.diasVencidos - a.diasVencidos);
 
     setResumenAcciones({ abiertas, vencidas, finalizadas });
-    setAccionesData(accionesArray);
+    setAccionesData(accionesVencidas);
   }
 
   // ============================================
@@ -331,7 +318,6 @@ export default function Dashboard({ setScreen }) {
             subtitle="Este mes"
             icon="🔧"
             color="#3B82F6"
-            onClick={() => console.log('Filtrar por SPT')}
           />
           <StatCard
             title="CPT"
@@ -339,7 +325,6 @@ export default function Dashboard({ setScreen }) {
             subtitle="Este mes"
             icon="🛠️"
             color="#10B981"
-            onClick={() => console.log('Filtrar por CPT')}
           />
           <StatCard
             title="PA"
@@ -347,7 +332,6 @@ export default function Dashboard({ setScreen }) {
             subtitle="Este mes"
             icon="⚡"
             color="#F59E0B"
-            onClick={() => console.log('Filtrar por PA')}
           />
           <StatCard
             title="CMD"
@@ -355,7 +339,6 @@ export default function Dashboard({ setScreen }) {
             subtitle="Este mes"
             icon="📋"
             color="#EF4444"
-            onClick={() => console.log('Filtrar por CMD')}
           />
         </div>
 
@@ -427,11 +410,11 @@ export default function Dashboard({ setScreen }) {
         </div>
 
         {/* ============================================
-            FILA 4: Acciones
+            FILA 4: Acciones Vencidas
         ============================================ */}
         <div className="dashboard-card">
           <div className="dashboard-card-header">
-            <h3>📌 Acciones del plan</h3>
+            <h3>⏰ Acciones vencidas</h3>
             <div className="dashboard-acciones-resumen">
               <span className="accion-badge abierta">🟡 {resumenAcciones.abiertas} abiertas</span>
               <span className="accion-badge vencida">🔴 {resumenAcciones.vencidas} vencidas</span>
@@ -440,31 +423,48 @@ export default function Dashboard({ setScreen }) {
           </div>
 
           {accionesData.length === 0 ? (
-            <p className="dashboard-empty">No hay acciones registradas.</p>
+            <p className="dashboard-empty">✅ No hay acciones vencidas. ¡Excelente!</p>
           ) : (
             <div className="dashboard-table-wrap">
               <table className="dashboard-table">
                 <thead>
                   <tr>
+                    <th>Acción</th>
+                    <th>Área</th>
                     <th>Responsable</th>
-                    <th>Abiertas</th>
-                    <th>Vencidas</th>
-                    <th>Finalizadas</th>
-                    <th>Total</th>
+                    <th>Días vencidos</th>
+                    <th>Investigación</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {accionesData.slice(0, 10).map((item, index) => (
-                    <tr key={index}>
+                  {accionesData.slice(0, 15).map((item, index) => (
+                    <tr key={item.id || index}>
+                      <td>
+                        <span className="accion-text" title={item.accion}>
+                          {item.accion.length > 60 ? item.accion.substring(0, 60) + '...' : item.accion}
+                        </span>
+                      </td>
+                      <td><span className="area-badge">{item.area}</span></td>
                       <td><strong>{item.responsable}</strong></td>
-                      <td className="text-abiertas">{item.abiertas}</td>
-                      <td className="text-vencidas">{item.vencidas}</td>
-                      <td className="text-finalizadas">{item.finalizadas}</td>
-                      <td>{item.total}</td>
+                      <td>
+                        <span className="dias-vencidos">
+                          🔴 {item.diasVencidos} {item.diasVencidos === 1 ? 'día' : 'días'}
+                        </span>
+                      </td>
+                      <td>
+                        <span className="investigacion-link">
+                          {item.investigacion}
+                        </span>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              {accionesData.length > 15 && (
+                <p className="dashboard-ver-mas">
+                  ... y {accionesData.length - 15} acciones vencidas más
+                </p>
+              )}
             </div>
           )}
         </div>
