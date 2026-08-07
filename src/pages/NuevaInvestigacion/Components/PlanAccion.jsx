@@ -15,7 +15,7 @@ export default function PlanAccion({
       responsable: '',
       fecha_inicio: '',
       fecha_fin: '',
-      fecha_propuesta: '',  // 🔥 NUEVO
+      fecha_propuesta: '',
       evidencia: null
     }];
     setFormulario({ ...formulario, plan_accion: nuevasAcciones });
@@ -99,7 +99,7 @@ export default function PlanAccion({
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>Fecha de inicio</label>
+                  <label>📅 Fecha inicio</label>
                   <input
                     type="date"
                     value={accion.fecha_inicio || ''}
@@ -108,9 +108,8 @@ export default function PlanAccion({
                   />
                 </div>
 
-                {/* 🔥 NUEVO: Fecha Propuesta */}
                 <div className="form-group">
-                  <label>Fecha propuesta de cierre</label>
+                  <label>📅 Fecha propuesta</label>
                   <input
                     type="date"
                     value={accion.fecha_propuesta || ''}
@@ -123,13 +122,16 @@ export default function PlanAccion({
                 </div>
 
                 <div className="form-group">
-                  <label>Fecha de cierre</label>
+                  <label>📅 Fecha cierre</label>
                   <input
                     type="date"
                     value={accion.fecha_fin || ''}
                     onChange={(e) => actualizarAccion(index, 'fecha_fin', e.target.value)}
                     disabled={readOnly}
                   />
+                  <small className="help-text">
+                    Fecha real de cierre (se completa al finalizar)
+                  </small>
                 </div>
               </div>
 
