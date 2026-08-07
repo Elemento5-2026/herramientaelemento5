@@ -14,7 +14,8 @@ export default function Investigaciones({
   setScreen,
   setInvestigacionSeleccionada,
   setInvestigacionModo,
-  navegarAInvestigacion
+  navegarAInvestigacion,
+  navegarADetalleInvestigacion
 
 }) {
 
@@ -68,11 +69,16 @@ export default function Investigaciones({
   }, []);
 
   // ============================================
-  // NUEVO: Manejador para abrir investigación
+  // Manejador para abrir investigación
   // ============================================
   const handleAbrirInvestigacion = (row) => {
-    const modo = (row.estado === 'Aprobado' || row.estado === 'Cerrado') ? 'view' : 'edit';
-    navegarAInvestigacion(row.id, modo);
+    // Si está Aprobado o Cerrado, abrir detalle (solo lectura con PDF)
+    if (row.estado === 'Aprobado' || row.estado === 'Cerrado') {
+      navegarADetalleInvestigacion(row.id);
+    } else {
+      // Si está Borrador o En revisión, abrir en modo edición
+      navegarAInvestigacion(row.id, 'edit');
+    }
   };
 
   // Configuración de columnas para el DataTable
