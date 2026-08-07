@@ -12,7 +12,9 @@ import "./Investigaciones.css";
 export default function Investigaciones({
 
   setScreen,
-  setInvestigacionSeleccionada
+  setInvestigacionSeleccionada,
+  setInvestigacionModo,
+  navegarAInvestigacion
 
 }) {
 
@@ -65,6 +67,14 @@ export default function Investigaciones({
 
   }, []);
 
+  // ============================================
+  // NUEVO: Manejador para abrir investigación
+  // ============================================
+  const handleAbrirInvestigacion = (row) => {
+    const modo = (row.estado === 'Aprobado' || row.estado === 'Cerrado') ? 'view' : 'edit';
+    navegarAInvestigacion(row.id, modo);
+  };
+
   // Configuración de columnas para el DataTable
   const columns = [
     {
@@ -79,8 +89,7 @@ export default function Investigaciones({
           className="btn-link"
           onClick={(e) => {
             e.stopPropagation();
-            setInvestigacionSeleccionada(row.id);
-            setScreen("investigacionDetalle");
+            handleAbrirInvestigacion(row);
           }}
         >
           {row.codigo_controlado}
@@ -180,7 +189,11 @@ export default function Investigaciones({
 
             <button
               className="btn-primary"
-              onClick={() => setScreen("nuevaInvestigacion")}
+              onClick={() => {
+                setInvestigacionSeleccionada(null);
+                setInvestigacionModo('create');
+                setScreen("nuevaInvestigacion");
+              }}
             >
               ➕ Nueva investigación
             </button>
@@ -200,8 +213,7 @@ export default function Investigaciones({
           stickyHeader={true}
           maxHeight="550px"
           onRowClick={(row) => {
-            setInvestigacionSeleccionada(row.id);
-            setScreen("investigacionDetalle");
+            handleAbrirInvestigacion(row);
           }}
         />
 
