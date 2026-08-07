@@ -1,4 +1,3 @@
-
 import supabase from "../lib/supabase";
 
 /**
@@ -649,4 +648,51 @@ export async function obtenerInvestigacionPorId(id) {
 
   };
 
+}
+
+// ============================================
+// NUEVAS FUNCIONES PARA MANEJO DE ESTADOS
+// ============================================
+
+/**
+ * Actualiza el estado de una investigación
+ */
+export async function actualizarEstado(investigacionId, nuevoEstado) {
+  const { data, error } = await supabase
+    .from("investigaciones")
+    .update({ estado: nuevoEstado })
+    .eq("id", investigacionId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Valida si una transición de estado es válida
+ */
+export function validarTransicionEstado(estadoActual, nuevoEstado) {
+  const TRANSICIONES_VALIDAS = {
+    'Borrador': ['En revisión', 'Cerrado'],
+    'En revisión': ['Aprobado', 'Borrador'],
+    'Aprobado': ['Cerrado'],
+    'Cerrado': []
+  };
+
+  return TRANSICIONES_VALIDAS[estadoActual]?.includes(nuevoEstado) || false;
+}
+
+/**
+ * Obtiene el estado de una investigación por ID
+ */
+export async function obtenerEstadoInvestigacion(investigacionId) {
+  const { data, error } = await supabase
+    .from("investigaciones")
+    .select("estado")
+    .eq("id", investigacionId)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data?.estado || null;
 }
