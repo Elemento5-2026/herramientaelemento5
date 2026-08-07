@@ -67,7 +67,7 @@ export default function ReporteIncidentes({
   }
 
   // ============================================
-  // NUEVO: Manejador para Iniciar TF
+  // Manejador para Iniciar TF
   // ============================================
   async function handleIniciarTF(incidente) {
 
@@ -105,12 +105,17 @@ export default function ReporteIncidentes({
   }
 
   // ============================================
-  // NUEVO: Manejador para Abrir TF
+  // Manejador para Abrir TF (CORREGIDO)
   // ============================================
   const handleAbrirTF = (investigacionId, estado) => {
-    // Validar estado para determinar el modo
-    const modo = (estado === 'Aprobado' || estado === 'Cerrado') ? 'view' : 'edit';
-    navegarAInvestigacion(investigacionId, modo);
+    // Si está Aprobado o Cerrado, abrir en modo vista (InvestigacionDetalle)
+    if (estado === 'Aprobado' || estado === 'Cerrado') {
+      setInvestigacionSeleccionada(investigacionId);
+      setScreen("investigacionDetalle");
+    } else {
+      // Si está Borrador o En revisión, abrir en modo edición
+      navegarAInvestigacion(investigacionId, 'edit');
+    }
   };
 
   // Configuración de columnas para el DataTable
