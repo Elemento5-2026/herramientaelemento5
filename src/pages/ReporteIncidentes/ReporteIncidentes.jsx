@@ -16,7 +16,9 @@ export default function ReporteIncidentes({
 
   setScreen,
   setIncidenteSeleccionado,
-  setInvestigacionSeleccionada
+  setInvestigacionSeleccionada,
+  setInvestigacionModo,
+  navegarAInvestigacion
 
 }) {
 
@@ -64,7 +66,10 @@ export default function ReporteIncidentes({
 
   }
 
-  async function iniciarTF(incidente) {
+  // ============================================
+  // NUEVO: Manejador para Iniciar TF
+  // ============================================
+  async function handleIniciarTF(incidente) {
 
     if (!incidente.tipo_incidente_id) {
 
@@ -83,11 +88,8 @@ export default function ReporteIncidentes({
           incidente
         );
 
-      setInvestigacionSeleccionada(
-        investigacion.id
-      );
-
-      setScreen("nuevaInvestigacion");
+      // Usar la nueva función de navegación con mode="edit"
+      navegarAInvestigacion(investigacion.id, 'edit');
 
     } catch (error) {
 
@@ -101,6 +103,15 @@ export default function ReporteIncidentes({
     }
 
   }
+
+  // ============================================
+  // NUEVO: Manejador para Abrir TF
+  // ============================================
+  const handleAbrirTF = (investigacionId, estado) => {
+    // Validar estado para determinar el modo
+    const modo = (estado === 'Aprobado' || estado === 'Cerrado') ? 'view' : 'edit';
+    navegarAInvestigacion(investigacionId, modo);
+  };
 
   // Configuración de columnas para el DataTable
   const columns = [
@@ -204,8 +215,8 @@ export default function ReporteIncidentes({
             className="btn-link"
             onClick={(e) => {
               e.stopPropagation();
-              setInvestigacionSeleccionada(row.investigacion_id);
-              setScreen("investigacionDetalle");
+              // Usar el nuevo manejador con el estado de la investigación
+              handleAbrirTF(row.investigacion_id, row.estado || 'edit');
             }}
           >
             📂 Abrir TF
@@ -215,7 +226,7 @@ export default function ReporteIncidentes({
             className="btn-link"
             onClick={(e) => {
               e.stopPropagation();
-              iniciarTF(row);
+              handleIniciarTF(row);
             }}
           >
             📋 Iniciar TF
