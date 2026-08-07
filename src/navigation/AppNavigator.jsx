@@ -21,18 +21,24 @@ export default function AppNavigator() {
   const [incidenteSeleccionado, setIncidenteSeleccionado] =
     useState(null);
 
-  // ============================================
-  // NUEVO: Estado para el modo de investigación
-  // ============================================
+  // Estado para el modo de investigación
   const [investigacionModo, setInvestigacionModo] = useState('create'); // 'create' | 'edit' | 'view'
 
   // ============================================
-  // NUEVO: Función auxiliar para navegar a investigación
+  // NUEVO: Función para navegar a edición/creación
   // ============================================
   const navegarAInvestigacion = (investigacionId, modo = 'edit') => {
     setInvestigacionSeleccionada(investigacionId);
     setInvestigacionModo(modo);
     setScreen("nuevaInvestigacion");
+  };
+
+  // ============================================
+  // NUEVO: Función para navegar a detalle (solo lectura)
+  // ============================================
+  const navegarADetalleInvestigacion = (investigacionId) => {
+    setInvestigacionSeleccionada(investigacionId);
+    setScreen("investigacionDetalle");
   };
 
   switch (screen) {
@@ -52,6 +58,7 @@ export default function AppNavigator() {
           setInvestigacionSeleccionada={setInvestigacionSeleccionada}
           setInvestigacionModo={setInvestigacionModo}
           navegarAInvestigacion={navegarAInvestigacion}
+          navegarADetalleInvestigacion={navegarADetalleInvestigacion}
         />
       );
 
@@ -77,12 +84,10 @@ export default function AppNavigator() {
           setInvestigacionSeleccionada={setInvestigacionSeleccionada}
           setInvestigacionModo={setInvestigacionModo}
           navegarAInvestigacion={navegarAInvestigacion}
+          navegarADetalleInvestigacion={navegarADetalleInvestigacion}
         />
       );
 
-    // ============================================
-    // MODIFICADO: Ahora recibe mode
-    // ============================================
     case "nuevaInvestigacion":
       return (
         <NuevaInvestigacion
