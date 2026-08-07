@@ -209,7 +209,7 @@
 }
 
 /* ============================================
-   ACCIONES - Fila 4
+   ACCIONES VENCIDAS - Fila 4
    ============================================ */
 .dashboard-acciones-resumen {
   display: flex;
@@ -241,7 +241,7 @@
 }
 
 /* ============================================
-   TABLA DE ACCIONES
+   TABLA DE ACCIONES VENCIDAS
    ============================================ */
 .dashboard-table-wrap {
   overflow-x: auto;
@@ -275,19 +275,44 @@
   background: #f8fafc;
 }
 
-.dashboard-table .text-abiertas {
-  color: #d97706;
-  font-weight: 600;
+.accion-text {
+  font-size: 13px;
+  color: #0f172a;
+  line-height: 1.4;
+  cursor: help;
 }
 
-.dashboard-table .text-vencidas {
-  color: #dc2626;
-  font-weight: 600;
+.area-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  background: #f1f5f9;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #475569;
 }
 
-.dashboard-table .text-finalizadas {
-  color: #16a34a;
+.dias-vencidos {
   font-weight: 600;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.investigacion-link {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: #3b82f6;
+  font-weight: 500;
+}
+
+.dashboard-ver-mas {
+  text-align: center;
+  color: #94a3b8;
+  font-size: 13px;
+  padding: 8px 0 4px 0;
+  font-style: italic;
 }
 
 /* ============================================
@@ -384,6 +409,29 @@
   .dashboard-table td {
     padding: 8px 10px;
   }
+
+  .dashboard-table th,
+  .dashboard-table td {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+
+  .accion-text {
+    font-size: 12px;
+  }
+
+  .area-badge {
+    font-size: 11px;
+    padding: 1px 8px;
+  }
+
+  .dias-vencidos {
+    font-size: 12px;
+  }
+
+  .investigacion-link {
+    font-size: 11px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -416,11 +464,20 @@
   }
 
   .dashboard-table {
-    font-size: 12px;
+    font-size: 11px;
   }
 
   .dashboard-table th,
   .dashboard-table td {
-    padding: 6px 8px;
+    padding: 4px 6px;
+  }
+
+  .accion-text {
+    font-size: 11px;
+  }
+
+  .area-badge {
+    font-size: 10px;
+    padding: 1px 6px;
   }
 }
