@@ -105,7 +105,7 @@ export default function ReporteIncidentes({
   }
 
   // ============================================
-  // Manejador para Abrir TF (CORREGIDO)
+  // Manejador para Abrir TF
   // ============================================
   const handleAbrirTF = (investigacionId, estado) => {
     // Si está Aprobado o Cerrado, abrir detalle (solo lectura con PDF)
