@@ -1,6 +1,5 @@
 import React from 'react';
 
-
 export default function PlanAccionDetalle({ investigacion }) {
 
   const planAccion = investigacion?.plan_accion || [];
@@ -10,6 +9,20 @@ export default function PlanAccionDetalle({ investigacion }) {
       <div className="plan-accion-detalle">
         <h3>Plan de Acción</h3>
         <p className="empty-message">No hay acciones registradas.</p>
+        <style>{`
+          .plan-accion-detalle {
+            padding: 16px 0;
+          }
+          .plan-accion-detalle h3 {
+            margin-bottom: 16px;
+            color: #1e293b;
+          }
+          .empty-message {
+            text-align: center;
+            color: #94a3b8;
+            padding: 20px;
+          }
+        `}</style>
       </div>
     );
   }
@@ -21,7 +34,7 @@ export default function PlanAccionDetalle({ investigacion }) {
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
 
-    // Si tiene fecha_fin, está cerrada
+    // Si tiene fecha_fin (cierre), está cerrada
     if (accion.fecha_fin) {
       return {
         estado: 'Cerrada',
@@ -90,9 +103,9 @@ export default function PlanAccionDetalle({ investigacion }) {
               <th>Qué hacer</th>
               <th>Cómo</th>
               <th>Responsable</th>
-              <th>Inicio</th>
-              <th>Propuesta</th>
-              <th>Cierre</th>
+              <th>Fecha inicio</th>
+              <th>Fecha propuesta</th>
+              <th>Fecha cierre</th>
               <th>Estado</th>
             </tr>
           </thead>
