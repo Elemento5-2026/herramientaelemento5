@@ -21,6 +21,20 @@ export default function AppNavigator() {
   const [incidenteSeleccionado, setIncidenteSeleccionado] =
     useState(null);
 
+  // ============================================
+  // NUEVO: Estado para el modo de investigación
+  // ============================================
+  const [investigacionModo, setInvestigacionModo] = useState('create'); // 'create' | 'edit' | 'view'
+
+  // ============================================
+  // NUEVO: Función auxiliar para navegar a investigación
+  // ============================================
+  const navegarAInvestigacion = (investigacionId, modo = 'edit') => {
+    setInvestigacionSeleccionada(investigacionId);
+    setInvestigacionModo(modo);
+    setScreen("nuevaInvestigacion");
+  };
+
   switch (screen) {
 
     case "dashboard":
@@ -36,6 +50,8 @@ export default function AppNavigator() {
           setScreen={setScreen}
           setIncidenteSeleccionado={setIncidenteSeleccionado}
           setInvestigacionSeleccionada={setInvestigacionSeleccionada}
+          setInvestigacionModo={setInvestigacionModo}
+          navegarAInvestigacion={navegarAInvestigacion}
         />
       );
 
@@ -59,14 +75,20 @@ export default function AppNavigator() {
         <Investigaciones
           setScreen={setScreen}
           setInvestigacionSeleccionada={setInvestigacionSeleccionada}
+          setInvestigacionModo={setInvestigacionModo}
+          navegarAInvestigacion={navegarAInvestigacion}
         />
       );
 
+    // ============================================
+    // MODIFICADO: Ahora recibe mode
+    // ============================================
     case "nuevaInvestigacion":
       return (
         <NuevaInvestigacion
           setScreen={setScreen}
           investigacionId={investigacionSeleccionada}
+          mode={investigacionModo}
         />
       );
 
